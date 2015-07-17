@@ -9,7 +9,6 @@
        <mvc:resources mapping="/resources/images/*" location="/resources/images/"  cache-period="31556926"/>
 
 
-        <context:annotation-config />
         <context:component-scan base-package="ua.pp.fairwind.internalDBSystem" />
         <mvc:annotation-driven />
     <import resource="jpaContext.xml"></import>
