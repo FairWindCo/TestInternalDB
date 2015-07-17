@@ -1,4 +1,4 @@
-package ua.pp.fairwind.internalDBSystem.datamodel;
+package ua.pp.fairwind.internalDBSystem.datamodel.directories;
 
 /**
  * Created by Сергей on 16.07.2015.

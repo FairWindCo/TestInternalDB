@@ -1,0 +1,146 @@
+package ua.pp.fairwind.internalDBSystem.datamodel;
+
+import ua.pp.fairwind.internalDBSystem.datamodel.administrative.Category;
+import ua.pp.fairwind.internalDBSystem.datamodel.administrative.InfoType;
+import ua.pp.fairwind.internalDBSystem.datamodel.administrative.Subdivision;
+import ua.pp.fairwind.internalDBSystem.datamodel.administrative.User;
+import ua.pp.fairwind.internalDBSystem.datamodel.directories.DosserType;
+
+import javax.persistence.*;
+
+/**
+ * Created by Сергей on 17.07.2015.
+ */
+@Entity
+@Table(name = "DOSSIERS")
+public class Dosser {
+    @Id
+    @Column(name = "DOSSIER_ID")
+    @GeneratedValue
+    private Long dossierId;
+    private long creationTime;
+    @ManyToOne
+    private Person person;
+    @ManyToOne
+    private Subdivision subdivision;
+    @ManyToOne
+    private Category category;
+    @ManyToOne
+    private InfoType infotype;
+    private boolean confidential;
+    private String text;
+    @ManyToOne
+    private Files file;
+    @ManyToOne
+    private User createUser;
+    @ManyToOne
+    private Dosser parentDossierId;
+    @Enumerated(EnumType.ORDINAL)
+    private DosserType status;
+    @Version
+    private long version;
+
+    public Long getDossierId() {
+        return dossierId;
+    }
+
+    public void setDossierId(Long dossierId) {
+        this.dossierId = dossierId;
+    }
+
+    public long getCreationTime() {
+        return creationTime;
+    }
+
+    public void setCreationTime(long creationTime) {
+        this.creationTime = creationTime;
+    }
+
+    public Person getPerson() {
+        return person;
+    }
+
+    public void setPerson(Person person) {
+        this.person = person;
+    }
+
+    public Subdivision getSubdivision() {
+        return subdivision;
+    }
+
+    public void setSubdivision(Subdivision subdivision) {
+        this.subdivision = subdivision;
+    }
+
+    public Category getCategory() {
+        return category;
+    }
+
+    public void setCategory(Category category) {
+        this.category = category;
+    }
+
+    public InfoType getInfotype() {
+        return infotype;
+    }
+
+    public void setInfotype(InfoType infotype) {
+        this.infotype = infotype;
+    }
+
+    public boolean isConfidential() {
+        return confidential;
+    }
+
+    public void setConfidential(boolean confidential) {
+        this.confidential = confidential;
+    }
+
+    public String getText() {
+        return text;
+    }
+
+    public void setText(String text) {
+        this.text = text;
+    }
+
+    public Files getFile() {
+        return file;
+    }
+
+    public void setFile(Files file) {
+        this.file = file;
+    }
+
+    public User getCreateUser() {
+        return createUser;
+    }
+
+    public void setCreateUser(User createUser) {
+        this.createUser = createUser;
+    }
+
+    public Dosser getParentDossierId() {
+        return parentDossierId;
+    }
+
+    public void setParentDossierId(Dosser parentDossierId) {
+        this.parentDossierId = parentDossierId;
+    }
+
+    public DosserType getStatus() {
+        return status;
+    }
+
+    public void setStatus(DosserType status) {
+        this.status = status;
+    }
+
+    public long getVersion() {
+        return version;
+    }
+
+    public void setVersion(long version) {
+        this.version = version;
+    }
+}

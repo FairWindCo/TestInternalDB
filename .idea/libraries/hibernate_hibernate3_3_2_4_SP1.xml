@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="hibernate:hibernate3:3.2.4.SP1" type="repository">
+    <properties maven-id="hibernate:hibernate3:3.2.4.SP1" />
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/hibernate/hibernate3/3.2.4.SP1/hibernate3-3.2.4.SP1.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

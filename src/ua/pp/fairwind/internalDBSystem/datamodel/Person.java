@@ -1,19 +1,59 @@
 package ua.pp.fairwind.internalDBSystem.datamodel;
 
+import ua.pp.fairwind.internalDBSystem.datamodel.directories.Activities;
+import ua.pp.fairwind.internalDBSystem.datamodel.directories.Hobbies;
+import ua.pp.fairwind.internalDBSystem.datamodel.directories.PersonStatus;
+import ua.pp.fairwind.internalDBSystem.datamodel.directories.PersonType;
+
+import javax.persistence.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashSet;
 
 /**
  * Created by Сергей on 16.07.2015.
  */
+@Entity
+@Table(name = "PERSONS")
 public class Person {
+    @Id
+    @Column(name = "PERSON_ID",nullable = false)
+    @GeneratedValue
     private Long personId;
+    @Column(name = "FIO",nullable = false)
     private String FIO;
+    @Column(name = "PERSON_CODE")
     private String code;
+    @Column(name = "BIRTHDAY",nullable = false)
     private Long dateberthdey;
+    @Column(name = "PASSPORT_INFO")
     private String passportInfo;
+    @Column(name = "PERSON_STATUS",nullable = false)
+    @Enumerated(EnumType.ORDINAL)
     private PersonStatus personStatus;
+    @Column(name = "PERSON_TYPE",nullable = false)
+    @Enumerated(EnumType.ORDINAL)
     private PersonType personType;
+    @OneToOne(targetEntity = Files.class,cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    private Files photo;
+    @ManyToOne(targetEntity = Files.class,cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    private HashSet<Files> files=new HashSet<>();
+    @ManyToOne(targetEntity = Contact.class,cascade = CascadeType.ALL,fetch = FetchType.EAGER)
+    private HashSet<Contact> contacts=new HashSet<>();
+    @OneToMany(fetch = FetchType.EAGER)
+    private Hobbies hobbie;
+    @Column(name = "hobbies")
+    private String hobbiesComments;
+    @OneToMany(fetch = FetchType.EAGER)
+    private Activities activities;
+    @Column(name = "activities")
+    private String activitiesComments;
+
+    private long createdTime;
+    private long lastModifyTime;
+
+    @Version
+    private long version;
 
     public Long getPersonId() {
         return personId;
@@ -24,6 +64,7 @@ public class Person {
     }
 
     public Person() {
+        createdTime=System.currentTimeMillis();
     }
 
     public Person(String FIO) {
@@ -33,6 +74,7 @@ public class Person {
         this.code=Integer.toString((int) (Math.random() * 1234546));
         this.personStatus=PersonStatus.ACTIVE;
         this.personType=PersonType.CLIENT;
+        createdTime=System.currentTimeMillis();
     }
 
     public String getFIO() {
