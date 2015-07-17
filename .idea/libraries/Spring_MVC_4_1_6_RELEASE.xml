@@ -3,8 +3,8 @@
     <properties version="4.1.6.RELEASE" />
     <CLASSES>
       <root url="jar://$PROJECT_DIR$/lib/spring-webmvc-portlet-4.1.6.RELEASE.jar!/" />
-      <root url="jar://$PROJECT_DIR$/lib/spring-webmvc-4.1.6.RELEASE.jar!/" />
       <root url="jar://$PROJECT_DIR$/lib/spring-web-4.1.6.RELEASE.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/spring-webmvc-4.1.6.RELEASE.jar!/" />
       <root url="jar://$PROJECT_DIR$/lib/spring-websocket-4.1.6.RELEASE.jar!/" />
     </CLASSES>
     <JAVADOC />

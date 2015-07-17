@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="org.apache.commons:com.springsource.org.apache.commons.dbcp:1.2.2.osgi" type="repository">
+    <properties maven-id="org.apache.commons:com.springsource.org.apache.commons.dbcp:1.2.2.osgi" />
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/apache/commons/com.springsource.org.apache.commons.dbcp/1.2.2.osgi/com.springsource.org.apache.commons.dbcp-1.2.2.osgi.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/org/apache/commons/com.springsource.org.apache.commons.pool/1.3.0/com.springsource.org.apache.commons.pool-1.3.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
