@@ -58,6 +58,7 @@
               <property name="sessionFactory" ref="sessionFactory" />
        </bean>
 
+       <tx:annotation-driven  transaction-manager="transactionManager"/>
 
        <jpa:repositories base-package="ua.pp.fairwind.internalDBSystem.services.repository"
                          entity-manager-factory-ref="entityManagerFactory"

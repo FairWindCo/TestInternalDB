@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <persistence xmlns="http://xmlns.jcp.org/xml/ns/persistence" version="2.1">
-<persistence-unit name="internalDB">
+<persistence-unit name="internalDB" transaction-type="RESOURCE_LOCAL">
     <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
     <class>ua.pp.fairwind.internalDBSystem.datamodel.directories.FilesType</class>
 </persistence-unit>
