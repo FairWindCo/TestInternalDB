@@ -2,7 +2,7 @@ package ua.pp.fairwind.internalDBSystem.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -13,7 +13,6 @@ import ua.pp.fairwind.internalDBSystem.services.PersonService;
 import ua.pp.fairwind.internalDBSystem.services.repository.FileTypeRepository;
 
 import javax.annotation.Resource;
-import javax.transaction.Transactional;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -32,7 +31,7 @@ public class PersonController {
     @Resource(name="personService")
     private PersonService personService;
 
-    @Transactional
+    @Transactional(readOnly = false)
     @RequestMapping(value = "/all", method = RequestMethod.GET)
     public String getPersons(Model model) {
 

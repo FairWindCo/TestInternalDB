@@ -1,63 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:mvc="http://www.springframework.org/schema/mvc"
-       xmlns:context="http://www.springframework.org/schema/context" xmlns:tx="http://www.springframework.org/schema/tx"
-       xmlns:jpa="http://www.springframework.org/schema/data/jpa"
-       xmlns:jdbc="http://www.springframework.org/schema/jdbc"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd http://www.springframework.org/schema/data/jpa http://www.springframework.org/schema/data/jpa/spring-jpa.xsd http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc.xsd http://www.springframework.org/schema/data/repository         http://www.springframework.org/schema/data/repository/spring-repository-1.5.xsd">
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
        <mvc:resources mapping="/resources/**" location="/resources/"  cache-period="31556926"/>
        <mvc:resources mapping="/images/*" location="/images/"  cache-period="31556926"/>
        <mvc:resources mapping="/resources/images/*" location="/resources/images/"  cache-period="31556926"/>
 
 
-        <context:component-scan base-package="ua.pp.fairwind.internalDBSystem" />
         <mvc:annotation-driven />
-    <!--<import resource="jpaContext.xml"></import>-->
-    <jdbc:embedded-database id="dataSource" type="HSQL">
 
-    </jdbc:embedded-database>
-
-
-    <bean id="sessionFactory"
-          class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
-        <property name="dataSource" ref="dataSource" />
-        <property name="hibernateProperties">
-            <props>
-                <prop key="hibernate.hbm2ddl.auto">update</prop>
-                <prop key="hibernate.dialect">org.hibernate.dialect.HSQLDialect</prop>
-            </props>
-        </property>
-    </bean>
-
-    <bean id="jpaVendorAdapter" class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
-        <property name="showSql" value="true"/>
-        <property name="generateDdl" value="true"/>
-        <property name="database" value="HSQL"/>
-    </bean>
-
-    <bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
-        <property name="persistenceXmlLocation" value="/WEB-INF/persistence.xml"/>
-        <property name="persistenceUnitName" value="internalDB"/>
-        <property name="dataSource" ref="dataSource"/>
-        <property name="jpaVendorAdapter" ref="jpaVendorAdapter"/>
-        <!-- spring based scanning for entity classes>-->
-        <property name="packagesToScan" value="ua.pp.fairwind.internalDBSystem.datamodel"/>
-
-    </bean>
-
-    <!-- Enables the Hibernate @Transactional programming model -->
-    <tx:annotation-driven transaction-manager="transactionManager" />
-
-    <bean id="transactionManager"
-          class="org.springframework.orm.hibernate4.HibernateTransactionManager">
-        <property name="sessionFactory" ref="sessionFactory" />
-    </bean>
-
-    <tx:annotation-driven  transaction-manager="transactionManager"/>
-
-    <jpa:repositories base-package="ua.pp.fairwind.internalDBSystem.services.repository"
-                      entity-manager-factory-ref="entityManagerFactory"
-                      transaction-manager-ref="transactionManager">
-    </jpa:repositories>
+    <import resource="jpaContext.xml"></import>
 </beans>
