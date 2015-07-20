@@ -4,6 +4,7 @@ import ua.pp.fairwind.internalDBSystem.datamodel.directories.Segments;
 
 import javax.persistence.*;
 import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Created by Сергей on 17.07.2015.
@@ -15,9 +16,10 @@ public class ClientAdditionalInfo {
     @GeneratedValue
     private Long id;
     @OneToMany
-    private HashSet<RelationDegrees> relationDegrees=new HashSet<>();
+    private Set<RelationDegrees> relationDegrees=new HashSet<>();
     private String clientColorCODE;
     private String clientColorComments;
+    @ManyToOne
     private Segments clientSegment;
     @Version
     private long version;
@@ -62,7 +64,7 @@ public class ClientAdditionalInfo {
         this.version = version;
     }
 
-    public HashSet<RelationDegrees> getRelationDegrees() {
+    public Set<RelationDegrees> getRelationDegrees() {
         return relationDegrees;
     }
 

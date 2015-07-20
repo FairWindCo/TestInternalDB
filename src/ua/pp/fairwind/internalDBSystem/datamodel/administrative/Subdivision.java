@@ -1,10 +1,8 @@
 package ua.pp.fairwind.internalDBSystem.datamodel.administrative;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Created by Сергей on 17.07.2015.
@@ -16,6 +14,9 @@ public class Subdivision {
     @GeneratedValue
     Long subdivisionId;
     String name;
-    HashSet<Category> categories=new HashSet<>();
+    @OneToMany
+    Set<Category> categories=new HashSet<>();
     long versionid;
+
+
 }

@@ -16,6 +16,8 @@
           <element id="library" level="project" name="org.hsqldb:hsqldb:2.3.2" />
           <element id="library" level="project" name="org.hibernate:hibernate-entitymanager:4.3.10.Final" />
           <element id="library" level="project" name="org.springframework.data:spring-data-jpa:1.8.1.RELEASE" />
+          <element id="library" level="project" name="org.springframework.data:spring-data-commons:1.10.1.RELEASE" />
+          <element id="library" level="project" name="querydsl-apt-3.6.5" />
         </element>
       </element>
     </root>

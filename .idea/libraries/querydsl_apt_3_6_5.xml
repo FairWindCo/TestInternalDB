@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="querydsl-apt-3.6.5">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/special_lib/querydsl-apt-3.6.5.jar!/" />
+      <root url="jar://$PROJECT_DIR$/special_lib/querydsl-codegen-3.6.5.jar!/" />
+      <root url="jar://$PROJECT_DIR$/special_lib/querydsl-core-3.6.5.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

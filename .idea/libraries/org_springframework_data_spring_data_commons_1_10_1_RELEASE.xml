@@ -1,0 +1,14 @@
+<component name="libraryTable">
+  <library name="org.springframework.data:spring-data-commons:1.10.1.RELEASE" type="repository">
+    <properties maven-id="org.springframework.data:spring-data-commons:1.10.1.RELEASE" />
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/springframework/data/spring-data-commons/1.10.1.RELEASE/spring-data-commons-1.10.1.RELEASE.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/javax/servlet/javax.servlet-api/3.0.1/javax.servlet-api-3.0.1.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/com/google/guava/guava/18.0/guava-18.0.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/com/infradna/tool/bridge-method-annotation/1.13/bridge-method-annotation-1.13.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/org/eclipse/jdt/core/compiler/ecj/4.3.1/ecj-4.3.1.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

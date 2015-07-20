@@ -2,6 +2,7 @@ package ua.pp.fairwind.internalDBSystem.datamodel.administrative;
 
 import javax.persistence.*;
 import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Created by Сергей on 17.07.2015.
@@ -16,9 +17,9 @@ public class Category {
     @Column(name = "NAME",columnDefinition = "file record id")
     String name;
     @ManyToMany
-    HashSet<Subdivision> subdivision =new HashSet<>();
+    Set<Subdivision> subdivision =new HashSet<>();
     @OneToMany
-    HashSet<InfoType> infoTypes=new HashSet<>();
+    Set<InfoType> infoTypes=new HashSet<>();
     @Version
     long versionid;
 
@@ -38,7 +39,7 @@ public class Category {
         this.name = name;
     }
 
-    public HashSet<Subdivision> getSubdivision() {
+    public Set<Subdivision> getSubdivision() {
         return subdivision;
     }
 
@@ -50,7 +51,7 @@ public class Category {
         this.subdivision.remove(subdivision);
     }
 
-    public HashSet<InfoType> getInfoTypes() {
+    public Set<InfoType> getInfoTypes() {
         return infoTypes;
     }
 

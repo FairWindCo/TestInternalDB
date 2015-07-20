@@ -13,9 +13,9 @@ public class RelationDegrees {
     @Id
     @GeneratedValue
     private Long id;
-    @OneToMany
+    @ManyToOne
     private Person person;
-    @OneToMany
+    @ManyToOne
     private Relatives relatives;
     @Version
     private long version;

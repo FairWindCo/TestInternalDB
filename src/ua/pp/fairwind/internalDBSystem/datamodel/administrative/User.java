@@ -2,6 +2,7 @@ package ua.pp.fairwind.internalDBSystem.datamodel.administrative;
 
 import javax.persistence.*;
 import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Created by Сергей on 17.07.2015.
@@ -22,9 +23,9 @@ public class User {
     @Column(name = "ENABLED")
     private boolean enabled;
     @OneToMany(fetch = FetchType.EAGER)
-    private HashSet<Roles> userRoles;
+    private Set<Roles> userRoles;
     @OneToMany(fetch = FetchType.EAGER)
-    private HashSet<Subdivision> grantedSubdivisions;
+    private Set<Subdivision> grantedSubdivisions;
 
     public Long getUserID() {
         return userID;
@@ -66,7 +67,7 @@ public class User {
         this.FIO = FIO;
     }
 
-    public HashSet<Roles> getUserRoles() {
+    public Set<Roles> getUserRoles() {
         return userRoles;
     }
 

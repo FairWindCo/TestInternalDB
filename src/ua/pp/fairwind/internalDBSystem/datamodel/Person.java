@@ -9,6 +9,7 @@ import javax.persistence.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Created by Сергей on 16.07.2015.
@@ -36,15 +37,15 @@ public class Person {
     private PersonType personType;
     @OneToOne(targetEntity = Files.class,cascade = CascadeType.ALL,fetch = FetchType.LAZY)
     private Files photo;
-    @ManyToOne(targetEntity = Files.class,cascade = CascadeType.ALL,fetch = FetchType.LAZY)
-    private HashSet<Files> files=new HashSet<>();
-    @ManyToOne(targetEntity = Contact.class,cascade = CascadeType.ALL,fetch = FetchType.EAGER)
-    private HashSet<Contact> contacts=new HashSet<>();
-    @OneToMany(fetch = FetchType.EAGER)
+    @OneToMany(targetEntity = Files.class,cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    private Set<Files> files=new HashSet<>();
+    @OneToMany(targetEntity = Contact.class,cascade = CascadeType.ALL,fetch = FetchType.EAGER)
+    private Set<Contact> contacts=new HashSet<>();
+    @ManyToOne(fetch = FetchType.EAGER)
     private Hobbies hobbie;
     @Column(name = "hobbies")
     private String hobbiesComments;
-    @OneToMany(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER)
     private Activities activities;
     @Column(name = "activities")
     private String activitiesComments;

@@ -16,7 +16,7 @@ public class Contact {
     private Long contactId;
     @Column(name = "CONTACT_TEXT",columnDefinition = "the contact text or value, like phone or email")
     private String value;
-    @Column(name = "CONTACT_TYPE_ID",columnDefinition = "the id of contact type")
+    @ManyToOne
     private ContactType contactType;
     @Version
     private long version;
