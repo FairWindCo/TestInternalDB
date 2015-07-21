@@ -6,9 +6,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import ua.pp.fairwind.internalDBSystem.datamodel.Person;
 import ua.pp.fairwind.internalDBSystem.datamodel.directories.FilesType;
+import ua.pp.fairwind.internalDBSystem.dateTable.JSTableExpenseListResp;
 import ua.pp.fairwind.internalDBSystem.services.PersonService;
 import ua.pp.fairwind.internalDBSystem.services.repository.FileTypeRepository;
 
@@ -67,6 +69,20 @@ public class PersonController {
         List<Person> persons = personService.getAll();
 
         return persons;
+    }
+
+    @RequestMapping(value = "/list2", method = RequestMethod.POST)
+    @ResponseBody
+    public JSTableExpenseListResp<Person> getAllPersonsJS(Model model,@RequestParam int jtStartIndex, @RequestParam int jtPageSize) {
+
+        logger.log(Level.INFO,"Received request to show "+jtPageSize+" persons from"+jtStartIndex);
+
+        // Retrieve all persons by delegating the call to PersonService
+
+
+        List<Person> persons = personService.getAll();
+
+        return new JSTableExpenseListResp<Person>(persons,persons.size());
     }
 
 }

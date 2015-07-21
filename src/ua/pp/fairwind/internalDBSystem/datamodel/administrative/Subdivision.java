@@ -14,7 +14,7 @@ public class Subdivision {
     @GeneratedValue
     Long subdivisionId;
     String name;
-    @OneToMany
+    @ManyToMany(mappedBy = "subdivision")
     Set<Category> categories=new HashSet<>();
     long versionid;
 
