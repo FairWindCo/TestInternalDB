@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -34,6 +35,7 @@ public class FileTypeController {
         return "filetypetable";
     }
 
+    @Transactional(readOnly = true)
     @RequestMapping(value = "/listedit", method = RequestMethod.POST)
     @ResponseBody
     public JSTableExpenseListResp<FilesType> getAllFileTypesSortSearch(Model model,@RequestParam int jtStartIndex, @RequestParam int jtPageSize, @RequestParam(required = false) String jtSorting,@RequestParam(required = false) String searchname) {
@@ -56,7 +58,7 @@ public class FileTypeController {
         }
         return new JSTableExpenseListResp<FilesType>(page);
     }
-
+    @Transactional(readOnly = true)
     @RequestMapping(value = "/lists", method = RequestMethod.POST)
     @ResponseBody
     public JSTableExpenseListResp<FilesType> getAllFileTypesSort(Model model,@RequestParam int jtStartIndex, @RequestParam int jtPageSize, @RequestParam(required = false) String jtSorting) {
@@ -73,7 +75,7 @@ public class FileTypeController {
         }
         return new JSTableExpenseListResp<FilesType>(page);
     }
-
+    @Transactional(readOnly = false)
     /*CRUD operation - Add*/
     @RequestMapping(value = "/addfiletype", method = RequestMethod.POST)
     @ResponseBody
@@ -90,7 +92,7 @@ public class FileTypeController {
         }
         return jsonJtableResponse;
     }
-
+    @Transactional(readOnly = false)
     /*CRUD operation - Update */
     @RequestMapping(value = "/updatefiletype", method = RequestMethod.POST)
     @ResponseBody
@@ -108,7 +110,7 @@ public class FileTypeController {
         }
         return jsonJtableResponse;
     }
-
+    @Transactional(readOnly = false)
     /*CRUD operation - Delete */
     @RequestMapping(value = "/deletefiletype", method = RequestMethod.POST)
     @ResponseBody

@@ -14,7 +14,7 @@ public class User {
     @Column(name = "USER_ID")
     @GeneratedValue
     private Long userID;
-    @Column(name = "USERNAME")
+    @Column(name = "USERNAME",nullable = false)
     private String userName;
     @Column(name = "FIO")
     private String FIO;
@@ -22,10 +22,15 @@ public class User {
     private String passwordHash;
     @Column(name = "ENABLED")
     private boolean enabled;
-    @OneToMany(fetch = FetchType.EAGER)
-    private Set<Roles> userRoles;
-    @OneToMany(fetch = FetchType.EAGER)
-    private Set<Subdivision> grantedSubdivisions;
+    @ManyToMany(fetch = FetchType.EAGER)
+    private Set<Roles> userRoles=new HashSet<>();
+    @ManyToMany(fetch = FetchType.EAGER)
+    private Set<Subdivision> grantedSubdivisions=new HashSet<>();
+    @ManyToOne
+    @JoinColumn(name="SUBDIV_ID", nullable=true)
+    private Subdivision mainsubdivisions;
+    @Version
+    private long versionId;
 
     public Long getUserID() {
         return userID;
@@ -81,5 +86,21 @@ public class User {
 
     public void removeAllUserRoles() {
         this.userRoles.clear();
+    }
+
+    public Subdivision getMainsubdivisions() {
+        return mainsubdivisions;
+    }
+
+    public void setMainsubdivisions(Subdivision mainsubdivisions) {
+        this.mainsubdivisions = mainsubdivisions;
+    }
+
+    public long getVersionId() {
+        return versionId;
+    }
+
+    public void setVersionId(long versionId) {
+        this.versionId = versionId;
     }
 }

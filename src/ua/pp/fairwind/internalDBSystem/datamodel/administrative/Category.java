@@ -12,13 +12,13 @@ import java.util.Set;
 public class Category {
     @Id
     @GeneratedValue
-    @Column(name = "CATEGORY_ID",columnDefinition = "category id")
+    @Column(name = "CATEGORY_ID")
     Long categoryId;
-    @Column(name = "NAME",columnDefinition = "file record id")
+    @Column(name = "CATEGORY_NAME")
     String name;
     @ManyToMany
     Set<Subdivision> subdivision =new HashSet<>();
-    @OneToMany
+    @OneToMany(cascade = CascadeType.ALL,mappedBy = "category")
     Set<InfoType> infoTypes=new HashSet<>();
     @Version
     long versionid;
@@ -44,11 +44,30 @@ public class Category {
     }
 
     public void addSubdivision(Subdivision subdivision) {
-        this.subdivision.add(subdivision);
+        if(subdivision!=null) {
+            this.subdivision.add(subdivision);
+            subdivision.addCategoryInt(this);
+        }
     }
 
     public void removeSubdivision(Subdivision subdivision) {
-        this.subdivision.remove(subdivision);
+        if(subdivision!=null){
+            if(this.subdivision.remove(subdivision)) {
+                subdivision.removeCategoryInt(this);
+            }
+        }
+    }
+
+    void addSubdivisionInt(Subdivision subdivision) {
+        if(subdivision!=null) {
+            this.subdivision.add(subdivision);
+        }
+    }
+
+    void removeSubdivisionInt(Subdivision subdivision) {
+        if(subdivision!=null){
+            this.subdivision.remove(subdivision);
+        }
     }
 
     public Set<InfoType> getInfoTypes() {
@@ -56,11 +75,25 @@ public class Category {
     }
 
     public void addInfoTypes(InfoType infoTypes) {
-        this.infoTypes.add(infoTypes);
+        if(infoTypes!=null) {
+            this.infoTypes.add(infoTypes);
+            infoTypes.setCategoryInt(this);
+        }
     }
 
     public void removeInfoTypes(InfoType infoTypes) {
-        this.infoTypes.remove(infoTypes);
+        if(infoTypes!=null) {
+            if(this.infoTypes.remove(infoTypes)) infoTypes.setCategoryInt(null);
+        }
+    }
+
+    void addInfoTypesInt(InfoType infoTypes) {
+        if(infoTypes!=null) this.infoTypes.add(infoTypes);
+    }
+
+    void removeInfoTypesInt(InfoType infoTypes) {
+
+        if(infoTypes!=null) this.infoTypes.remove(infoTypes);
     }
 
     public long getVersionid() {

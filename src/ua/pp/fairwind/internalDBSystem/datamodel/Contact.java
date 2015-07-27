@@ -12,10 +12,10 @@ import javax.persistence.*;
 public class Contact {
     @Id
     @GeneratedValue
-    @Column(name = "CONTACT_ID",columnDefinition = "contact record id")
+    @Column(name = "CONTACT_ID")
     private Long contactId;
-    @Column(name = "CONTACT_TEXT",columnDefinition = "the contact text or value, like phone or email")
-    private String value;
+    @Column(name = "CONTACT_TEXT")
+    private String contactinfo;
     @ManyToOne
     private ContactType contactType;
     @Version
@@ -29,12 +29,12 @@ public class Contact {
         this.contactId = contactId;
     }
 
-    public String getValue() {
-        return value;
+    public String getContactinfo() {
+        return contactinfo;
     }
 
-    public void setValue(String value) {
-        this.value = value;
+    public void setContactinfo(String value) {
+        this.contactinfo = value;
     }
 
     public ContactType getContactType() {

@@ -6,15 +6,15 @@ import javax.persistence.*;
  * Created by Сергей on 17.07.2015.
  */
 @Entity
-@Table(name = "ROLES")
+@Table(name = "SYSROLES")
 public class Roles {
     @Id
-    @Column(name = "ROLE_ID")
+    @Column(name = "ROLEID")
     @GeneratedValue
     Long roleId;
-    @Column(name = "ROLE_NAME")
+    @Column(name = "ROLENAME",nullable = false)
     String roleName;
-    @Column(name = "ROLE_DESCRIPTION")
+    @Column(name = "ROLEDESCRIPTION")
     String roleDescription;
 
     public Long getRoleId() {

@@ -68,5 +68,6 @@
     <orderEntry type="library" name="querydsl-apt-3.6.5" level="project" />
     <orderEntry type="library" name="org.codehaus.jackson:jackson-mapper-asl:1.9.13" level="project" />
     <orderEntry type="library" name="com.fasterxml.jackson.core:jackson-databind:2.6.0" level="project" />
+    <orderEntry type="library" name="mysql:mysql-connector-java:5.1.36" level="project" />
   </component>
 </module>

@@ -20,6 +20,7 @@
           <element id="library" level="project" name="querydsl-apt-3.6.5" />
           <element id="library" level="project" name="com.fasterxml.jackson.core:jackson-databind:2.6.0" />
           <element id="library" level="project" name="org.codehaus.jackson:jackson-mapper-asl:1.9.13" />
+          <element id="library" level="project" name="mysql:mysql-connector-java:5.1.36" />
         </element>
       </element>
     </root>

@@ -28,15 +28,15 @@ public class Dosser {
     @ManyToOne
     private InfoType infotype;
     private boolean confidential;
-    private String text;
+    private String textinfo;
     @ManyToOne
-    private Files file;
+    private Files fileinfo;
     @ManyToOne
     private User createUser;
     @ManyToOne
     private Dosser parentDossierId;
     @Enumerated(EnumType.ORDINAL)
-    private DosserType status;
+    private DosserType record_status;
     @Version
     private long version;
 
@@ -96,20 +96,20 @@ public class Dosser {
         this.confidential = confidential;
     }
 
-    public String getText() {
-        return text;
+    public String getTextinfo() {
+        return textinfo;
     }
 
-    public void setText(String text) {
-        this.text = text;
+    public void setTextinfo(String text) {
+        this.textinfo = text;
     }
 
-    public Files getFile() {
-        return file;
+    public Files getFileinfo() {
+        return fileinfo;
     }
 
-    public void setFile(Files file) {
-        this.file = file;
+    public void setFileinfo(Files file) {
+        this.fileinfo = file;
     }
 
     public User getCreateUser() {
@@ -128,12 +128,12 @@ public class Dosser {
         this.parentDossierId = parentDossierId;
     }
 
-    public DosserType getStatus() {
-        return status;
+    public DosserType getRecord_status() {
+        return record_status;
     }
 
-    public void setStatus(DosserType status) {
-        this.status = status;
+    public void setRecord_status(DosserType status) {
+        this.record_status = status;
     }
 
     public long getVersion() {

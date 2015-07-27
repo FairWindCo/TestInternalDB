@@ -6,14 +6,17 @@ import javax.persistence.*;
  * Created by Сергей on 17.07.2015.
  */
 @Entity
-@Table(name = "INFO_TYPES")
+@Table(name = "INFOTYPES")
 public class InfoType {
     @Id
     @GeneratedValue
     Long typeId;
+    @Column(name = "INFOTYPENAME")
     String typeName;
+    @Version
     long versionid;
     @ManyToOne
+    @JoinColumn(name="CATEGORY_ID", nullable=true)
     Category category;
 
     public Long getTypeId() {
@@ -45,6 +48,16 @@ public class InfoType {
     }
 
     public void setCategory(Category category) {
-        this.category = category;
+        if(category!=null){
+            if(this.category!=null) this.category.removeInfoTypes(this);
+            category.addInfoTypes(this);
+            this.category = category;
+        }
+    }
+
+    void setCategoryInt(Category category) {
+        if(category!=null){
+            this.category = category;
+        }
     }
 }
