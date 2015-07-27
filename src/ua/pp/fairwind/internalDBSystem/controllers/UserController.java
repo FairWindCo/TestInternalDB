@@ -18,6 +18,7 @@ import ua.pp.fairwind.internalDBSystem.dateTable.JSTableExpenseResult;
 import ua.pp.fairwind.internalDBSystem.services.repository.UserRepository;
 
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -88,6 +89,27 @@ public class UserController {
         }
 
     }
+
+    @Transactional(readOnly = true)
+    @RequestMapping(value = "/roles", method = RequestMethod.POST)
+    @ResponseBody
+    public JSTableExpenseListResp<Roles> getRolesByUserId(Model model,@RequestParam(required = true) long userID,@RequestParam(required = false) Integer jtStartIndex, @RequestParam(required = false) Integer jtPageSize, @RequestParam(required = false) String jtSorting,@RequestParam(required = false) String searchname) {
+
+        logger.log(Level.INFO,"Received request to show "+jtPageSize+" users from"+jtStartIndex);
+
+        User user=userservice.findOne(userID);
+        if(user==null){
+            return new JSTableExpenseListResp<Roles>(JSTableExpenseResult.ERROR,"NO RULES");
+        } else {
+            Set<Roles> roles=user.getUserRoles();
+            if(roles==null){
+                return new JSTableExpenseListResp<Roles>(JSTableExpenseResult.ERROR,"NO RULES");
+            } else {
+                return new JSTableExpenseListResp<Roles>(roles,roles.size());
+            }
+        }
+    }
+
     @Transactional(readOnly = true)
     @RequestMapping(value = "/lists", method = RequestMethod.POST)
     @ResponseBody

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.springframework.data.domain.Page;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -12,7 +13,7 @@ import java.util.List;
 public class JSTableExpenseListResp<T> {
     private JSTableExpenseResult Result;
 
-    private List<T> Records;
+    private Collection<T> Records;
 
     private long TotalRecordCount;
 
@@ -23,7 +24,7 @@ public class JSTableExpenseListResp<T> {
         Message = message;
     }
 
-    public JSTableExpenseListResp(List<T> records, int totalRecordCount) {
+    public JSTableExpenseListResp(Collection<T> records, int totalRecordCount) {
         Result = JSTableExpenseResult.OK;
         Records = records;
         TotalRecordCount = totalRecordCount;
@@ -48,11 +49,11 @@ public class JSTableExpenseListResp<T> {
     }
     @JsonSerialize
     @JsonProperty("Records")
-    public List<T> getRecords() {
+    public Collection<T> getRecords() {
         return Records;
     }
 
-    public void setRecords(List<T> records) {
+    public void setRecords(Collection<T> records) {
         Records = records;
     }
     @JsonSerialize

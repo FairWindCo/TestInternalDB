@@ -76,7 +76,7 @@
                                             {
                                                 title: rolesdata.record.userName + ' - user roles',
                                                 actions: {
-                                                    listAction: 'userroles?userID=' + rolesdata.record.userID,
+                                                    listAction: 'roles?userID=' + rolesdata.record.userID,
                                                     deleteAction: '/Demo/DeletePhone',
                                                     updateAction: '/Demo/UpdatePhone',
                                                     createAction: '/Demo/CreatePhone'
