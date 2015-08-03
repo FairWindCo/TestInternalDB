@@ -17,7 +17,7 @@ public class User {
     @Column(name = "USERNAME",nullable = false)
     private String userName;
     @Column(name = "FIO")
-    private String FIO;
+    private String fio;
     @Column(name = "PASSWORD")
     private String passwordHash;
     @Column(name = "ENABLED")
@@ -64,12 +64,12 @@ public class User {
         this.enabled = enabled;
     }
 
-    public String getFIO() {
-        return FIO;
+    public String getFio() {
+        return fio;
     }
 
-    public void setFIO(String FIO) {
-        this.FIO = FIO;
+    public void setFio(String FIO) {
+        this.fio = FIO;
     }
 
     public Set<Roles> getUserRoles() {

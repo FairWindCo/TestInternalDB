@@ -81,12 +81,12 @@ public class StartInitController {
         User user2=new User();
         User user3=new User();
         user1.setUserName("administrator");
-        user1.setFIO("Иванов И.И.");
+        user1.setFio("Иванов И.И.");
         user1.setEnabled(true);
-        user2.setFIO("Петров П.П.");
+        user2.setFio("Петров П.П.");
         user2.setUserName("power_user");
         user2.setEnabled(true);
-        user3.setFIO("Сидоров С.С.");
+        user3.setFio("Сидоров С.С.");
         user3.setUserName("user");
         user3.setEnabled(true);
 

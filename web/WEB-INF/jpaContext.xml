@@ -20,7 +20,7 @@
        <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
               <property name="driverClassName" value="com.mysql.jdbc.Driver" />
 
-              <property name="url" value="jdbc:mysql://localhost/java" />
+              <property name="url" value="jdbc:mysql://localhost/java?autoReconnect=true" />
 
               <property name="username" value="root" />
               <property name="password" value="" />

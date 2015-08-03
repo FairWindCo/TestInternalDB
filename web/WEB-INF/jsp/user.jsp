@@ -51,6 +51,7 @@
                         passwordHash: {
                             title: 'PASSWORD',
                             width: '15%',
+                            type: 'password',
                         },
                         fio: {
                             title: 'F.I.O.',
@@ -59,9 +60,12 @@
                         enabled: {
                             title: 'ENABLED',
                             width: '5%',
+                            type: 'checkbox',
+                            values: { 'false': 'Passive', 'true': 'Active' },
+                            defaultValue: 'true'
                         },
                         userRoles:{
-                            title: '',
+                            title: 'ROLES',
                             width: '2%',
                             sorting: false,
                             edit: false,
@@ -77,9 +81,8 @@
                                                 title: rolesdata.record.userName + ' - user roles',
                                                 actions: {
                                                     listAction: 'roles?userID=' + rolesdata.record.userID,
-                                                    deleteAction: '/Demo/DeletePhone',
-                                                    updateAction: '/Demo/UpdatePhone',
-                                                    createAction: '/Demo/CreatePhone'
+                                                    deleteAction: 'removeuserrole?userId=' + rolesdata.record.userID,
+                                                    createAction: 'adduserrole?userId=' + rolesdata.record.userID
                                                 },
                                                 fields: {
                                                     roleId: {
@@ -91,10 +94,18 @@
                                                     roleName: {
                                                         title: 'ROLE NAME',
                                                         width: '30%',
+                                                        //options: 'avaibleRolesOpt?userID=' + rolesdata.record.userID,
+                                                        options: function(data) {
+                                                            data.clearCache();
+                                                            return 'avaibleRolesOpt?userID=' + rolesdata.record.userID;
+                                                        },
+                                                        list: false
                                                     },
                                                     roleDescription: {
                                                         title: 'DESCRIPTION',
-                                                        width: '30%'
+                                                        width: '30%',
+                                                        edit: false,
+                                                        create: false,
                                                     },
                                                 }
                                             }, function (data) { //opened handler
@@ -109,7 +120,8 @@
                             defaultValue:'0',
                             edit: false,
                             create: false,
-                            width: '5%'
+                            width: '5%',
+                            editinline:{enable:true},
                         },
                     },
                     //Register to selectionChanged event to hanlde events

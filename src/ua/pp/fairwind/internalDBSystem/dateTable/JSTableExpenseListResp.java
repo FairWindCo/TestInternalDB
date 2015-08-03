@@ -24,11 +24,28 @@ public class JSTableExpenseListResp<T> {
         Message = message;
     }
 
+    public JSTableExpenseListResp(String message) {
+        Result = JSTableExpenseResult.ERROR;
+        Message = message;
+    }
+
     public JSTableExpenseListResp(Collection<T> records, int totalRecordCount) {
         Result = JSTableExpenseResult.OK;
         Records = records;
         TotalRecordCount = totalRecordCount;
         Message="OK";
+    }
+
+    public JSTableExpenseListResp(Collection<T> records) {
+        if(records!=null) {
+            Result = JSTableExpenseResult.OK;
+            Records = records;
+            TotalRecordCount = records.size();
+            Message = "OK";
+        } else {
+            Result = JSTableExpenseResult.ERROR;
+            Message = "EMPTY RESULT!!!";
+        }
     }
 
     public JSTableExpenseListResp(Page<T> page) {

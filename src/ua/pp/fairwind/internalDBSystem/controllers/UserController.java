@@ -11,10 +11,8 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import ua.pp.fairwind.internalDBSystem.datamodel.administrative.Roles;
 import ua.pp.fairwind.internalDBSystem.datamodel.administrative.User;
-import ua.pp.fairwind.internalDBSystem.dateTable.FormSort;
-import ua.pp.fairwind.internalDBSystem.dateTable.JSTableExpenseListResp;
-import ua.pp.fairwind.internalDBSystem.dateTable.JSTableExpenseResp;
-import ua.pp.fairwind.internalDBSystem.dateTable.JSTableExpenseResult;
+import ua.pp.fairwind.internalDBSystem.dateTable.*;
+import ua.pp.fairwind.internalDBSystem.services.repository.RoleRepository;
 import ua.pp.fairwind.internalDBSystem.services.repository.UserRepository;
 
 import java.util.List;
@@ -32,6 +30,8 @@ public class UserController {
 
     @Autowired
     private UserRepository userservice;
+    @Autowired
+    private RoleRepository roleservice;
 
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public String show(Model model) {
@@ -84,7 +84,7 @@ public class UserController {
             }
             return new JSTableExpenseListResp<Roles>(page);
         } else {
-            List<Roles> roles=userservice.findByUserID(userID);
+            Set<Roles> roles=userservice.findByUserID(userID);
             return new JSTableExpenseListResp<Roles>(roles,roles.size());
         }
 
@@ -166,16 +166,89 @@ public class UserController {
     /*CRUD operation - Delete */
     @RequestMapping(value = "/deleteuser", method = RequestMethod.POST)
     @ResponseBody
-    public JSTableExpenseResp<User>  delete(@RequestParam String filesTypeId) {
+    public JSTableExpenseResp<User>  delete(@ModelAttribute User user, BindingResult result) {
         JSTableExpenseResp<User>  jsonJtableResponse;
         try {
-
-            userservice.delete(new Long(filesTypeId));
+            userservice.delete(user.getUserID());
             jsonJtableResponse = new JSTableExpenseResp<>(JSTableExpenseResult.OK,"OK");
         } catch (Exception e) {
             jsonJtableResponse = new JSTableExpenseResp<>(e.getMessage());
         }
         return jsonJtableResponse;
     }
+
+
+    @Transactional(readOnly = true)
+    @RequestMapping(value = "/avaibleRoles", method = RequestMethod.GET)
+    @ResponseBody
+    public JSTableExpenseListResp<Roles> getAvaibleRoles(@RequestParam(required = true) long userID) {
+        JSTableExpenseListResp<Roles>  jsonJtableResponse;
+        try {
+
+            Set<Long> assignedRolesID=userservice.getRolesIDForUserId(userID);
+            List<Roles> avaibleRoles=userservice.findGetAvaibleRoles(assignedRolesID);
+            return new JSTableExpenseListResp<Roles>(avaibleRoles);
+        } catch (Exception e) {
+            jsonJtableResponse = new JSTableExpenseListResp<>(e.getMessage());
+        }
+        return jsonJtableResponse;
+    }
+
+    @Transactional(readOnly = true)
+    @RequestMapping(value = "/avaibleRolesOpt", method = RequestMethod.POST)
+    @ResponseBody
+    public JSTableOptionsResponse<JSTableExpenseOptionsBean> getAvaibleRolesOpt(@RequestParam(required = true) long userID) {
+        JSTableOptionsResponse<JSTableExpenseOptionsBean>  jsonJtableResponse;
+        try {
+
+            Set<Long> assignedRolesID=userservice.getRolesIDForUserId(userID);
+            List<JSTableExpenseOptionsBean> avaibleRoles=userservice.findGetAvaibleRolesOptions(assignedRolesID);
+            return new JSTableOptionsResponse<JSTableExpenseOptionsBean>(avaibleRoles);
+        } catch (Exception e) {
+            jsonJtableResponse = new JSTableOptionsResponse<>(e.getMessage());
+        }
+        return jsonJtableResponse;
+    }
+
+    @Transactional(readOnly = false)
+    @RequestMapping(value = "/adduserrole", method = RequestMethod.POST)
+    @ResponseBody
+    public JSTableExpenseResp<Roles> setupNewRole(@RequestParam(required = true) long roleName,@RequestParam(required = true) long userId) {
+        JSTableExpenseResp<Roles>  jsonJtableResponse;
+        try {
+            Roles role=roleservice.findOne(roleName);
+            User user=userservice.findOne(userId);
+            if(user!=null && role!=null) {
+                user.addUserRoles(role);
+                jsonJtableResponse = new JSTableExpenseResp<>(role);
+            } else {
+                jsonJtableResponse = new JSTableExpenseResp<>("NO RECORD FOUND!");
+            }
+        } catch (Exception e) {
+            jsonJtableResponse = new JSTableExpenseResp<>(e.getMessage());
+        }
+        return jsonJtableResponse;
+    }
+
+    @Transactional(readOnly = false)
+    @RequestMapping(value = "/removeuserrole", method = RequestMethod.POST)
+    @ResponseBody
+    public JSTableExpenseResp<Roles> removeRole(@RequestParam(required = true) long roleId,@RequestParam(required = true) long userId) {
+        JSTableExpenseResp<Roles>  jsonJtableResponse;
+        try {
+            Roles role=roleservice.findOne(roleId);
+            User user=userservice.findOne(userId);
+            if(user!=null && role!=null) {
+                user.removeUserRoles(role);
+                jsonJtableResponse = new JSTableExpenseResp<>(JSTableExpenseResult.OK,"OK");
+            } else {
+                jsonJtableResponse = new JSTableExpenseResp<>("NO RECORD FOUND!");
+            }
+        } catch (Exception e) {
+            jsonJtableResponse = new JSTableExpenseResp<>(e.getMessage());
+        }
+        return jsonJtableResponse;
+    }
+
 
 }
