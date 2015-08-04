@@ -3,7 +3,9 @@ package ua.pp.fairwind.internalDBSystem.services.repository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import ua.pp.fairwind.internalDBSystem.datamodel.directories.FilesType;
+import ua.pp.fairwind.internalDBSystem.dateTable.JSTableExpenseOptionsBean;
 
 import java.util.List;
 
@@ -15,4 +17,6 @@ public interface FileTypeRepository extends JpaRepository<FilesType,Long> {
     Page<FilesType> findByFilesTypeName(String filesTypeName,Pageable pageRequest);
     List<FilesType> findByFilesTypeNameLike(String filesTypeName);
     Page<FilesType> findByFilesTypeNameLike(String filesTypeName,Pageable pageRequest);
+    @Query("Select new ua.pp.fairwind.internalDBSystem.dateTable.JSTableExpenseOptionsBean(ft.filesTypeId,ft.filesTypeName) from FilesType ft")
+    List<JSTableExpenseOptionsBean> getAllFileTypeOptions();
 }

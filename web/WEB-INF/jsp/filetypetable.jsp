@@ -7,16 +7,9 @@
 
 
         <%-- JQuery --%>
-        <script src="<c:url value="/resources/jquery-1.11.3.min.js"/>"></script>
-        <script src="<c:url value="/resources/jquery-ui.min.js"/>"></script>
-        <link rel="stylesheet" href="<c:url value="/resources/jquery-ui.min.css"/>">
-        <link rel="stylesheet" href="<c:url value="/resources/jquery-ui.structure.min.css"/>">
-        
+        <%@include file="/WEB-INF/include/jquery_include.jsp" %>
         <%-- JTable --%>
-        <link rel="stylesheet" href="<c:url value="/resources/jtable/themes/metro/blue/jtable.css"/>">
-        <script src="<c:url value="/resources/jtable/jquery.jtable.js"/>"></script>
-
-        <link rel="stylesheet" href="<c:url value="/resources/css/jquery-ui-1.8.16.custom.css"/>">
+        <%@include file="/WEB-INF/include/jtable_include.jsp" %>
         
         <%-- customized javascript code to manage JTable --%>
         <script>
@@ -30,10 +23,10 @@
                     sorting: true, //Enable sorting
                     actions: {
                         //listAction: 'datatable/getAllExpenses',
-                        listAction: 'listedit',
-                        createAction: 'addfiletype',
-                        updateAction: 'updatefiletype',
-                        deleteAction: 'deletefiletype'
+                        listAction: '${pageContext.request.contextPath}/filetypes/listedit',
+                        createAction: '${pageContext.request.contextPath}/filetypes/addfiletype',
+                        updateAction: '${pageContext.request.contextPath}/filetypes/updatefiletype',
+                        deleteAction: '${pageContext.request.contextPath}/filetypes/deletefiletype'
                     },
                     fields: {
                         filesTypeId: {

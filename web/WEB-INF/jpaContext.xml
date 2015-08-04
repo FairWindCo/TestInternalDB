@@ -25,6 +25,7 @@
               <property name="username" value="root" />
               <property name="password" value="" />
               <property name="maxWait" value="-1"/>
+              <!--<property name="loginTimeout" value="-1"/> -->
        </bean>
 
 <!--

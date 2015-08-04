@@ -4,15 +4,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import ua.pp.fairwind.internalDBSystem.datamodel.administrative.Roles;
+import ua.pp.fairwind.internalDBSystem.datamodel.administrative.Subdivision;
 import ua.pp.fairwind.internalDBSystem.datamodel.administrative.User;
 import ua.pp.fairwind.internalDBSystem.dateTable.*;
 import ua.pp.fairwind.internalDBSystem.services.repository.RoleRepository;
+import ua.pp.fairwind.internalDBSystem.services.repository.SubdivisionRepository;
 import ua.pp.fairwind.internalDBSystem.services.repository.UserRepository;
 
 import java.util.List;
@@ -32,7 +35,10 @@ public class UserController {
     private UserRepository userservice;
     @Autowired
     private RoleRepository roleservice;
+    @Autowired
+    private SubdivisionRepository subdivservice;
 
+    @Secured("ROLE_ADMIN")
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public String show(Model model) {
         return "user";
@@ -60,6 +66,7 @@ public class UserController {
         }
         return new JSTableExpenseListResp<User>(page);
     }
+    @Secured("ROLE_ADMIN")
     @Transactional(readOnly = true)
     @RequestMapping(value = "/userroles", method = RequestMethod.POST)
     @ResponseBody
@@ -89,7 +96,7 @@ public class UserController {
         }
 
     }
-
+    @Secured("ROLE_ADMIN")
     @Transactional(readOnly = true)
     @RequestMapping(value = "/roles", method = RequestMethod.POST)
     @ResponseBody
@@ -109,7 +116,7 @@ public class UserController {
             }
         }
     }
-
+    @Secured("ROLE_ADMIN")
     @Transactional(readOnly = true)
     @RequestMapping(value = "/lists", method = RequestMethod.POST)
     @ResponseBody
@@ -121,7 +128,7 @@ public class UserController {
         Sort sort= FormSort.formSortFromSortDescription(jtSorting);
         Page<User> page;
         if(sort!=null){
-            page= userservice.findAll(new PageRequest(jtStartIndex,jtPageSize,sort));
+            page= userservice.findAll(new PageRequest(jtStartIndex, jtPageSize, sort));
         } else {
             page = userservice.findAll(new PageRequest(jtStartIndex, jtPageSize));
         }
@@ -144,6 +151,7 @@ public class UserController {
         }
         return jsonJtableResponse;
     }
+    @Secured("ROLE_ADMIN")
     @Transactional(readOnly = false)
     /*CRUD operation - Update */
     @RequestMapping(value = "/updateuser", method = RequestMethod.POST)
@@ -162,6 +170,7 @@ public class UserController {
         }
         return jsonJtableResponse;
     }
+    @Secured("ROLE_ADMIN")
     @Transactional(readOnly = false)
     /*CRUD operation - Delete */
     @RequestMapping(value = "/deleteuser", method = RequestMethod.POST)
@@ -177,7 +186,7 @@ public class UserController {
         return jsonJtableResponse;
     }
 
-
+    @Secured("ROLE_ADMIN")
     @Transactional(readOnly = true)
     @RequestMapping(value = "/avaibleRoles", method = RequestMethod.GET)
     @ResponseBody
@@ -186,14 +195,19 @@ public class UserController {
         try {
 
             Set<Long> assignedRolesID=userservice.getRolesIDForUserId(userID);
-            List<Roles> avaibleRoles=userservice.findGetAvaibleRoles(assignedRolesID);
-            return new JSTableExpenseListResp<Roles>(avaibleRoles);
+            if(assignedRolesID==null || assignedRolesID.isEmpty()){
+                List<Roles> avaibleRoles = userservice.getAllRoles();
+                return new JSTableExpenseListResp<Roles>(avaibleRoles);
+            } else {
+                List<Roles> avaibleRoles = userservice.findGetAvaibleRoles(assignedRolesID);
+                return new JSTableExpenseListResp<Roles>(avaibleRoles);
+            }
         } catch (Exception e) {
             jsonJtableResponse = new JSTableExpenseListResp<>(e.getMessage());
         }
         return jsonJtableResponse;
     }
-
+    @Secured("ROLE_ADMIN")
     @Transactional(readOnly = true)
     @RequestMapping(value = "/avaibleRolesOpt", method = RequestMethod.POST)
     @ResponseBody
@@ -202,14 +216,19 @@ public class UserController {
         try {
 
             Set<Long> assignedRolesID=userservice.getRolesIDForUserId(userID);
-            List<JSTableExpenseOptionsBean> avaibleRoles=userservice.findGetAvaibleRolesOptions(assignedRolesID);
-            return new JSTableOptionsResponse<JSTableExpenseOptionsBean>(avaibleRoles);
+            if(assignedRolesID==null || assignedRolesID.isEmpty()){
+                List<JSTableExpenseOptionsBean> avaibleRoles = userservice.findAllRolesOptions();
+                return new JSTableOptionsResponse<JSTableExpenseOptionsBean>(avaibleRoles);
+            } else {
+                List<JSTableExpenseOptionsBean> avaibleRoles = userservice.findGetAvaibleRolesOptions(assignedRolesID);
+                return new JSTableOptionsResponse<JSTableExpenseOptionsBean>(avaibleRoles);
+            }
         } catch (Exception e) {
             jsonJtableResponse = new JSTableOptionsResponse<>(e.getMessage());
         }
         return jsonJtableResponse;
     }
-
+    @Secured("ROLE_ADMIN")
     @Transactional(readOnly = false)
     @RequestMapping(value = "/adduserrole", method = RequestMethod.POST)
     @ResponseBody
@@ -229,7 +248,7 @@ public class UserController {
         }
         return jsonJtableResponse;
     }
-
+    @Secured("ROLE_ADMIN")
     @Transactional(readOnly = false)
     @RequestMapping(value = "/removeuserrole", method = RequestMethod.POST)
     @ResponseBody
@@ -250,5 +269,67 @@ public class UserController {
         return jsonJtableResponse;
     }
 
+
+    @Secured("ROLE_ADMIN")
+    @Transactional(readOnly = true)
+    @RequestMapping(value = "/avaibleGrantedSubdivOpt", method = RequestMethod.POST)
+    @ResponseBody
+    public JSTableOptionsResponse<JSTableExpenseOptionsBean> getAvaibleGruntedSubdivisionsOpt(@RequestParam(required = true) long userID) {
+        JSTableOptionsResponse<JSTableExpenseOptionsBean>  jsonJtableResponse;
+        try {
+
+            Set<Long> assignedRolesID=userservice.getGrantedSubdivisionsIDForUserId(userID);
+            if(assignedRolesID==null || assignedRolesID.isEmpty()){
+                List<JSTableExpenseOptionsBean> avaibleRoles = userservice.getAllSubdivisionsOptions();
+                return new JSTableOptionsResponse<>(avaibleRoles);
+            } else {
+                List<JSTableExpenseOptionsBean> avaibleRoles = userservice.getAvaibleSubdivisionsOptions(assignedRolesID);
+                return new JSTableOptionsResponse<>(avaibleRoles);
+            }
+        } catch (Exception e) {
+            jsonJtableResponse = new JSTableOptionsResponse<>(e.getMessage());
+        }
+        return jsonJtableResponse;
+    }
+    @Secured("ROLE_ADMIN")
+    @Transactional(readOnly = false)
+    @RequestMapping(value = "/addgrantedsubdivision", method = RequestMethod.POST)
+    @ResponseBody
+    public JSTableExpenseResp<Subdivision> setupNewGrantedSubdivision(@RequestParam(required = true) long subdivisionId,@RequestParam(required = true) long userId) {
+        JSTableExpenseResp<Subdivision>  jsonJtableResponse;
+        try {
+            Subdivision role=subdivservice.findOne(subdivisionId);
+            User user=userservice.findOne(userId);
+            if(user!=null && role!=null) {
+                user.addGrantedSubdivisions(role);
+                jsonJtableResponse = new JSTableExpenseResp<>(role);
+            } else {
+                jsonJtableResponse = new JSTableExpenseResp<>("NO RECORD FOUND!");
+            }
+        } catch (Exception e) {
+            jsonJtableResponse = new JSTableExpenseResp<>(e.getMessage());
+        }
+        return jsonJtableResponse;
+    }
+    @Secured("ROLE_ADMIN")
+    @Transactional(readOnly = false)
+    @RequestMapping(value = "/removegrantedsubdivision", method = RequestMethod.POST)
+    @ResponseBody
+    public JSTableExpenseResp<Subdivision> removeGrantedSubdivision(@RequestParam(required = true) long subdivisionId,@RequestParam(required = true) long userId) {
+        JSTableExpenseResp<Subdivision>  jsonJtableResponse;
+        try {
+            Subdivision role=subdivservice.findOne(subdivisionId);
+            User user=userservice.findOne(userId);
+            if(user!=null && role!=null) {
+                user.removeGrantedSubdivisions(role);
+                jsonJtableResponse = new JSTableExpenseResp<>(JSTableExpenseResult.OK,"OK");
+            } else {
+                jsonJtableResponse = new JSTableExpenseResp<>("NO RECORD FOUND!");
+            }
+        } catch (Exception e) {
+            jsonJtableResponse = new JSTableExpenseResp<>(e.getMessage());
+        }
+        return jsonJtableResponse;
+    }
 
 }

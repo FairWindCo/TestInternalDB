@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:sec="http://www.springframework.org/schema/security"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:mvc="http://www.springframework.org/schema/mvc"
        xmlns:context="http://www.springframework.org/schema/context"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
+       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+       http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-3.2.xsd">
 
        <mvc:resources mapping="/resources/**" location="/resources/"  cache-period="31556926"/>
        <mvc:resources mapping="/images/*" location="/images/"  cache-period="31556926"/>
@@ -12,4 +16,36 @@
         <mvc:annotation-driven />
 
     <import resource="jpaContext.xml"></import>
+
+    <sec:http pattern="/images/**" security="none"/>
+    <sec:http pattern="/resources/**" security="none"/>
+    <sec:http pattern="/login.jsp*" security="none"/>
+    <sec:http pattern="/initial/**" security="none"/>
+
+
+    <sec:http access-denied-page="/error403.jsp" authentication-manager-ref="dao-auth">
+        <sec:intercept-url pattern="/*" access="ROLE_USER"/>
+        <sec:form-login login-page="/login.jsp" default-target-url="/index.jsp" authentication-failure-url="/login.jsp?error=true" username-parameter="username" password-parameter="password"/>
+        <sec:logout logout-url="/logout" logout-success-url="/login.jsp"/>
+    </sec:http>
+
+    <bean id="myUserDetailsService"
+                class="ua.pp.fairwind.internalDBSystem.security.MyUserDetailService" />
+
+    <sec:authentication-manager id="dao-auth">
+        <sec:authentication-provider user-service-ref="myUserDetailsService">
+        </sec:authentication-provider>
+    </sec:authentication-manager>
+
+    <sec:authentication-manager id="in-memory-auth">
+        <sec:authentication-provider>
+            <sec:user-service>
+                <sec:user name="admin" password="pass" authorities="ROLE_ADMIN,ROLE_USER"/>
+                <sec:user name="user1" password="1111" authorities="ROLE_USER"/>
+                <sec:user name="user2" password="2222" disabled="true" authorities="ROLE_USER"/>
+            </sec:user-service>
+        </sec:authentication-provider>
+    </sec:authentication-manager>
+
+    <sec:global-method-security secured-annotations="enabled"/>
 </beans>

@@ -103,4 +103,16 @@ public class User {
     public void setVersionId(long versionId) {
         this.versionId = versionId;
     }
+
+    public Set<Subdivision> getGrantedSubdivisions() {
+        return grantedSubdivisions;
+    }
+
+    public void addGrantedSubdivisions(Subdivision grantedSubdivisions) {
+        this.grantedSubdivisions.add(grantedSubdivisions);
+    }
+
+    public void removeGrantedSubdivisions(Subdivision grantedSubdivisions) {
+        this.grantedSubdivisions.remove(grantedSubdivisions);
+    }
 }

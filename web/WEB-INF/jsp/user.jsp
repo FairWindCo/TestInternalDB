@@ -30,10 +30,10 @@
                     sorting: true, //Enable sorting
                     actions: {
                         //listAction: 'datatable/getAllExpenses',
-                        listAction: 'listedit',
-                        createAction: 'adduser',
-                        updateAction: 'updateuser',
-                        deleteAction: 'deleteuser'
+                        listAction: '${pageContext.request.contextPath}/users/listedit',
+                        createAction: '${pageContext.request.contextPath}/users/adduser',
+                        updateAction: '${pageContext.request.contextPath}/users/updateuser',
+                        deleteAction: '${pageContext.request.contextPath}/users/deleteuser'
                     },
                     fields: {
                         userID: {
@@ -80,9 +80,9 @@
                                             {
                                                 title: rolesdata.record.userName + ' - user roles',
                                                 actions: {
-                                                    listAction: 'roles?userID=' + rolesdata.record.userID,
-                                                    deleteAction: 'removeuserrole?userId=' + rolesdata.record.userID,
-                                                    createAction: 'adduserrole?userId=' + rolesdata.record.userID
+                                                    listAction: '${pageContext.request.contextPath}/users/roles?userID=' + rolesdata.record.userID,
+                                                    deleteAction: '${pageContext.request.contextPath}/users/removeuserrole?userId=' + rolesdata.record.userID,
+                                                    createAction: '${pageContext.request.contextPath}/users/adduserrole?userId=' + rolesdata.record.userID
                                                 },
                                                 fields: {
                                                     roleId: {
@@ -91,15 +91,21 @@
                                                         edit: false,
                                                         list: false
                                                     },
-                                                    roleName: {
+                                                    roleName2: {
                                                         title: 'ROLE NAME',
                                                         width: '30%',
                                                         //options: 'avaibleRolesOpt?userID=' + rolesdata.record.userID,
                                                         options: function(data) {
                                                             data.clearCache();
-                                                            return 'avaibleRolesOpt?userID=' + rolesdata.record.userID;
+                                                            return '${pageContext.request.contextPath}/users/avaibleRolesOpt?userID=' + rolesdata.record.userID;
                                                         },
                                                         list: false
+                                                    },
+                                                    roleName: {
+                                                        title: 'ROLE NAME',
+                                                        width: '10%',
+                                                        edit: false,
+                                                        create: false,
                                                     },
                                                     roleDescription: {
                                                         title: 'DESCRIPTION',

@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
@@ -30,6 +31,7 @@ public class RolesController {
     @Autowired
     private RoleRepository roleservice;
 
+    @Secured("ROLE_ADMIN")
     @Transactional(readOnly = true)
     @RequestMapping(value = "/listoptions", method = RequestMethod.POST)
     @ResponseBody
@@ -48,7 +50,7 @@ public class RolesController {
         }
     }
 
-
+    @Secured("ROLE_ADMIN")
     @RequestMapping(value = "/show", method = RequestMethod.GET)
     @ResponseBody
     public List<Roles> getRoles(Model model) {
@@ -60,7 +62,7 @@ public class RolesController {
         List<Roles> roles=roleservice.findAll();
         return roles;
     }
-
+    @Secured("ROLE_ADMIN")
     @RequestMapping(value = "/list", method = RequestMethod.POST)
     @ResponseBody
     public JSTableExpenseListResp<Roles> getAllFileTypesSortSearch(Model model,@RequestParam int jtStartIndex, @RequestParam int jtPageSize, @RequestParam(required = false) String jtSorting,@RequestParam(required = false) String searchname) {
@@ -83,7 +85,7 @@ public class RolesController {
         }
         return new JSTableExpenseListResp<Roles>(page);
     }
-
+    @Secured("ROLE_ADMIN")
     @RequestMapping(value = "/lists", method = RequestMethod.POST)
     @ResponseBody
     public JSTableExpenseListResp<Roles> getAllFileTypesSort(Model model,@RequestParam int jtStartIndex, @RequestParam int jtPageSize, @RequestParam(required = false) String jtSorting) {

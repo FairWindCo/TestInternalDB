@@ -4,16 +4,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import ua.pp.fairwind.internalDBSystem.datamodel.directories.FilesType;
-import ua.pp.fairwind.internalDBSystem.dateTable.FormSort;
-import ua.pp.fairwind.internalDBSystem.dateTable.JSTableExpenseListResp;
-import ua.pp.fairwind.internalDBSystem.dateTable.JSTableExpenseResp;
-import ua.pp.fairwind.internalDBSystem.dateTable.JSTableExpenseResult;
+import ua.pp.fairwind.internalDBSystem.dateTable.*;
 import ua.pp.fairwind.internalDBSystem.services.repository.FileTypeRepository;
 
 import java.util.logging.Level;
@@ -69,12 +67,14 @@ public class FileTypeController {
         Sort sort= FormSort.formSortFromSortDescription(jtSorting);
         Page<FilesType> page;
         if(sort!=null){
-            page=filetypeservice.findAll(new PageRequest(jtStartIndex,jtPageSize,sort));
+            page=filetypeservice.findAll(new PageRequest(jtStartIndex, jtPageSize, sort));
         } else {
             page = filetypeservice.findAll(new PageRequest(jtStartIndex, jtPageSize));
         }
         return new JSTableExpenseListResp<FilesType>(page);
     }
+
+    @Secured("ROLE_GLOBAL_INFO_EDIT")
     @Transactional(readOnly = false)
     /*CRUD operation - Add*/
     @RequestMapping(value = "/addfiletype", method = RequestMethod.POST)
@@ -92,6 +92,7 @@ public class FileTypeController {
         }
         return jsonJtableResponse;
     }
+    @Secured("ROLE_GLOBAL_INFO_EDIT")
     @Transactional(readOnly = false)
     /*CRUD operation - Update */
     @RequestMapping(value = "/updatefiletype", method = RequestMethod.POST)
@@ -110,6 +111,7 @@ public class FileTypeController {
         }
         return jsonJtableResponse;
     }
+    @Secured("ROLE_GLOBAL_INFO_EDIT")
     @Transactional(readOnly = false)
     /*CRUD operation - Delete */
     @RequestMapping(value = "/deletefiletype", method = RequestMethod.POST)
@@ -122,6 +124,21 @@ public class FileTypeController {
             jsonJtableResponse = new JSTableExpenseResp<>(JSTableExpenseResult.OK,"OK");
         } catch (Exception e) {
             jsonJtableResponse = new JSTableExpenseResp<>(e.getMessage());
+        }
+        return jsonJtableResponse;
+    }
+
+    @Transactional(readOnly = true)
+    /*Options for CRUD operation*/
+    @RequestMapping(value = "/options", method = RequestMethod.POST)
+    @ResponseBody
+    public JSTableOptionsResponse<JSTableExpenseOptionsBean> getOptions() {
+        JSTableOptionsResponse<JSTableExpenseOptionsBean> jsonJtableResponse;
+        try {
+
+            jsonJtableResponse = new JSTableOptionsResponse<>(filetypeservice.getAllFileTypeOptions());
+        } catch (Exception e) {
+            jsonJtableResponse = new JSTableOptionsResponse<>(e.getMessage());
         }
         return jsonJtableResponse;
     }
