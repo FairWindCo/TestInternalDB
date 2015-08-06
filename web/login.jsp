@@ -51,16 +51,16 @@
             <div class="col-md-4 col-md-offset-4">
                 <div class="login-panel panel panel-default">
                     <div class="panel-heading">
-                        <h3 class="panel-title">Please Sign In</h3>
+                        <h3 class="panel-title"><c:message code="label.loginform"/></h3>
                     </div>
                     <div class="panel-body">
                         <form role="form" action="j_spring_security_check" method="post">
                             <fieldset>
                                 <div class="form-group">
-                                    <input class="form-control" placeholder="Login" id="username" name="username" type="text" autofocus>
+                                    <input class="form-control" placeholder="<c:message code="label.loginname"/>" id="username" name="username" type="text" autofocus>
                                 </div>
                                 <div class="form-group">
-                                    <input class="form-control" placeholder="Password" id="password" name="password" type="password" value="">
+                                    <input class="form-control" placeholder="<c:message code="label.loginpass"/>" id="password" name="password" type="password" value="">
                                 </div>
                                 <div class="checkbox">
                                     <label>
@@ -68,12 +68,14 @@
                                     </label>
                                 </div>
                                 <!-- Change this to a button or input when using this as a form -->
-                                <input type="submit" value="Login" class="btn btn-lg btn-success btn-block">
+                                <input type="submit" value="<c:message code="label.login"/>" class="btn btn-lg btn-success btn-block">
                             </fieldset>
                         </form>
                         <core:if test="${param.error != null}">
-                            LOGIN INCORECT
+                            <c:message code="label.loginincorect"/><br/>
                         </core:if>
+                        <a href="?lang=en">en</a> | <a href="?lang=az">az</a> | <a href="?lang=ru">ru</a><br/>
+                        <core:out value="param.language: [${param.language}] language: [${language}] pageContext.request.locale: [${pageContext.request.locale}] country: [${pageContext.request.locale.displayCountry}]" /><br/>
                     </div>
                 </div>
             </div>

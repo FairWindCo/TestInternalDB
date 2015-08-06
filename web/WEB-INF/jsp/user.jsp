@@ -23,7 +23,7 @@
             $(document).ready(function() {
                 //setup the jtable that will display the results
                 $('#ExpenseTableContainer').jtable({
-                    title: 'Table of System Users',
+                    title: '<c:message code="label.usertables"/>',
                     selecting: true, //Enable selecting
                     paging: true, //Enable paging
                     pageSize: 10, //Set page size (default: 10)
