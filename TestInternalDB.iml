@@ -34,6 +34,7 @@
         <datasource-map>
           <unit-entry name="hibernate.cfg.xml" />
           <unit-entry name="sessionFactory" value="dataSource" />
+          <unit-entry name="web:resources:hibernate.cfg.xml" />
         </datasource-map>
         <naming-strategy-map />
         <deploymentDescriptor name="hibernate.cfg.xml" url="file://$MODULE_DIR$/web/resources/hibernate.cfg.xml" />
@@ -62,5 +63,6 @@
     <orderEntry type="library" name="com.fasterxml.jackson.core:jackson-databind:2.6.0" level="project" />
     <orderEntry type="library" name="mysql:mysql-connector-java:5.1.36" level="project" />
     <orderEntry type="library" name="Spring Security-3.2.5" level="project" />
+    <orderEntry type="library" name="com.fasterxml.jackson.datatype:jackson-datatype-hibernate4:2.6.0" level="project" />
   </component>
 </module>

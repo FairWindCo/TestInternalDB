@@ -91,7 +91,7 @@
                                                         edit: false,
                                                         list: false
                                                     },
-                                                    roleName2: {
+                                                    newRoleID: {
                                                         title: 'ROLE NAME',
                                                         width: '30%',
                                                         //options: 'avaibleRolesOpt?userID=' + rolesdata.record.userID,
@@ -110,6 +110,57 @@
                                                     roleDescription: {
                                                         title: 'DESCRIPTION',
                                                         width: '30%',
+                                                        edit: false,
+                                                        create: false,
+                                                    },
+                                                }
+                                            }, function (data) { //opened handler
+                                                data.childTable.jtable('load');
+                                            });
+                                });
+                                return $img;
+                            },
+                        },
+                        trustedSubdivisions:{
+                            title: 'TRUSTED SUBDIVISIONS',
+                            width: '2%',
+                            sorting: false,
+                            edit: false,
+                            create: false,
+                            display: function (rolesdata) {
+                                //Create an image that will be used to open child table
+                                var $img = $('<img src="<c:url value="/images/list_metro.png" />" title="Edit phone numbers" >');
+                                //Open child table when user clicks the image
+                                $img.click(function () {
+                                    $('#ExpenseTableContainer').jtable('openChildTable',
+                                            $img.closest('tr'),
+                                            {
+                                                title:'SUBDIVISIONS TRUSTED TO USER '+ rolesdata.record.userName,
+                                                actions: {
+                                                    listAction: '${pageContext.request.contextPath}/users/avaibleGrantedSubdiv?userID=' + rolesdata.record.userID,
+                                                    deleteAction: '${pageContext.request.contextPath}/users/removegrantedsubdivision?userId=' + rolesdata.record.userID,
+                                                    createAction: '${pageContext.request.contextPath}/users/addgrantedsubdivision?userId=' + rolesdata.record.userID
+                                                },
+                                                fields: {
+                                                    subdivisionId: {
+                                                        key: true,
+                                                        create: false,
+                                                        edit: false,
+                                                        list: false
+                                                    },
+                                                    subdivId: {
+                                                        title: 'SUBDIVISIONS NAME',
+                                                        width: '30%',
+                                                        //options: 'avaibleRolesOpt?userID=' + rolesdata.record.userID,
+                                                        options: function(data) {
+                                                            data.clearCache();
+                                                            return '${pageContext.request.contextPath}/users/avaibleGrantedSubdivOpt?userID=' + rolesdata.record.userID;
+                                                        },
+                                                        list: false
+                                                    },
+                                                    name: {
+                                                        title: 'SUBDIVISIONS NAME',
+                                                        width: '10%',
                                                         edit: false,
                                                         create: false,
                                                     },

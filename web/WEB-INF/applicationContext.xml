@@ -13,8 +13,17 @@
        <mvc:resources mapping="/resources/images/*" location="/resources/images/"  cache-period="31556926"/>
 
 
-    <mvc:annotation-driven />
-    <context:component-scan base-package="ua.pp.fairwind.internalDBSystem" />
+    <mvc:annotation-driven>
+        <mvc:message-converters>
+            <!-- Use the HibernateAware mapper instead of the default -->
+            <bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
+                <property name="objectMapper">
+                    <bean class="ua.pp.fairwind.internalDBSystem.HibernateAwareObjectMapper" />
+                </property>
+            </bean>
+        </mvc:message-converters>
+    </mvc:annotation-driven>
+    <!-- <context:component-scan base-package="ua.pp.fairwind.internalDBSystem" /> -->
 
     <bean id="viewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
         <property name="prefix" value="/WEB-INF/jsp/" />
@@ -69,14 +78,14 @@
 
     <sec:http pattern="/images/**" security="none"/>
     <sec:http pattern="/resources/**" security="none"/>
-    <sec:http pattern="/login.jsp*" security="none"/>
+    <sec:http pattern="/login*" security="none"/>
     <sec:http pattern="/initial/**" security="none"/>
 
 
-    <sec:http access-denied-page="/error403.jsp" authentication-manager-ref="dao-auth">
+    <sec:http access-denied-page="/forbidden" authentication-manager-ref="dao-auth">
         <sec:intercept-url pattern="/*" access="ROLE_USER"/>
-        <sec:form-login login-page="/login.jsp" default-target-url="/index.jsp" authentication-failure-url="/login.jsp?error=true" username-parameter="username" password-parameter="password"/>
-        <sec:logout logout-url="/logout" logout-success-url="/login.jsp"/>
+        <sec:form-login login-page="/login" default-target-url="/index" authentication-failure-url="/login?error=true" username-parameter="username" password-parameter="password"/>
+        <sec:logout logout-url="/logout" logout-success-url="/login"/>
     </sec:http>
 
     <bean id="myUserDetailsService"

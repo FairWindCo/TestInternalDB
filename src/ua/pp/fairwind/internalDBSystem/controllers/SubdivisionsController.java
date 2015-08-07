@@ -6,6 +6,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -19,7 +20,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Created by Сергей on 21.07.2015.
+ * Created by пїЅпїЅпїЅпїЅпїЅпїЅ on 21.07.2015.
  */
 @Controller
 @RequestMapping("/subdivisions")
@@ -77,7 +78,7 @@ public class SubdivisionsController {
     @Secured("ROLE_ADMIN")
     @Transactional(readOnly = false)
     /*CRUD operation - Add*/
-    @RequestMapping(value = "/addfiletype", method = RequestMethod.POST)
+    @RequestMapping(value = "/add", method = RequestMethod.POST)
     @ResponseBody
     public JSTableExpenseResp<Subdivision> insertGroup(@ModelAttribute Subdivision activities, BindingResult result) {
         JSTableExpenseResp jsonJtableResponse;
@@ -95,7 +96,7 @@ public class SubdivisionsController {
     @Secured("ROLE_ADMIN")
     @Transactional(readOnly = false)
     /*CRUD operation - Update */
-    @RequestMapping(value = "/updatefiletype", method = RequestMethod.POST)
+    @RequestMapping(value = "/update", method = RequestMethod.POST)
     @ResponseBody
     public JSTableExpenseResp<Subdivision>  updateRole(@ModelAttribute Subdivision activities, BindingResult result) {
         JSTableExpenseResp<Subdivision>  jsonJtableResponse;
@@ -114,13 +115,13 @@ public class SubdivisionsController {
     @Secured("ROLE_ADMIN")
     @Transactional(readOnly = false)
     /*CRUD operation - Delete */
-    @RequestMapping(value = "/deletefiletype", method = RequestMethod.POST)
+    @RequestMapping(value = "/delete", method = RequestMethod.POST)
     @ResponseBody
-    public JSTableExpenseResp<Subdivision>  delete(@RequestParam String filesTypeId) {
+    public JSTableExpenseResp<Subdivision>  delete(@RequestParam String subdivisionId) {
         JSTableExpenseResp<Subdivision>  jsonJtableResponse;
         try {
 
-            subdivisionsservice.delete(new Long(filesTypeId));
+            subdivisionsservice.delete(new Long(subdivisionId));
             jsonJtableResponse = new JSTableExpenseResp<>(JSTableExpenseResult.OK,"OK");
         } catch (Exception e) {
             jsonJtableResponse = new JSTableExpenseResp<>(e.getMessage());

@@ -22,9 +22,9 @@
                     actions: {
                         //listAction: 'datatable/getAllExpenses',
                         listAction: '${pageContext.request.contextPath}/subdivisions/listedit',
-                        createAction: '${pageContext.request.contextPath}/subdivisions/addfiletype',
-                        updateAction: '${pageContext.request.contextPath}/subdivisions/updatefiletype',
-                        deleteAction: '${pageContext.request.contextPath}/subdivisions/deletefiletype'
+                        createAction: '${pageContext.request.contextPath}/subdivisions/add',
+                        updateAction: '${pageContext.request.contextPath}/subdivisions/update',
+                        deleteAction: '${pageContext.request.contextPath}/subdivisions/delete'
                     },
                     fields: {
                         subdivisionId: {

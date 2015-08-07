@@ -6,6 +6,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -24,7 +25,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Created by Сергей on 21.07.2015.
+ * Created by пїЅпїЅпїЅпїЅпїЅпїЅ on 21.07.2015.
  */
 @Controller
 @RequestMapping("/users")
@@ -232,10 +233,10 @@ public class UserController {
     @Transactional(readOnly = false)
     @RequestMapping(value = "/adduserrole", method = RequestMethod.POST)
     @ResponseBody
-    public JSTableExpenseResp<Roles> setupNewRole(@RequestParam(required = true) long roleName,@RequestParam(required = true) long userId) {
+    public JSTableExpenseResp<Roles> setupNewRole(@RequestParam(required = true) long newRoleID,@RequestParam(required = true) long userId) {
         JSTableExpenseResp<Roles>  jsonJtableResponse;
         try {
-            Roles role=roleservice.findOne(roleName);
+            Roles role=roleservice.findOne(newRoleID);
             User user=userservice.findOne(userId);
             if(user!=null && role!=null) {
                 user.addUserRoles(role);
@@ -271,7 +272,25 @@ public class UserController {
 
 
     @Secured("ROLE_ADMIN")
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true,propagation = Propagation.REQUIRED)
+    @RequestMapping(value = "/avaibleGrantedSubdiv", method = RequestMethod.POST)
+    @ResponseBody
+    public JSTableExpenseListResp<Subdivision> getAvaibleGruntedSubdivisions(@RequestParam(required = true) long userID) {
+        User user=userservice.findOne(userID);
+        if(user==null){
+            return new JSTableExpenseListResp<>(JSTableExpenseResult.ERROR,"NO USER WITH  ID "+userID);
+        } else {
+            Set<Subdivision> roles=user.getGrantedSubdivisions();
+            if(roles==null){
+                return new JSTableExpenseListResp<>(JSTableExpenseResult.ERROR,"NO SUBDIVISIONS");
+            } else {
+                return new JSTableExpenseListResp<>(roles,roles.size());
+            }
+        }
+    }
+
+    @Secured("ROLE_ADMIN")
+    @Transactional(readOnly = true,propagation = Propagation.REQUIRED)
     @RequestMapping(value = "/avaibleGrantedSubdivOpt", method = RequestMethod.POST)
     @ResponseBody
     public JSTableOptionsResponse<JSTableExpenseOptionsBean> getAvaibleGruntedSubdivisionsOpt(@RequestParam(required = true) long userID) {
@@ -295,10 +314,10 @@ public class UserController {
     @Transactional(readOnly = false)
     @RequestMapping(value = "/addgrantedsubdivision", method = RequestMethod.POST)
     @ResponseBody
-    public JSTableExpenseResp<Subdivision> setupNewGrantedSubdivision(@RequestParam(required = true) long subdivisionId,@RequestParam(required = true) long userId) {
+    public JSTableExpenseResp<Subdivision> setupNewGrantedSubdivision(@RequestParam(required = true) long subdivId,@RequestParam(required = true) long userId) {
         JSTableExpenseResp<Subdivision>  jsonJtableResponse;
         try {
-            Subdivision role=subdivservice.findOne(subdivisionId);
+            Subdivision role=subdivservice.findOne(subdivId);
             User user=userservice.findOne(userId);
             if(user!=null && role!=null) {
                 user.addGrantedSubdivisions(role);

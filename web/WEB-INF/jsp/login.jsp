@@ -72,10 +72,17 @@
                             </fieldset>
                         </form>
                         <core:if test="${param.error != null}">
-                            <c:message code="label.loginincorect"/><br/>
+                            <div class="alert alert-warning"><c:message code="label.loginincorect"/><br/></div>
                         </core:if>
-                        <a href="?lang=en">en</a> | <a href="?lang=az">az</a> | <a href="?lang=ru">ru</a><br/>
-                        <core:out value="param.language: [${param.language}] language: [${language}] pageContext.request.locale: [${pageContext.request.locale}] country: [${pageContext.request.locale.displayCountry}]" /><br/>
+                    </div>
+                    <div class="panel panel-default">
+                        <div class="panel-body" align="center">
+                            <div class="btn-group">
+                                <a href="?lang=en_US" class="btn btn-default">EN</a>
+                                <a href="?lang=ua_UA" class="btn btn-default">UA</a>
+                                <a href="?lang=ru_RU" class="btn btn-default">RU</a>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

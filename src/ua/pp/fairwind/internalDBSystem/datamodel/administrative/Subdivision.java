@@ -5,7 +5,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Created by Сергей on 17.07.2015.
+ * Created by пїЅпїЅпїЅпїЅпїЅпїЅ on 17.07.2015.
  */
 @Entity
 @Table(name = "SUBDIVISIONS")
@@ -15,7 +15,7 @@ public class Subdivision {
     Long subdivisionId;
     @Column(nullable = false)
     String name;
-    @ManyToMany(mappedBy = "subdivision",cascade = {CascadeType.PERSIST,CascadeType.REFRESH})
+    @ManyToMany(mappedBy = "subdivision",cascade = {CascadeType.PERSIST,CascadeType.REFRESH}/*,fetch = FetchType.EAGER*/)
     Set<Category> categories=new HashSet<>();
     @Version
     long versionid;

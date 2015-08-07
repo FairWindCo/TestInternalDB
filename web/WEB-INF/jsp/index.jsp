@@ -80,7 +80,7 @@
                 <a href="users/" onclick="$('#page-wrapper').load('users/'); return false;">Users</a>
               </li>
               <li>
-                <a href="buttons.html">Subdivisions</a>
+                <a href="subdivisions/" onclick="$('#page-wrapper').load('subdivisions/'); return false;">Subdivisions</a>
               </li>
             </ul>
             </li>
