@@ -1,5 +1,7 @@
 package ua.pp.fairwind.internalDBSystem.datamodel.administrative;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
@@ -16,6 +18,7 @@ public class Subdivision {
     @Column(nullable = false)
     String name;
     @ManyToMany(mappedBy = "subdivision",cascade = {CascadeType.PERSIST,CascadeType.REFRESH}/*,fetch = FetchType.EAGER*/)
+    @JsonBackReference
     Set<Category> categories=new HashSet<>();
     @Version
     long versionid;

@@ -44,6 +44,14 @@ public class UserController {
     public String show(Model model) {
         return "user";
     }
+
+    @Secured("ROLE_ADMIN")
+    @RequestMapping(value = "/singe", method = RequestMethod.GET)
+    public String showSingle(Model model) {
+        return "single_page/user";
+    }
+
+
     @Transactional(readOnly = true)
     @RequestMapping(value = "/listedit", method = RequestMethod.POST)
     @ResponseBody
@@ -160,12 +168,33 @@ public class UserController {
     public JSTableExpenseResp<User>  updateRole(@ModelAttribute User user, BindingResult result) {
         JSTableExpenseResp<User>  jsonJtableResponse;
         if (result.hasErrors()) {
-            jsonJtableResponse = new JSTableExpenseResp<>("Form invalid");
+            jsonJtableResponse = new JSTableExpenseResp<>("Form invalid:"+result.toString());
             return jsonJtableResponse;
         }
         try {
-            userservice.save(user);
-            jsonJtableResponse = new JSTableExpenseResp<>(user);
+            Long userid=user.getUserID();
+            if(userid!=null) {
+                User userinDB = userservice.getOne(userid);
+                if (userinDB == null /**/|| userinDB.getVersionId()!=user.getVersionId()/**/) {
+                    jsonJtableResponse = new JSTableExpenseResp<>("USER VAS MODIFIED OR DELETE IN ANOTHER TRANSACTION!");
+                } else {
+                    userinDB.setFio(user.getFio());
+                    userinDB.setUserName(user.getUserName());
+                    userinDB.setEnabled(user.isEnabled());
+                    userinDB.setPasswordHash(user.getPasswordHash());
+                    userinDB.setVersionId(user.getVersionId());
+                    if (user.getMainsubdivisions_id() == null) {
+                        userinDB.setMainsubdivisions(null);
+                    } else {
+                        Subdivision mainsubdiv = subdivservice.findOne(user.getMainsubdivisions_id());
+                        userinDB.setMainsubdivisions(mainsubdiv);
+                    }
+                    userservice.save(userinDB);
+                    jsonJtableResponse = new JSTableExpenseResp<>(userinDB);
+                }
+            }else {
+                jsonJtableResponse = new JSTableExpenseResp<>("USER NOT FOUND!");
+            }
         } catch (Exception e) {
             jsonJtableResponse = new JSTableExpenseResp<>(e.getMessage());
         }
@@ -310,6 +339,22 @@ public class UserController {
         }
         return jsonJtableResponse;
     }
+
+    @Secured("ROLE_ADMIN")
+    @Transactional(readOnly = true)
+    @RequestMapping(value = "/subdivOpt", method = {RequestMethod.POST})
+    @ResponseBody
+    public JSTableOptionsResponse<JSTableExpenseOptionsBean> getSubdivisionsOpt() {
+        JSTableOptionsResponse<JSTableExpenseOptionsBean>  jsonJtableResponse;
+        try {
+            List<JSTableExpenseOptionsBean> avaibleRoles = userservice.getAllSubdivisionsOptions();
+            return new JSTableOptionsResponse<>(avaibleRoles);
+        } catch (Exception e) {
+            jsonJtableResponse = new JSTableOptionsResponse<>(e.getMessage());
+        }
+        return jsonJtableResponse;
+    }
+
     @Secured("ROLE_ADMIN")
     @Transactional(readOnly = false)
     @RequestMapping(value = "/addgrantedsubdivision", method = RequestMethod.POST)
@@ -330,6 +375,7 @@ public class UserController {
         }
         return jsonJtableResponse;
     }
+
     @Secured("ROLE_ADMIN")
     @Transactional(readOnly = false)
     @RequestMapping(value = "/removegrantedsubdivision", method = RequestMethod.POST)

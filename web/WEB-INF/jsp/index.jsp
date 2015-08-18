@@ -74,13 +74,13 @@
             </li>
             <sec:authorize ifAnyGranted="ROLE_ADMIN">
             <li>
-              <a href=""><i class="fa fa-wrench fa-fw"></i>Administrate<span class="fa arrow"></span></a>
+              <a href=""><i class="fa fa-wrench fa-fw"></i><c:message code="label.administrate"/><span class="fa arrow"></span></a>
             <ul class="nav nav-second-level">
               <li>
-                <a href="users/" onclick="$('#page-wrapper').load('users/'); return false;">Users</a>
+                <a href="users/" onclick="$('#page-wrapper').load('users/'); return false;"><c:message code="label.administrate.users"/></a>
               </li>
               <li>
-                <a href="subdivisions/" onclick="$('#page-wrapper').load('subdivisions/'); return false;">Subdivisions</a>
+                <a href="subdivisions/" onclick="$('#page-wrapper').load('subdivisions/'); return false;"><c:message code="label.administrate.subdivisions"/></a>
               </li>
             </ul>
             </li>
@@ -112,12 +112,12 @@
             </li>
               </sec:authorize>
 
-
+            <sec:authorize ifAnyGranted="ROLE_GROUP_INF_EDIT,ROLE_SUPER_INF_EDIT,ROLE_MAIN_INF_EDIT">
             <li>
-              <a href=""><i class="fa fa-edit fa-fw"></i>the Directory<span class="fa arrow"></span></a>
+              <a href=""><i class="fa fa-edit fa-fw"></i><c:message code="label.direcotry"/><span class="fa arrow"></span></a>
               <ul class="nav nav-second-level">
                 <li>
-                  <a href="">Category</a>
+                  <a href="category/" onclick="$('#page-wrapper').load('category/'); return false;"><c:message code="label.direcotry.category"/></a>
                 </li>
                 <li>
                   <a href="">Info Types</a>
@@ -125,7 +125,7 @@
               </ul>
               <!-- /.nav-second-level -->
             </li>
-
+            </sec:authorize>
             <li><a href="logout"><i class="fa fa-sign-out fa-fw"></i> Logout</a>
           </ul>
         </div>

@@ -5,7 +5,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Created by Сергей on 17.07.2015.
+ * Created by пїЅпїЅпїЅпїЅпїЅпїЅ on 17.07.2015.
  */
 @Entity
 @Table(name = "USERS")
@@ -31,6 +31,8 @@ public class User {
     private Subdivision mainsubdivisions;
     @Version
     private long versionId;
+    @Transient
+    private Long mainsubdivisions_id;
 
     public Long getUserID() {
         return userID;
@@ -114,5 +116,14 @@ public class User {
 
     public void removeGrantedSubdivisions(Subdivision grantedSubdivisions) {
         this.grantedSubdivisions.remove(grantedSubdivisions);
+    }
+
+    public Long getMainsubdivisions_id() {
+        if(mainsubdivisions_id!=null) return mainsubdivisions_id;
+        else return mainsubdivisions==null?null:mainsubdivisions.subdivisionId;
+    }
+
+    public void setMainsubdivisions_id(Long mainsubdivisions_id) {
+        this.mainsubdivisions_id = mainsubdivisions_id;
     }
 }

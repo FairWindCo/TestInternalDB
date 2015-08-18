@@ -98,15 +98,21 @@ public class SubdivisionsController {
     /*CRUD operation - Update */
     @RequestMapping(value = "/update", method = RequestMethod.POST)
     @ResponseBody
-    public JSTableExpenseResp<Subdivision>  updateRole(@ModelAttribute Subdivision activities, BindingResult result) {
+    public JSTableExpenseResp<Subdivision>  updateRole(@ModelAttribute Subdivision subdivision, BindingResult result) {
         JSTableExpenseResp<Subdivision>  jsonJtableResponse;
         if (result.hasErrors()) {
             jsonJtableResponse = new JSTableExpenseResp<>("Form invalid");
             return jsonJtableResponse;
         }
         try {
-            subdivisionsservice.save(activities);
-            jsonJtableResponse = new JSTableExpenseResp<>(activities);
+            Subdivision subdivisionDB=subdivisionsservice.findOne(subdivision.getSubdivisionId());
+            if(subdivisionDB!=null && subdivisionDB.getVersionid()<=subdivision.getVersionid()) {
+                subdivisionDB.setName(subdivision.getName());
+                subdivisionsservice.save(subdivisionDB);
+                jsonJtableResponse = new JSTableExpenseResp<>(subdivision);
+            } else {
+                jsonJtableResponse = new JSTableExpenseResp<>("Subdivision VAS MODIFIED OR DELETE IN ANOTHER TRANSACTION!");
+            }
         } catch (Exception e) {
             jsonJtableResponse = new JSTableExpenseResp<>(e.getMessage());
         }
@@ -142,6 +148,33 @@ public class SubdivisionsController {
             jsonJtableResponse = new JSTableOptionsResponse<>(e.getMessage());
         }
         return jsonJtableResponse;
+    }
+
+    @Transactional(readOnly = true)
+    @RequestMapping(value = "/listing", method = RequestMethod.GET)
+    @ResponseBody
+    public JSComboExpenseResp<Subdivision> simpleList(Model model,@RequestParam int page_num, @RequestParam int per_page) {
+
+        logger.log(Level.INFO,"Received request to show "+per_page+" filetypes from"+page_num);
+
+        // Retrieve all persons by delegating the call to PersonService
+        Sort sort= null;//FormSort.formSortFromSortDescription(jtSorting);
+        PageRequest pager;
+        Page<Subdivision> page;
+
+        if(sort!=null){
+            pager=new PageRequest(page_num-1,per_page,sort);
+        } else {
+            pager=new PageRequest(page_num-1, per_page);
+        }
+        /*
+        if(searchname!=null && !searchname.isEmpty()){
+            page =  subdivisionsservice.findByNameLike(searchname, pager);
+        } else {
+            page = subdivisionsservice.findAll(pager);
+        }*/
+        page = subdivisionsservice.findAll(pager);
+        return new JSComboExpenseResp<>(page);
     }
 
 }

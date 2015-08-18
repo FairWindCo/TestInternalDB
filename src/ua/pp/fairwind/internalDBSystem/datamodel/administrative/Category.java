@@ -1,11 +1,13 @@
 package ua.pp.fairwind.internalDBSystem.datamodel.administrative;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Created by Сергей on 17.07.2015.
+ * Created by пїЅпїЅпїЅпїЅпїЅпїЅ on 17.07.2015.
  */
 @Entity
 @Table(name = "CATEGORIES")
@@ -17,6 +19,7 @@ public class Category {
     @Column(name = "CATEGORY_NAME")
     String name;
     @ManyToMany
+    @JsonManagedReference
     Set<Subdivision> subdivision =new HashSet<>();
     @OneToMany(cascade = CascadeType.ALL,mappedBy = "category")
     Set<InfoType> infoTypes=new HashSet<>();
