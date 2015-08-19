@@ -14,13 +14,10 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import ua.pp.fairwind.internalDBSystem.datamodel.administrative.Category;
-import ua.pp.fairwind.internalDBSystem.datamodel.administrative.Roles;
 import ua.pp.fairwind.internalDBSystem.datamodel.administrative.Subdivision;
-import ua.pp.fairwind.internalDBSystem.datamodel.administrative.User;
 import ua.pp.fairwind.internalDBSystem.dateTable.*;
 import ua.pp.fairwind.internalDBSystem.security.UserDetailsAdapter;
 import ua.pp.fairwind.internalDBSystem.services.repository.CategoryRepository;
-import ua.pp.fairwind.internalDBSystem.services.repository.RoleRepository;
 import ua.pp.fairwind.internalDBSystem.services.repository.SubdivisionRepository;
 import ua.pp.fairwind.internalDBSystem.services.repository.UserRepository;
 
@@ -173,14 +170,30 @@ public class CategoryController {
         try {
 
             Set<Long> assignedSubdivID=categoryservice.getSubdivisionsIDForCategoryId(categoryId);
-            return new JSTableOptionsResponse<>(getCategory(assignedSubdivID));
+            return new JSTableOptionsResponse<>(getCategorySubdivisions(assignedSubdivID));
         } catch (Exception e) {
             jsonJtableResponse = new JSTableOptionsResponse<>(e.getMessage());
         }
         return jsonJtableResponse;
     }
 
-    private List<JSTableExpenseOptionsBean> getCategory(Set<Long> assignedSubdivID){
+    @Secured({"ROLE_GROUP_INF_EDIT", "ROLE_SUPER_INF_EDIT","ROLE_MAIN_INF_EDIT"})
+    @Transactional(readOnly = true,propagation = Propagation.REQUIRED)
+    @RequestMapping(value = "/avaibleSubdivListOpt", method = {RequestMethod.GET,RequestMethod.POST})
+    @ResponseBody
+    public JSSelectExpenseResp<JSTableExpenseOptionsBean> getAvaibleSubdivisionsSelOpt(@RequestParam(required = true) long categoryId) {
+        JSSelectExpenseResp<JSTableExpenseOptionsBean>  jsonJtableResponse;
+        try {
+
+            Set<Long> assignedSubdivID=categoryservice.getSubdivisionsIDForCategoryId(categoryId);
+            return new JSSelectExpenseResp<>(getCategorySubdivisions(assignedSubdivID));
+        } catch (Exception e) {
+            jsonJtableResponse = new JSSelectExpenseResp<>(e.getMessage());
+        }
+        return jsonJtableResponse;
+    }
+
+    private List<JSTableExpenseOptionsBean> getCategorySubdivisions(Set<Long> assignedSubdivID){
         JSTableOptionsResponse<JSTableExpenseOptionsBean>  jsonJtableResponse;
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         UserDetailsAdapter user=(UserDetailsAdapter)auth.getPrincipal();
@@ -211,11 +224,37 @@ public class CategoryController {
     public JSTableOptionsResponse<JSTableExpenseOptionsBean> getSubdivisionsOpt() {
         JSTableOptionsResponse<JSTableExpenseOptionsBean>  jsonJtableResponse;
         try {
-            return new JSTableOptionsResponse<>(getCategory(null));
+            return new JSTableOptionsResponse<>(getCategorySubdivisions(null));
         } catch (Exception e) {
             jsonJtableResponse = new JSTableOptionsResponse<>(e.getMessage());
         }
         return jsonJtableResponse;
+    }
+
+    @Secured({"ROLE_GROUP_INF_EDIT", "ROLE_SUPER_INF_EDIT","ROLE_MAIN_INF_EDIT"})
+    @Transactional(readOnly = true)
+    @RequestMapping(value = "/subdivListOpt", method = {RequestMethod.GET,RequestMethod.POST})
+    @ResponseBody
+    public JSSelectExpenseResp<JSTableExpenseOptionsBean> getSubdivisionsListOpt() {
+        JSSelectExpenseResp<JSTableExpenseOptionsBean>  jsonJtableResponse;
+        try {
+            return new JSSelectExpenseResp<>(getCategorySubdivisions(null));
+        } catch (Exception e) {
+            jsonJtableResponse = new JSSelectExpenseResp<>(e.getMessage());
+        }
+        return jsonJtableResponse;
+    }
+
+    @Secured({"ROLE_GROUP_INF_EDIT", "ROLE_SUPER_INF_EDIT","ROLE_MAIN_INF_EDIT"})
+    @Transactional(readOnly = true)
+    @RequestMapping(value = "/subdivs", method = {RequestMethod.GET,RequestMethod.POST})
+    @ResponseBody
+    public List<JSTableExpenseOptionsBean> getSubdivisionsList() {
+        try {
+            return getCategorySubdivisions(null);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     @Secured({"ROLE_GROUP_INF_EDIT", "ROLE_SUPER_INF_EDIT","ROLE_MAIN_INF_EDIT"})

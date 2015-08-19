@@ -177,4 +177,31 @@ public class SubdivisionsController {
         return new JSComboExpenseResp<>(page);
     }
 
+
+    @Transactional(readOnly = true)
+    @RequestMapping(value = "/selecting", method = RequestMethod.GET)
+    @ResponseBody
+    public JSSelectExpenseResp<Subdivision> multiList(Model model,@RequestParam int page_num, @RequestParam int per_page) {
+
+        logger.log(Level.INFO,"Received request to show "+per_page+" filetypes from"+page_num);
+
+        // Retrieve all persons by delegating the call to PersonService
+        Sort sort= null;//FormSort.formSortFromSortDescription(jtSorting);
+        PageRequest pager;
+        Page<Subdivision> page;
+
+        if(sort!=null){
+            pager=new PageRequest(page_num-1,per_page,sort);
+        } else {
+            pager=new PageRequest(page_num-1, per_page);
+        }
+        /*
+        if(searchname!=null && !searchname.isEmpty()){
+            page =  subdivisionsservice.findByNameLike(searchname, pager);
+        } else {
+            page = subdivisionsservice.findAll(pager);
+        }*/
+        page = subdivisionsservice.findAll(pager);
+        return new JSSelectExpenseResp<>(page);
+    }
 }

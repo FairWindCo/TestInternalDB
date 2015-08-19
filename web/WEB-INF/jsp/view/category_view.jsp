@@ -17,6 +17,9 @@
 <%-- JCombobox --%>
 <%@include file="/WEB-INF/include/jcombo_include.jsp" %>
 
+<%-- JCombobox --%>
+<%@include file="/WEB-INF/include/jselectivity_include.jsp" %>
+
 <%-- customized javascript code to manage JTable --%>
 <script>
   $(document).ready(function() {
@@ -47,6 +50,27 @@
           title: 'CATEGORY NAME',
           width: '65%',
         },
+        "subdivs[multiple]": {
+          title: 'SUBDIVISIONS:',
+          width: '10%',
+          edit: false,
+          create: true,
+          list: false,
+          input:function(data){
+            return '<div class="ui-widget"><select id="subdivisions-input33" class="selectivity-input" name="subdivs[multiple]" multiple ></select></div>';
+          },
+        },
+        /*
+        subdivsId2: {
+          title: 'SUBDIVISIONS NAME',
+          width: '30%',
+          //options: 'avaibleRolesOpt?userID=' + rolesdata.record.userID,
+          options: function(data) {
+            data.clearCache();
+            return '${pageContext.request.contextPath}/category/subdivOpt';
+          },
+          list: false
+        },*/
         selsubdivisions:{
           title: 'SUBDIVISIONS',
           width: '10%',
@@ -108,6 +132,52 @@
             return '<input name="versionid" id="Edit-versionid" value="'+data.value+'" readonly>';
           },
         },
+      },
+      formCreated:function(event, data){
+        $('#subdivisions-input33').selectivity({
+          ajax: {
+            url: '${pageContext.request.contextPath}/category/subdivListOpt',
+            dataType: 'json',
+            //minimumInputLength: 3,
+            //quietMillis: 250,
+            allowClear: true,
+            multiple: true,
+            //dropdownCssClass:'ui-dialog ui-widget',
+            //inputType:'Multiple',
+
+            params: function(term, offset) {
+              // GitHub uses 1-based pages with 30 results, by default
+              var page = 1 + Math.floor(offset / 30);
+              return { q: term, page: page };
+            },
+            processItem: function(item) {
+              return {
+                id: item.Value,
+                text: item.DisplayText,
+                description: null
+              };
+            },
+            results: function(data, offset) {
+              return {
+                results: data.items,
+                more: (offset + data.items.length > data.total_count)
+              };
+            }
+          },
+          placeholder: 'Search for a repository',
+        });
+        /*
+        //data.form.find('select[name=subdivsId2]').attr('size','10');
+        data.form.find('select[name=subdivsId2]').attr('multiple','multiple');
+        data.form.find('select[name=subdivsId2]').attr('name','subdivsId2[]');
+
+        $('#Edit-subdivsId2').selectivity({
+          quietMillis: 250,
+          allowClear: true,
+          multiple: true,
+          inputType:'Multiple',
+        });
+        */
 
       },
       //Register to selectionChanged event to hanlde events
