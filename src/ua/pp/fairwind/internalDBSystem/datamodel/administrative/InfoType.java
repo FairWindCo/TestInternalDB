@@ -1,9 +1,11 @@
 package ua.pp.fairwind.internalDBSystem.datamodel.administrative;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import javax.persistence.*;
 
 /**
- * Created by Сергей on 17.07.2015.
+ * Created by пїЅпїЅпїЅпїЅпїЅпїЅ on 17.07.2015.
  */
 @Entity
 @Table(name = "INFOTYPES")
@@ -16,6 +18,7 @@ public class InfoType {
     @Version
     long versionid;
     @ManyToOne
+    @JsonManagedReference
     @JoinColumn(name="CATEGORY_ID", nullable=true)
     Category category;
 

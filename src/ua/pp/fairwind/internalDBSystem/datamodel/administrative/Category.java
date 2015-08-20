@@ -1,5 +1,6 @@
 package ua.pp.fairwind.internalDBSystem.datamodel.administrative;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import javax.persistence.*;
@@ -21,6 +22,7 @@ public class Category {
     @ManyToMany
     @JsonManagedReference
     Set<Subdivision> subdivision =new HashSet<>();
+    @JsonBackReference
     @OneToMany(cascade = CascadeType.ALL,mappedBy = "category")
     Set<InfoType> infoTypes=new HashSet<>();
     @Version

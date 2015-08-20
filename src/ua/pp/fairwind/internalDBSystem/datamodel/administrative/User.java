@@ -1,5 +1,7 @@
 package ua.pp.fairwind.internalDBSystem.datamodel.administrative;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
@@ -24,7 +26,8 @@ public class User {
     private boolean enabled;
     @ManyToMany(fetch = FetchType.EAGER)
     private Set<Roles> userRoles=new HashSet<>();
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JsonManagedReference
     private Set<Subdivision> grantedSubdivisions=new HashSet<>();
     @ManyToOne
     @JoinColumn(name="SUBDIV_ID", nullable=true)

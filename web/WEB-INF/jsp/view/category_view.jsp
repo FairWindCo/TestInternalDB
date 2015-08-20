@@ -11,18 +11,21 @@
 <%-- JQuery --%>
 <%@include file="/WEB-INF/include/jquery_include.jsp" %>
 
+<%-- BootStrup--%>
+<%@include file="/WEB-INF/include/bootstrup_include.jsp" %>
+<%----%>
 <%-- JTable --%>
 <%@include file="/WEB-INF/include/jtable_include.jsp" %>
 
-<%-- JCombobox --%>
-<%@include file="/WEB-INF/include/jcombo_include.jsp" %>
 
-<%-- JCombobox --%>
-<%@include file="/WEB-INF/include/jselectivity_include.jsp" %>
+<%-- JMultiSelect--%>
+<%@include file="/WEB-INF/include/jmultselect_include.jsp" %>
+
 
 <%-- customized javascript code to manage JTable --%>
 <script>
   $(document).ready(function() {
+
     //setup the jtable that will display the results
     $('#ExpenseTableContainer').jtable({
       title: '<c:message code="label.categorytables"/>',
@@ -50,6 +53,7 @@
           title: 'CATEGORY NAME',
           width: '65%',
         },
+        /*
         "subdivs[multiple]": {
           title: 'SUBDIVISIONS:',
           width: '10%',
@@ -60,7 +64,8 @@
             return '<div class="ui-widget"><select id="subdivisions-input33" class="selectivity-input" name="subdivs[multiple]" multiple ></select></div>';
           },
         },
-        /*
+        */
+
         subdivsId2: {
           title: 'SUBDIVISIONS NAME',
           width: '30%',
@@ -69,8 +74,9 @@
             data.clearCache();
             return '${pageContext.request.contextPath}/category/subdivOpt';
           },
-          list: false
-        },*/
+          list: false,
+          edit: false
+        },
         selsubdivisions:{
           title: 'SUBDIVISIONS',
           width: '10%',
@@ -134,50 +140,20 @@
         },
       },
       formCreated:function(event, data){
-        $('#subdivisions-input33').selectivity({
-          ajax: {
-            url: '${pageContext.request.contextPath}/category/subdivListOpt',
-            dataType: 'json',
-            //minimumInputLength: 3,
-            //quietMillis: 250,
-            allowClear: true,
-            multiple: true,
-            //dropdownCssClass:'ui-dialog ui-widget',
-            //inputType:'Multiple',
-
-            params: function(term, offset) {
-              // GitHub uses 1-based pages with 30 results, by default
-              var page = 1 + Math.floor(offset / 30);
-              return { q: term, page: page };
-            },
-            processItem: function(item) {
-              return {
-                id: item.Value,
-                text: item.DisplayText,
-                description: null
-              };
-            },
-            results: function(data, offset) {
-              return {
-                results: data.items,
-                more: (offset + data.items.length > data.total_count)
-              };
-            }
-          },
-          placeholder: 'Search for a repository',
-        });
-        /*
-        //data.form.find('select[name=subdivsId2]').attr('size','10');
+        data.form.find('select[name=subdivsId2]').attr('size','10');
         data.form.find('select[name=subdivsId2]').attr('multiple','multiple');
         data.form.find('select[name=subdivsId2]').attr('name','subdivsId2[]');
 
-        $('#Edit-subdivsId2').selectivity({
-          quietMillis: 250,
-          allowClear: true,
-          multiple: true,
-          inputType:'Multiple',
-        });
-        */
+
+
+         var parent=data.form.parent().parent();
+        $('#Edit-subdivsId2').multiselect({
+          show: "bounce",
+          hide: "explode",
+          selectedList: 5, // 0-based index,
+          appendTo : parent,
+        }).multiselectfilter();
+
 
       },
       //Register to selectionChanged event to hanlde events

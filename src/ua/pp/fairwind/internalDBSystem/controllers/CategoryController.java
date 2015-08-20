@@ -82,12 +82,20 @@ public class CategoryController {
     /*CRUD operation - Add*/
     @RequestMapping(value = "/add", method = RequestMethod.POST)
     @ResponseBody
-    public JSTableExpenseResp<Category> insert(@ModelAttribute Category category, BindingResult result) {
+    public JSTableExpenseResp<Category> insert(@ModelAttribute Category category, BindingResult result,@RequestParam(value = "subdivsId2[]",required = false) long[] subdivsid) {
         JSTableExpenseResp jsonJtableResponse;
         if (result.hasErrors()) {
             return new JSTableExpenseResp<Category>("Form invalid");
         }
         try {
+            if(subdivsid!=null && subdivsid.length>0){
+                for(long subdivid:subdivsid) {
+                    Subdivision subdivision =subdivservice.findOne(subdivid);
+                    if(subdivision!=null){
+                        category.getSubdivision().add(subdivision);
+                    }
+                }
+            }
             categoryservice.save(category);
             jsonJtableResponse = new JSTableExpenseResp<>(category);
         } catch (Exception e) {

@@ -15,7 +15,6 @@
 
        <mvc:resources mapping="/resources/**" location="/resources/"  cache-period="31556926"/>
        <mvc:resources mapping="/images/*" location="/images/"  cache-period="31556926"/>
-       <mvc:resources mapping="/resources/images/*" location="/resources/images/"  cache-period="31556926"/>
 
 
        <bean id="localeResolver"

@@ -498,3 +498,7 @@ div.jtable-busy-message {
 div.jtable-input{
   color: black;
 }
+
+select{
+  color: black;
+}
