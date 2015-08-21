@@ -4,6 +4,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import ua.pp.fairwind.internalDBSystem.datamodel.administrative.Category;
 import ua.pp.fairwind.internalDBSystem.datamodel.administrative.Subdivision;
 import ua.pp.fairwind.internalDBSystem.dateTable.JSTableExpenseOptionsBean;
@@ -22,7 +23,11 @@ public interface CategoryRepository extends JpaRepository<Category,Long> {
     @Query("Select new ua.pp.fairwind.internalDBSystem.dateTable.JSTableExpenseOptionsBean(c.categoryId,c.name) from Category c")
     List<JSTableExpenseOptionsBean> getAllCategoryOptions();
 
+    @Query("Select c from Category c join c.subdivision s where c.name like :name and s.subdivisionId in :trusted")
+    Page<Category> getAllElementsByName(@Param("name") String name,@Param("trusted") Set<Long> trustedSubdivisions, Pageable pageRequest);
 
+    Page<Category> findBySubdivisionSubdivisionIdIn(Set<Long> trustedSubdivisions, Pageable pageRequest);
+    Page<Category> findByNameLikeAndSubdivisionSubdivisionIdIn(String name,Set<Long> trustedSubdivisions, Pageable pageRequest);
     @Query("Select distinct gSub.subdivisionId from Category c join c.subdivision gSub where c.categoryId = ?1")
     Set<Long> getSubdivisionsIDForCategoryId(Long userID);
     @Query("Select sub from Subdivision sub where sub.subdivisionId NOT IN  ?1")

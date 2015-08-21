@@ -9,9 +9,10 @@ import ua.pp.fairwind.internalDBSystem.datamodel.administrative.InfoType;
 import ua.pp.fairwind.internalDBSystem.dateTable.JSTableExpenseOptionsBean;
 
 import java.util.List;
+import java.util.Set;
 
 /**
- * Created by Сергей on 17.07.2015.
+ * Created by пїЅпїЅпїЅпїЅпїЅпїЅ on 17.07.2015.
  */
 public interface InfoTypeRepository extends JpaRepository<InfoType,Long> {
     List<InfoType> findByTypeName(String typeName);
@@ -20,4 +21,21 @@ public interface InfoTypeRepository extends JpaRepository<InfoType,Long> {
     Page<InfoType> findByTypeNameLike(String typeName, Pageable pageRequest);
     @Query("Select new ua.pp.fairwind.internalDBSystem.dateTable.JSTableExpenseOptionsBean(c.typeId,c.typeName) from InfoType c")
     List<JSTableExpenseOptionsBean> getAllInfoTypeOptions();
+
+    Page<InfoType> findByCategorySubdivisionSubdivisionIdIn(Set<Long> trustedSubdivisions, Pageable pageRequest);
+    Page<InfoType> findByTypeNameLikeAndCategorySubdivisionSubdivisionIdIn(String name,Set<Long> trustedSubdivisions, Pageable pageRequest);
+    @Query("Select distinct categ.categoryId from InfoType inf join inf.category categ where inf.typeId = ?1")
+    Set<Long> getCategoryIDForInfoTypeId(Long userID);
+
+
+    @Query("Select cat from Category cat join cat.subdivision sub where sub.subdivisionId IN  ?1")
+    List<Category> getAvaibleCategory(Set<Long> trustedSubdivisionsIds);
+    @Query("Select new ua.pp.fairwind.internalDBSystem.dateTable.JSTableExpenseOptionsBean(cat.categoryId,cat.name) from Category cat join cat.subdivision sub where sub.subdivisionId IN  ?1")
+    List<JSTableExpenseOptionsBean> getAvaibleCategoryOpt(Set<Long> trustedSubdivisionsIds);
+    @Query("Select new ua.pp.fairwind.internalDBSystem.dateTable.JSTableExpenseOptionsBean(cat.categoryId,cat.name) from Category cat")
+    List<JSTableExpenseOptionsBean> getAllCategoryes();
+
+    @Query("Select new ua.pp.fairwind.internalDBSystem.dateTable.JSTableExpenseOptionsBean(inf.typeId,inf.typeName) from InfoType inf where inf.category.categoryId=?1")
+    List<JSTableExpenseOptionsBean> getAllInfoTypesForCategory(long categoryId);
+
 }

@@ -70,10 +70,23 @@ public class CategoryController {
         } else {
             pager=new PageRequest(jtStartIndex, jtPageSize);
         }
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        UserDetailsAdapter user=(UserDetailsAdapter)auth.getPrincipal();
         if(searchname!=null && !searchname.isEmpty()){
-           page =  categoryservice.findByNameLike(searchname, pager);
+            if (user.hasRole("ROLE_SUPER_INF_EDIT")) {
+                page =  categoryservice.findByNameLike(searchname, pager);
+            } else {
+                page = categoryservice.findByNameLikeAndSubdivisionSubdivisionIdIn(searchname, user.getTrustedSubvisionsId(), pager);
+                //page =  categoryservice.findByNameLikeSec(searchname,user.getTrustedSubvisionsId(), pager);
+            }
         } else {
-            page = categoryservice.findAll(pager);
+            //page = categoryservice.getAllSec(user.getTrustedSubvisionsId(),pager);
+            if (user.hasRole("ROLE_SUPER_INF_EDIT")) {
+                page = categoryservice.findAll(pager);
+            } else {
+                page = categoryservice.findBySubdivisionSubdivisionIdIn(user.getTrustedSubvisionsId(), pager);
+                //return new JSTableExpenseListResp<Category>(categoryservice.getAllSec(user.getTrustedSubvisionsId()));
+            }
         }
         return new JSTableExpenseListResp<Category>(page);
     }

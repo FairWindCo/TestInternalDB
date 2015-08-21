@@ -1,6 +1,12 @@
 package ua.pp.fairwind.internalDBSystem.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
@@ -9,80 +15,88 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import ua.pp.fairwind.internalDBSystem.datamodel.Person;
-import ua.pp.fairwind.internalDBSystem.datamodel.directories.FilesType;
+import ua.pp.fairwind.internalDBSystem.datamodel.directories.PersonType;
+import ua.pp.fairwind.internalDBSystem.dateTable.FormSort;
 import ua.pp.fairwind.internalDBSystem.dateTable.JSTableExpenseListResp;
-import ua.pp.fairwind.internalDBSystem.services.PersonService;
-import ua.pp.fairwind.internalDBSystem.services.repository.FileTypeRepository;
-
-import javax.annotation.Resource;
-import java.util.List;
-import java.util.logging.Level;
+import ua.pp.fairwind.internalDBSystem.security.UserDetailsAdapter;
+import ua.pp.fairwind.internalDBSystem.services.repository.PersonRepository;
 import java.util.logging.Logger;
 
 /**
- * Created by Сергей on 16.07.2015.
+ * Created by FirWind on 16.07.2015.
  */
 @Controller
 @RequestMapping("/person")
 public class PersonController {
     protected static Logger logger = Logger.getLogger("controller");
 
-    @Autowired
-    private FileTypeRepository filetypeservice;
 
-    @Resource(name="personService")
-    private PersonService personService;
+    private PersonRepository personService;
 
-    @Transactional(readOnly = false)
-    @RequestMapping(value = "/all", method = RequestMethod.GET)
-    public String getPersons(Model model) {
-
-        logger.log(Level.INFO, "Received request to show all persons");
-
-        // Retrieve all persons by delegating the call to PersonService
-        List<Person> persons = personService.getAll();
-
-        // Attach persons to the Model
-        model.addAttribute("persons", persons);
-        FilesType typ=new FilesType();
-        typ.setFilesTypeName("test");
-        filetypeservice.saveAndFlush(typ);
-        // This will resolve to /WEB-INF/jsp/personspage.jsp
-        return "personspage";
+    @Secured({"ROLE_SUPERVIEW","ROLE_GROUP_VIEW", "ROLE_SUPER_VIEW","ROLE_MAIN_VIEW"})
+    @RequestMapping(value = "/", method = RequestMethod.GET)
+    public String show(Model model) {
+        return "personview";
     }
 
-    public FileTypeRepository getFiletypeservice() {
-        return filetypeservice;
+    @Secured({"ROLE_SUPEREDIT","ROLE_GROUP_EDIT", "ROLE_SUPER_EDIT","ROLE_MAIN_EDIT"})
+    @RequestMapping(value = "/editview", method = RequestMethod.GET)
+    public String showForEdit(Model model) {
+        return "personedit";
     }
 
-    public void setFiletypeservice(FileTypeRepository filetypeservice) {
-        this.filetypeservice = filetypeservice;
-    }
-
-    @RequestMapping(value = "/list", method = RequestMethod.GET)
+    @Transactional(readOnly = true)
+    @Secured({"ROLE_SUPERVIEW","ROLE_GROUP_VIEW", "ROLE_SUPER_VIEW","ROLE_MAIN_VIEW","ROLE_SUPEREDIT","ROLE_GROUP_EDIT", "ROLE_SUPER_EDIT","ROLE_MAIN_EDIT"})
+    @RequestMapping(value = "/listClients", method = RequestMethod.GET)
     @ResponseBody
-    public List<Person> getAllPersons(Model model) {
+    public JSTableExpenseListResp<Person> getClientPersons(@RequestParam int jtStartIndex, @RequestParam int jtPageSize, @RequestParam(required = false) String jtSorting,@RequestParam(required = false) String searchname,@RequestParam(required = false) String codename) {
+        Sort sort= FormSort.formSortFromSortDescription(jtSorting);
+        PageRequest pager;
+        if(sort!=null){
+            pager = new PageRequest(jtStartIndex, jtPageSize, sort);
 
-        logger.log(Level.INFO,"Received request to show all persons");
-
-        // Retrieve all persons by delegating the call to PersonService
-        List<Person> persons = personService.getAll();
-
-        return persons;
+        } else {
+            pager = new PageRequest(jtStartIndex, jtPageSize);
+        }
+        Page<Person> page=getClientPersons(pager, searchname, codename,PersonType.CLIENT);
+        return new JSTableExpenseListResp<Person>(page);
     }
 
-    @RequestMapping(value = "/list2", method = RequestMethod.POST)
+    @Transactional(readOnly = true)
+    @Secured({"ROLE_SUPERVIEW","ROLE_GROUP_VIEW", "ROLE_SUPER_VIEW","ROLE_MAIN_VIEW","ROLE_SUPEREDIT","ROLE_GROUP_EDIT", "ROLE_SUPER_EDIT","ROLE_MAIN_EDIT"})
+    @RequestMapping(value = "/listWorkers", method = RequestMethod.GET)
     @ResponseBody
-    public JSTableExpenseListResp<Person> getAllPersonsJS(Model model,@RequestParam int jtStartIndex, @RequestParam int jtPageSize) {
+    public JSTableExpenseListResp<Person> getPersons(@RequestParam int jtStartIndex, @RequestParam int jtPageSize, @RequestParam(required = false) String jtSorting,@RequestParam(required = false) String searchname,@RequestParam(required = false) String codename) {
+        Sort sort= FormSort.formSortFromSortDescription(jtSorting);
+        PageRequest pager;
+        if(sort!=null){
+            pager = new PageRequest(jtStartIndex, jtPageSize, sort);
 
-        logger.log(Level.INFO,"Received request to show "+jtPageSize+" persons from"+jtStartIndex);
+        } else {
+            pager = new PageRequest(jtStartIndex, jtPageSize);
+        }
+        Page<Person> page=getClientPersons(pager, searchname, codename,PersonType.WORKER);
+        return new JSTableExpenseListResp<Person>(page);
+    }
 
-        // Retrieve all persons by delegating the call to PersonService
-
-
-        List<Person> persons = personService.getAll();
-
-        return new JSTableExpenseListResp<Person>(persons,persons.size());
+    private Page<Person> getClientPersons(PageRequest pager,String searchname, String codename,PersonType personType){
+        Page<Person> page;
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        UserDetailsAdapter user=(UserDetailsAdapter)auth.getPrincipal();
+        if(searchname!=null && !searchname.isEmpty()) {
+                if (codename != null && !codename.isEmpty()) {
+                    page=personService.findByFioContainsAndCodeContainsAndPersonType(searchname,codename,personType,pager);
+                } else {
+                    page=personService.findByFioContainsAndPersonType(searchname, personType, pager);
+                }
+            } else {
+                if (codename != null && !codename.isEmpty()) {
+                    page=personService.findByCodeContainsAndPersonType(codename, personType, pager);
+                } else {
+                    page=personService.findByPersonType(personType, pager);
+                }
+            }
+        return page;
     }
 
 }

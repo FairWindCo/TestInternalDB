@@ -26,7 +26,7 @@ public class User {
     private boolean enabled;
     @ManyToMany(fetch = FetchType.EAGER)
     private Set<Roles> userRoles=new HashSet<>();
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JsonManagedReference
     private Set<Subdivision> grantedSubdivisions=new HashSet<>();
     @ManyToOne

@@ -120,7 +120,7 @@
                   <a href="category/" onclick="$('#page-wrapper').load('category/'); return false;"><c:message code="label.direcotry.category"/></a>
                 </li>
                 <li>
-                  <a href="">Info Types</a>
+                  <a href="info/" onclick="$('#page-wrapper').load('info/'); return false;"><c:message code="label.direcotry.info"/></a>
                 </li>
               </ul>
               <!-- /.nav-second-level -->

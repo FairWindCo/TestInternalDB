@@ -12,7 +12,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Created by Сергей on 16.07.2015.
+ * Created by пїЅпїЅпїЅпїЅпїЅпїЅ on 16.07.2015.
  */
 @Entity
 @Table(name = "PERSONS")
@@ -22,7 +22,7 @@ public class Person {
     @GeneratedValue
     private Long personId;
     @Column(name = "FIO",nullable = false)
-    private String FIO;
+    private String fio;
     @Column(name = "PERSON_CODE")
     private String code;
     @Column(name = "BIRTHDAY",nullable = false)
@@ -68,8 +68,8 @@ public class Person {
         createdTime=System.currentTimeMillis();
     }
 
-    public Person(String FIO) {
-        this.FIO = FIO;
+    public Person(String fio) {
+        this.fio = fio;
         this.personId=(long)(Math.random()*1000000);
         this.dateberthdey=System.currentTimeMillis()-((int)Math.random()*2500);
         this.code=Integer.toString((int) (Math.random() * 1234546));
@@ -78,12 +78,12 @@ public class Person {
         createdTime=System.currentTimeMillis();
     }
 
-    public String getFIO() {
-        return FIO;
+    public String getFio() {
+        return fio;
     }
 
-    public void setFIO(String FIO) {
-        this.FIO = FIO;
+    public void setFio(String FIO) {
+        this.fio = FIO;
     }
 
     public String getCode() {
