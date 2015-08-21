@@ -9,11 +9,14 @@
 <%@ taglib prefix="c" uri="http://www.springframework.org/tags" %>
 
 <%-- JQuery --%>
-<%@include file="/WEB-INF/include/jquery_include.jsp" %>
+<%@include file="/WEB-INF/include/jquery_lib_include.jsp" %>
 
 <%-- BootStrup--%>
 <%@include file="/WEB-INF/include/bootstrup_include.jsp" %>
 <%----%>
+
+<%-- JQueryUI --%>
+<%@include file="/WEB-INF/include/jquery_ui_include.jsp" %>
 <%-- JTable --%>
 <%@include file="/WEB-INF/include/jtable_include.jsp" %>
 
