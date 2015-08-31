@@ -13,6 +13,9 @@
               <property name="suffix" value=".jsp" />
        </bean>
 
+       <bean id="multipartResolver"
+          class="org.springframework.web.multipart.commons.CommonsMultipartResolver" />
+
        <mvc:resources mapping="/resources/**" location="/resources/"  cache-period="31556926"/>
        <mvc:resources mapping="/images/*" location="/images/"  cache-period="31556926"/>
 

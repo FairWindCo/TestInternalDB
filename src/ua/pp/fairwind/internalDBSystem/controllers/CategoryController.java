@@ -182,6 +182,19 @@ public class CategoryController {
         }
     }
 
+    @Secured({"ROLE_GROUP_EDIT", "ROLE_SUPER_EDIT","ROLE_MAIN_EDIT"})
+    @Transactional(readOnly = true,propagation = Propagation.REQUIRED)
+    @RequestMapping(value = "/subdivisionsCategories", method = RequestMethod.POST)
+    @ResponseBody
+    public JSTableOptionsResponse<JSTableExpenseOptionsBean> getCategoryForSubdivision(@RequestParam(required = true) long subdivisionId) {
+        List<JSTableExpenseOptionsBean> categoryes=subdivservice.getAllCategoryForSubdivisionOptions(subdivisionId);
+        if(categoryes==null){
+            return new JSTableOptionsResponse<>("NO SUBDIVISION WITH  ID "+subdivisionId);
+        } else {
+            return new JSTableOptionsResponse<>(categoryes);
+        }
+    }
+
     @Secured({"ROLE_GROUP_INF_EDIT", "ROLE_SUPER_INF_EDIT","ROLE_MAIN_INF_EDIT"})
     @Transactional(readOnly = true,propagation = Propagation.REQUIRED)
     @RequestMapping(value = "/avaibleSubdivOpt", method = RequestMethod.POST)

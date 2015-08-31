@@ -1,11 +1,12 @@
 package ua.pp.fairwind.internalDBSystem.datamodel;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import ua.pp.fairwind.internalDBSystem.datamodel.directories.FilesType;
 
 import javax.persistence.*;
 
 /**
- * Created by Сергей on 17.07.2015.
+ * Created by пїЅпїЅпїЅпїЅпїЅпїЅ on 17.07.2015.
  */
 @Entity
 @Table(name = "FILES")
@@ -19,6 +20,7 @@ public class Files {
     @ManyToOne
     FilesType filesType;
     @Lob
+    @JsonIgnore
     @Column(name = "BIN_FILE_DATA",nullable = false)
     byte[] fileData;
     @Version

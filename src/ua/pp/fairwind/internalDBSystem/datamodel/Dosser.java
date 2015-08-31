@@ -1,5 +1,7 @@
 package ua.pp.fairwind.internalDBSystem.datamodel;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.springframework.data.annotation.CreatedDate;
 import ua.pp.fairwind.internalDBSystem.datamodel.administrative.Category;
 import ua.pp.fairwind.internalDBSystem.datamodel.administrative.InfoType;
 import ua.pp.fairwind.internalDBSystem.datamodel.administrative.Subdivision;
@@ -9,7 +11,7 @@ import ua.pp.fairwind.internalDBSystem.datamodel.directories.DosserType;
 import javax.persistence.*;
 
 /**
- * Created by Сергей on 17.07.2015.
+ * Created by пїЅпїЅпїЅпїЅпїЅпїЅ on 17.07.2015.
  */
 @Entity
 @Table(name = "DOSSIERS")
@@ -18,7 +20,6 @@ public class Dosser {
     @Column(name = "DOSSIER_ID")
     @GeneratedValue
     private Long dossierId;
-    private long creationTime;
     @ManyToOne
     private Person person;
     @ManyToOne
@@ -37,6 +38,8 @@ public class Dosser {
     private Dosser parentDossierId;
     @Enumerated(EnumType.ORDINAL)
     private DosserType record_status;
+    @CreatedDate
+    private long creationTime;
     @Version
     private long version;
 

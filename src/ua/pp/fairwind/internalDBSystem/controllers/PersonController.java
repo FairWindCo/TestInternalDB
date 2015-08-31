@@ -30,7 +30,7 @@ import java.util.logging.Logger;
 public class PersonController {
     protected static Logger logger = Logger.getLogger("controller");
 
-
+    @Autowired
     private PersonRepository personService;
 
     @Secured({"ROLE_SUPERVIEW","ROLE_GROUP_VIEW", "ROLE_SUPER_VIEW","ROLE_MAIN_VIEW"})
@@ -46,8 +46,8 @@ public class PersonController {
     }
 
     @Transactional(readOnly = true)
-    @Secured({"ROLE_SUPERVIEW","ROLE_GROUP_VIEW", "ROLE_SUPER_VIEW","ROLE_MAIN_VIEW","ROLE_SUPEREDIT","ROLE_GROUP_EDIT", "ROLE_SUPER_EDIT","ROLE_MAIN_EDIT"})
-    @RequestMapping(value = "/listClients", method = RequestMethod.GET)
+    @Secured({"ROLE_SUPERVIEW","ROLE_GROUP_VIEW", "ROLE_SUPER_VIEW","ROLE_MAIN_VIEW","ROLE_SUPER_EDIT","ROLE_GROUP_EDIT", "ROLE_SUPER_EDIT","ROLE_MAIN_EDIT"})
+    @RequestMapping(value = "/listClients", method = {RequestMethod.GET,RequestMethod.POST})
     @ResponseBody
     public JSTableExpenseListResp<Person> getClientPersons(@RequestParam int jtStartIndex, @RequestParam int jtPageSize, @RequestParam(required = false) String jtSorting,@RequestParam(required = false) String searchname,@RequestParam(required = false) String codename) {
         Sort sort= FormSort.formSortFromSortDescription(jtSorting);
@@ -63,8 +63,8 @@ public class PersonController {
     }
 
     @Transactional(readOnly = true)
-    @Secured({"ROLE_SUPERVIEW","ROLE_GROUP_VIEW", "ROLE_SUPER_VIEW","ROLE_MAIN_VIEW","ROLE_SUPEREDIT","ROLE_GROUP_EDIT", "ROLE_SUPER_EDIT","ROLE_MAIN_EDIT"})
-    @RequestMapping(value = "/listWorkers", method = RequestMethod.GET)
+    @Secured({"ROLE_SUPERVIEW","ROLE_GROUP_VIEW", "ROLE_SUPER_VIEW","ROLE_MAIN_VIEW","ROLE_SUPER_EDIT","ROLE_GROUP_EDIT", "ROLE_SUPER_EDIT","ROLE_MAIN_EDIT"})
+    @RequestMapping(value = "/listWorkers", method = {RequestMethod.GET,RequestMethod.POST})
     @ResponseBody
     public JSTableExpenseListResp<Person> getPersons(@RequestParam int jtStartIndex, @RequestParam int jtPageSize, @RequestParam(required = false) String jtSorting,@RequestParam(required = false) String searchname,@RequestParam(required = false) String codename) {
         Sort sort= FormSort.formSortFromSortDescription(jtSorting);

@@ -1,5 +1,7 @@
 package ua.pp.fairwind.internalDBSystem.datamodel;
 
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 import ua.pp.fairwind.internalDBSystem.datamodel.directories.Activities;
 import ua.pp.fairwind.internalDBSystem.datamodel.directories.Hobbies;
 import ua.pp.fairwind.internalDBSystem.datamodel.directories.PersonStatus;
@@ -50,9 +52,11 @@ public class Person {
     @Column(name = "activities")
     private String activitiesComments;
 
+    //AUDITING
+    @CreatedDate
     private long createdTime;
+    @LastModifiedDate
     private long lastModifyTime;
-
     @Version
     private long version;
 
@@ -135,6 +139,11 @@ public class Person {
         this.personType = personType;
     }
 
+    public long getVersion() {
+        return version;
+    }
 
-
+    public void setVersion(long version) {
+        this.version = version;
+    }
 }

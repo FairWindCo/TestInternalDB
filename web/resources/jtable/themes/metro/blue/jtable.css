@@ -239,11 +239,10 @@ form.jtable-dialog-form div.jtable-input-field-container:last-child {
 form.jtable-dialog-form div.jtable-input-label {
   padding: 2px 3px;
   font-size: 1.1em;
-  color: white;
+  color: #666;
 }
 form.jtable-dialog-form div.jtable-input {
   padding: 2px;
-  color: black;
 }
 form.jtable-dialog-form div.jtable-date-input {
   /* No additional style */
@@ -251,7 +250,7 @@ form.jtable-dialog-form div.jtable-date-input {
 }
 form.jtable-dialog-form div.jtable-text-input {
   /* No additional style */
-  color: black;
+
 }
 form.jtable-dialog-form span.jtable-option-text-clickable {
   position: relative;
@@ -493,12 +492,4 @@ div.jtable-busy-message {
   background: url('../../metro/blue/loading.gif') no-repeat;
   background-color: #0b67cd;
   background-position: 8px;
-}
-
-div.jtable-input{
-  color: black;
-}
-
-select{
-  color: black;
 }

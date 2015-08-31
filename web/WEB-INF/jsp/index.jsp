@@ -72,6 +72,18 @@
               </ul>
               <!-- /.nav-second-level -->
             </li>
+            <li>
+              <a href="#"><i class="fa fa-inbox fa-fw"></i>PERSONS<span class="fa arrow"></span></a>
+              <ul class="nav nav-second-level">
+                <li>
+                  <a href="person/" onclick="$('#page-wrapper').load('persons/'); return false;"><c:message code="label.persons.clients"/></a>
+                </li>
+                <li>
+                  <a href="person/" onclick="$('#page-wrapper').load('persons/'); return false;"><c:message code="label.persons.workers"/></a>
+                </li>
+              </ul>
+              <!-- /.nav-second-level -->
+            </li>
             <sec:authorize ifAnyGranted="ROLE_ADMIN">
             <li>
               <a href=""><i class="fa fa-wrench fa-fw"></i><c:message code="label.administrate"/><span class="fa arrow"></span></a>

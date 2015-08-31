@@ -5,6 +5,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import ua.pp.fairwind.internalDBSystem.datamodel.administrative.Subdivision;
 import ua.pp.fairwind.internalDBSystem.datamodel.directories.Activities;
 import ua.pp.fairwind.internalDBSystem.dateTable.*;
+import ua.pp.fairwind.internalDBSystem.security.UserDetailsAdapter;
 import ua.pp.fairwind.internalDBSystem.services.repository.SubdivisionRepository;
 
 import java.util.logging.Level;
@@ -203,5 +206,27 @@ public class SubdivisionsController {
         }*/
         page = subdivisionsservice.findAll(pager);
         return new JSSelectExpenseResp<>(page);
+    }
+
+    @Transactional(readOnly = true)
+    @Secured({"ROLE_GROUP_EDIT", "ROLE_SUPER_EDIT","ROLE_MAIN_EDIT"})
+    /*Options for CRUD operation*/
+    @RequestMapping(value = "/optionsList", method = {RequestMethod.POST,RequestMethod.GET})
+    @ResponseBody
+    public JSTableOptionsResponse<JSTableExpenseOptionsBean> getOptionsWithAccessControl() {
+        JSTableOptionsResponse<JSTableExpenseOptionsBean> jsonJtableResponse;
+        try {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            UserDetailsAdapter user=(UserDetailsAdapter)auth.getPrincipal();
+            if (user.hasRole("ROLE_SUPER_EDIT")||user.hasRole("ROLE_SUPER_VIEW")) {
+                jsonJtableResponse = new JSTableOptionsResponse<>(subdivisionsservice.getAllSubdivisionOptions());
+            } else {
+                jsonJtableResponse = new JSTableOptionsResponse<>(subdivisionsservice.getAllSubdivisionOptionsWithAccessControl(user.getTrustedSubvisionsId()));
+            }
+
+        } catch (Exception e) {
+            jsonJtableResponse = new JSTableOptionsResponse<>(e.getMessage());
+        }
+        return jsonJtableResponse;
     }
 }

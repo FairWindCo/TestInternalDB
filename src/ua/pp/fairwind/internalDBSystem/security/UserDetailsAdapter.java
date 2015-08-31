@@ -94,4 +94,13 @@ public class UserDetailsAdapter implements UserDetails{
     public boolean isEnabled() {
         return user.isEnabled();
     }
+
+
+    public long getUserId() {
+        return user.getUserID();
+    }
+
+    public User getUserP() {
+        return user;
+    }
 }

@@ -9,9 +9,10 @@ import ua.pp.fairwind.internalDBSystem.datamodel.administrative.User;
 import ua.pp.fairwind.internalDBSystem.dateTable.JSTableExpenseOptionsBean;
 
 import java.util.List;
+import java.util.Set;
 
 /**
- * Created by Сергей on 17.07.2015.
+ * Created by пїЅпїЅпїЅпїЅпїЅпїЅ on 17.07.2015.
  */
 public interface SubdivisionRepository extends JpaRepository<Subdivision,Long> {
     List<Subdivision> findByName(String name);
@@ -20,4 +21,9 @@ public interface SubdivisionRepository extends JpaRepository<Subdivision,Long> {
     Page<Subdivision> findByNameLike(String name, Pageable pageRequest);
     @Query("Select new ua.pp.fairwind.internalDBSystem.dateTable.JSTableExpenseOptionsBean(s.subdivisionId,s.name) from Subdivision s")
     List<JSTableExpenseOptionsBean> getAllSubdivisionOptions();
+    @Query("Select new ua.pp.fairwind.internalDBSystem.dateTable.JSTableExpenseOptionsBean(s.subdivisionId,s.name) from Subdivision s where s.subdivisionId in ?1")
+    List<JSTableExpenseOptionsBean> getAllSubdivisionOptionsWithAccessControl(Set<Long> trustedSubdivisions);
+
+    @Query("Select new ua.pp.fairwind.internalDBSystem.dateTable.JSTableExpenseOptionsBean(cat.categoryId,cat.name) from Subdivision s join s.categories cat where s.subdivisionId = ?1")
+    List<JSTableExpenseOptionsBean> getAllCategoryForSubdivisionOptions(Long subdivisionsId);
 }

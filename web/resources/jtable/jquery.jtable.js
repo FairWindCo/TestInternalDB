@@ -1,11 +1,11 @@
 ﻿/* 
 
-jTable 2.2.1
+jTable 2.4.0
 http://www.jtable.org
 
 ---------------------------------------------------------------------------
 
-Copyright (C) 2011-2013 by Halil Ibrahim Kalkan (http://www.halilibrahimkalkan.com)
+Copyright (C) 2011-2014 by Halil İbrahim Kalkan (http://www.halilibrahimkalkan.com)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -32,6 +32,15 @@ THE SOFTWARE.
 *************************************************************************/
 (function ($) {
 
+    var unloadingPage;
+    
+    $(window).on('beforeunload', function () {
+        unloadingPage = true;
+    });
+    $(window).on('unload', function () {
+        unloadingPage = false;
+    });
+
     $.widget("hik.jtable", {
 
         /************************************************************************
@@ -49,6 +58,8 @@ THE SOFTWARE.
             showCloseButton: false,
             loadingAnimationDelay: 500,
             saveUserPreferences: true,
+            jqueryuiTheme: false,
+            unAuthorizedRequestRedirectUrl: null,
 
             ajaxSettings: {
                 type: 'POST',
@@ -134,8 +145,8 @@ THE SOFTWARE.
             this._createBusyPanel();
             this._createErrorDialogDiv();
             this._addNoDataRow();
-            
-            this._cookieKeyPrefix = this._generateCookieKeyPrefix();
+
+            this._cookieKeyPrefix = this._generateCookieKeyPrefix();            
         },
 
         /* Normalizes some options for all fields (sets default values).
@@ -205,6 +216,8 @@ THE SOFTWARE.
             this._$mainContainer = $('<div />')
                 .addClass('jtable-main-container')
                 .appendTo(this.element);
+
+            this._jqueryuiThemeAddClass(this._$mainContainer, 'ui-widget');
         },
 
         /* Creates title of the table if a title supplied in options.
@@ -219,6 +232,8 @@ THE SOFTWARE.
             var $titleDiv = $('<div />')
                 .addClass('jtable-title')
                 .appendTo(self._$mainContainer);
+
+            self._jqueryuiThemeAddClass($titleDiv, 'ui-widget-header');
 
             $('<div />')
                 .addClass('jtable-title-text')
@@ -251,6 +266,12 @@ THE SOFTWARE.
             this._$table = $('<table></table>')
                 .addClass('jtable')
                 .appendTo(this._$mainContainer);
+
+            if (this.options.tableId) {
+                this._$table.attr('id', this.options.tableId);
+            }
+
+            this._jqueryuiThemeAddClass(this._$table, 'ui-widget-content');
 
             this._createTableHead();
             this._createTableBody();
@@ -300,9 +321,12 @@ THE SOFTWARE.
 
             var $th = $('<th></th>')
                 .addClass('jtable-column-header')
+                .addClass(field.listClass)
                 .css('width', field.width)
                 .data('fieldName', fieldName)
                 .append($headerContainerDiv);
+
+            this._jqueryuiThemeAddClass($th, 'ui-state-default');
 
             return $th;
         },
@@ -310,9 +334,13 @@ THE SOFTWARE.
         /* Creates an empty header cell that can be used as command column headers.
         *************************************************************************/
         _createEmptyCommandHeader: function () {
-            return $('<th></th>')
+            var $th = $('<th></th>')
                 .addClass('jtable-command-column-header')
                 .css('width', '1%');
+
+            this._jqueryuiThemeAddClass($th, 'ui-state-default');
+
+            return $th;
         },
 
         /* Creates tbody tag and adds to the table.
@@ -326,6 +354,7 @@ THE SOFTWARE.
         _createBusyPanel: function () {
             this._$busyMessageDiv = $('<div />').addClass('jtable-busy-message').prependTo(this._$mainContainer);
             this._$busyDiv = $('<div />').addClass('jtable-busy-panel-background').prependTo(this._$mainContainer);
+            this._jqueryuiThemeAddClass(this._$busyMessageDiv, 'ui-widget-header');
             this._hideBusy();
         },
 
@@ -403,48 +432,80 @@ THE SOFTWARE.
         _reloadTable: function (completeCallback) {
             var self = this;
 
-            //Disable table since it's busy
-            self._showBusy(self.options.messages.loadingMessage, self.options.loadingAnimationDelay);
+            var completeReload = function(data) {
+                self._hideBusy();
 
-            //Generate URL (with query string parameters) to load records
-            var loadUrl = self._createRecordLoadUrl();
-
-            //Load data from server
-            self._onLoadingRecords();
-            self._ajax({
-                url: loadUrl,
-                data: self._lastPostData,
-                success: function (data) {
-                    self._hideBusy();
-
-                    //Show the error message if server returns error
-                    if (data.Result != 'OK') {
-                        self._showError(data.Message);
-                        return;
-                    }
-
-                    //Re-generate table rows
-                    self._removeAllRows('reloading');
-                    self._addRecordsToTable(data.Records);
-
-                    self._onRecordsLoaded(data);
-
-                    //Call complete callback
-                    if (completeCallback) {
-                        completeCallback();
-                    }
-                },
-                error: function () {
-                    self._hideBusy();
-                    self._showError(self.options.messages.serverCommunicationError);
+                //Show the error message if server returns error
+                if (data.Result != 'OK') {
+                    self._showError(data.Message);
+                    return;
                 }
-            });
+
+                //Re-generate table rows
+                self._removeAllRows('reloading');
+                self._addRecordsToTable(data.Records);
+
+                self._onRecordsLoaded(data);
+
+                //Call complete callback
+                if (completeCallback) {
+                    completeCallback();
+                }
+            };
+
+            self._showBusy(self.options.messages.loadingMessage, self.options.loadingAnimationDelay); //Disable table since it's busy
+            self._onLoadingRecords();
+
+            //listAction may be a function, check if it is
+            if ($.isFunction(self.options.actions.listAction)) {
+
+                //Execute the function
+                var funcResult = self.options.actions.listAction(self._lastPostData, self._createJtParamsForLoading());
+
+                //Check if result is a jQuery Deferred object
+                if (self._isDeferredObject(funcResult)) {
+                    funcResult.done(function(data) {
+                        completeReload(data);
+                    }).fail(function() {
+                        self._showError(self.options.messages.serverCommunicationError);
+                    }).always(function() {
+                        self._hideBusy();
+                    });
+                } else { //assume it's the data we're loading
+                    completeReload(funcResult);
+                }
+
+            } else { //assume listAction as URL string.
+
+                //Generate URL (with query string parameters) to load records
+                var loadUrl = self._createRecordLoadUrl();
+
+                //Load data from server using AJAX
+                self._ajax({
+                    url: loadUrl,
+                    data: self._lastPostData,
+                    success: function (data) {
+                        completeReload(data);
+                    },
+                    error: function () {
+                        self._hideBusy();
+                        self._showError(self.options.messages.serverCommunicationError);
+                    }
+                });
+
+            }
         },
 
         /* Creates URL to load records.
         *************************************************************************/
         _createRecordLoadUrl: function () {
             return this.options.actions.listAction;
+        },
+
+        _createJtParamsForLoading: function() {
+            return {
+                //Empty as default, paging, sorting or other extensions can override this method to add additional params to load request
+            };
         },
 
         /* TABLE MANIPULATION METHODS *******************************************/
@@ -557,8 +618,13 @@ THE SOFTWARE.
         * TODO: Make this animation cofigurable and changable
         *************************************************************************/
         _showNewRowAnimation: function ($tableRow) {
-            $tableRow.addClass('jtable-row-created', 'slow', '', function () {
-                $tableRow.removeClass('jtable-row-created', 5000);
+            var className = 'jtable-row-created';
+            if (this.options.jqueryuiTheme) {
+                className = className + ' ui-state-highlight';
+            }
+
+            $tableRow.addClass(className, 'slow', '', function () {
+                $tableRow.removeClass(className, 5000);
             });
         },
 
@@ -945,6 +1011,8 @@ THE SOFTWARE.
                 .addClass('jtable-toolbar-item')
                 .appendTo(this._$toolbarDiv);
 
+            this._jqueryuiThemeAddClass($toolBarItem, 'ui-widget ui-state-default ui-corner-all', 'ui-state-hover');
+
             //cssClass property
             if (item.cssClass) {
                 $toolBarItem
@@ -988,7 +1056,7 @@ THE SOFTWARE.
                 hoverAnimationDuration = this.options.toolbar.hoverAnimationDuration;
                 hoverAnimationEasing = this.options.toolbar.hoverAnimationEasing;
             }
-            
+
             //change class on hover
             $toolBarItem.hover(function () {
                 $toolBarItem.addClass('jtable-toolbar-item-hover', hoverAnimationDuration, hoverAnimationEasing);
@@ -1012,27 +1080,30 @@ THE SOFTWARE.
         /* Shows busy indicator and blocks table UI.
         * TODO: Make this cofigurable and changable
         *************************************************************************/
-        _setBusyTimer: null, //TODO: Think for a better way!
+        _setBusyTimer: null,
         _showBusy: function (message, delay) {
-            var self = this;
+            var self = this;  //
 
-            var show = function () {
-                if (!self._$busyMessageDiv.is(':visible')) {
-                    self._$busyDiv.width(self._$mainContainer.width());
-                    self._$busyDiv.height(self._$mainContainer.height());
-                    self._$busyDiv.show();
-                    self._$busyMessageDiv.show();
-                }
+            //Show a transparent overlay to prevent clicking to the table
+            self._$busyDiv
+                .width(self._$mainContainer.width())
+                .height(self._$mainContainer.height())
+                .addClass('jtable-busy-panel-background-invisible')
+                .show();
 
-                self._$busyMessageDiv.html(message);
+            var makeVisible = function () {
+                self._$busyDiv.removeClass('jtable-busy-panel-background-invisible');
+                self._$busyMessageDiv.html(message).show();
             };
 
-            //TODO: Put an overlay always (without color) to not allow to click the table
-            //TODO: and change it visible when timeout occurs.
             if (delay) {
-                self._setBusyTimer = setTimeout(show, delay);
+                if (self._setBusyTimer) {
+                    return;
+                }
+
+                self._setBusyTimer = setTimeout(makeVisible, delay);
             } else {
-                show();
+                makeVisible();
             }
         },
 
@@ -1040,6 +1111,7 @@ THE SOFTWARE.
         *************************************************************************/
         _hideBusy: function () {
             clearTimeout(this._setBusyTimer);
+            this._setBusyTimer = null;
             this._$busyDiv.hide();
             this._$busyMessageDiv.html('').hide();
         },
@@ -1048,6 +1120,24 @@ THE SOFTWARE.
         *************************************************************************/
         _isBusy: function () {
             return this._$busyMessageDiv.is(':visible');
+        },
+
+        /* Adds jQueryUI class to an item.
+        *************************************************************************/
+        _jqueryuiThemeAddClass: function ($elm, className, hoverClassName) {
+            if (!this.options.jqueryuiTheme) {
+                return;
+            }
+
+            $elm.addClass(className);
+
+            if (hoverClassName) {
+                $elm.hover(function () {
+                    $elm.addClass(hoverClassName);
+                }, function () {
+                    $elm.removeClass(hoverClassName);
+                });
+            }
         },
 
         /* COMMON METHODS *******************************************************/
@@ -1066,23 +1156,52 @@ THE SOFTWARE.
             });
         },
 
+        _unAuthorizedRequestHandler: function() {
+            if (this.options.unAuthorizedRequestRedirectUrl) {
+                location.href = this.options.unAuthorizedRequestRedirectUrl;
+            } else {
+                location.reload(true);
+            }
+        },
+
         /* This method is used to perform AJAX calls in jTable instead of direct
         * usage of jQuery.ajax method.
         *************************************************************************/
         _ajax: function (options) {
-            var opts = $.extend({}, this.options.ajaxSettings, options);
+            var self = this;
+
+            //Handlers for HTTP status codes
+            var opts = {
+                statusCode: {
+                    401: function () { //Unauthorized
+                        self._unAuthorizedRequestHandler();
+                    }
+                }
+            };
+
+            opts = $.extend(opts, this.options.ajaxSettings, options);
 
             //Override success
             opts.success = function (data) {
+                //Checking for Authorization error
+                if (data && data.UnAuthorizedRequest == true) {
+                    self._unAuthorizedRequestHandler();
+                }
+
                 if (options.success) {
                     options.success(data);
                 }
             };
 
             //Override error
-            opts.error = function () {
+            opts.error = function (jqXHR, textStatus, errorThrown) {
+                if (unloadingPage) {
+                    jqXHR.abort();
+                    return;
+                }
+                
                 if (options.error) {
-                    options.error();
+                    options.error(arguments);
                 }
             };
 
@@ -1101,7 +1220,7 @@ THE SOFTWARE.
         _getKeyValueOfRecord: function (record) {
             return record[this._keyField];
         },
-        
+
         /************************************************************************
         * COOKIE                                                                *
         *************************************************************************/
@@ -1293,6 +1412,12 @@ THE SOFTWARE.
             return str;
         },
 
+        /* Checks if given object is a jQuery Deferred object.
+         */
+        _isDeferredObject: function (obj) {
+            return obj.then && obj.done && obj.fail;
+        },
+
         //Logging methods ////////////////////////////////////////////////////////
 
         _logDebug: function (text) {
@@ -1382,7 +1507,7 @@ THE SOFTWARE.
             //TODO: May create label tag instead of a div.
             return $('<div />')
                 .addClass('jtable-input-label')
-                .html(this.options.fields[fieldName].title);
+                .html(this.options.fields[fieldName].inputTitle || this.options.fields[fieldName].title);
         },
 
         /* Creates an input element according to field type.
@@ -1878,6 +2003,11 @@ THE SOFTWARE.
         *************************************************************************/
         _create: function () {
             base._create.apply(this, arguments);
+
+            if (!this.options.actions.createAction) {
+                return;
+            }
+
             this._createAddRecordDialogDiv();
         },
 
@@ -1885,11 +2015,6 @@ THE SOFTWARE.
         *************************************************************************/
         _createAddRecordDialogDiv: function () {
             var self = this;
-
-            //Check if createAction is supplied
-            if (!self.options.actions.createAction) {
-                return;
-            }
 
             //Create a div for dialog and add to container element
             self._$addRecordDiv = $('<div />')
@@ -1914,18 +2039,12 @@ THE SOFTWARE.
                             id: 'AddRecordDialogSaveButton',
                             text: self.options.messages.save,
                             click: function () {
-                                var $saveButton = $('#AddRecordDialogSaveButton');
-                                var $addRecordForm = self._$addRecordDiv.find('form');
-
-                                if (self._trigger("formSubmitting", null, { form: $addRecordForm, formType: 'create' }) != false) {
-                                    self._setEnabledOfDialogButton($saveButton, false, self.options.messages.saving);
-                                    self._saveAddRecordForm($addRecordForm, $saveButton);
-                                }
+                                self._onSaveClickedOnCreateForm();
                             }
                         }],
                 close: function () {
                     var $addRecordForm = self._$addRecordDiv.find('form').first();
-                    var $saveButton = $('#AddRecordDialogSaveButton');
+                    var $saveButton = self._$addRecordDiv.parent().find('#AddRecordDialogSaveButton');
                     self._trigger("formClosed", null, { form: $addRecordForm, formType: 'create' });
                     self._setEnabledOfDialogButton($saveButton, true, self.options.messages.save);
                     $addRecordForm.remove();
@@ -1951,6 +2070,18 @@ THE SOFTWARE.
             }
         },
 
+        _onSaveClickedOnCreateForm: function () {
+            var self = this;
+
+            var $saveButton = self._$addRecordDiv.parent().find('#AddRecordDialogSaveButton');
+            var $addRecordForm = self._$addRecordDiv.find('form');
+
+            if (self._trigger("formSubmitting", null, { form: $addRecordForm, formType: 'create' }) != false) {
+                self._setEnabledOfDialogButton($saveButton, false, self.options.messages.saving);
+                self._saveAddRecordForm($addRecordForm, $saveButton);
+            }
+        },
+
         /************************************************************************
         * PUBLIC METHODS                                                        *
         *************************************************************************/
@@ -1968,7 +2099,6 @@ THE SOFTWARE.
             options = $.extend({
                 clientOnly: false,
                 animationsEnabled: self.options.animationsEnabled,
-                url: self.options.actions.createAction,
                 success: function () { },
                 error: function () { }
             }, options);
@@ -1984,41 +2114,68 @@ THE SOFTWARE.
                         isNewRow: true,
                         animationsEnabled: options.animationsEnabled
                     });
-                
+
                 options.success();
                 return;
             }
 
-            self._submitFormUsingAjax(
-                options.url,
-                $.param(options.record),
-                function (data) {
-                    if (data.Result != 'OK') {
-                        self._showError(data.Message);
-                        options.error(data);
-                        return;
-                    }
-                    
-                    if(!data.Record) {
-                        self._logError('Server must return the created Record object.');
-                        options.error(data);
-                        return;
-                    }
+            var completeAddRecord = function (data) {
+                if (data.Result != 'OK') {
+                    self._showError(data.Message);
+                    options.error(data);
+                    return;
+                }
 
-                    self._onRecordAdded(data);
-                    
-                    self._addRow(
-                        self._createRowFromRecord(data.Record), {
-                            isNewRow: true,
-                            animationsEnabled: options.animationsEnabled
-                        });
+                if (!data.Record) {
+                    self._logError('Server must return the created Record object.');
+                    options.error(data);
+                    return;
+                }
 
-                    options.success(data);
-                },
-                function () {
-                    self._showError(self.options.messages.serverCommunicationError);
-                    options.error();
-                });
+                self._onRecordAdded(data);
+                self._addRow(
+                    self._createRowFromRecord(data.Record), {
+                        isNewRow: true,
+                        animationsEnabled: options.animationsEnabled
+                    });
+
+                options.success(data);
+            };
+
+            //createAction may be a function, check if it is
+            if (!options.url && $.isFunction(self.options.actions.createAction)) {
+
+                //Execute the function
+                var funcResult = self.options.actions.createAction($.param(options.record));
+
+                //Check if result is a jQuery Deferred object
+                if (self._isDeferredObject(funcResult)) {
+                    //Wait promise
+                    funcResult.done(function (data) {
+                        completeAddRecord(data);
+                    }).fail(function () {
+                        self._showError(self.options.messages.serverCommunicationError);
+                        options.error();
+                    });
+                } else { //assume it returned the creation result
+                    completeAddRecord(funcResult);
+                }
+
+            } else { //Assume it's a URL string
+
+                //Make an Ajax call to create record
+                self._submitFormUsingAjax(
+                    options.url || self.options.actions.createAction,
+                    $.param(options.record),
+                    function (data) {
+                        completeAddRecord(data);
+                    },
+                    function () {
+                        self._showError(self.options.messages.serverCommunicationError);
+                        options.error();
+                    });
+
+            }
         },
 
         /************************************************************************
@@ -2031,7 +2188,7 @@ THE SOFTWARE.
             var self = this;
 
             //Create add new record form
-            var $addRecordForm = $('<form id="jtable-create-form" class="jtable-dialog-form jtable-create-form" action="' + self.options.actions.createAction + '" method="POST"></form>');
+            var $addRecordForm = $('<form id="jtable-create-form" class="jtable-dialog-form jtable-create-form"></form>');
 
             //Create input elements
             for (var i = 0; i < self._fieldList.length; i++) {
@@ -2073,6 +2230,11 @@ THE SOFTWARE.
 
             self._makeCascadeDropDowns($addRecordForm, undefined, 'create');
 
+            $addRecordForm.submit(function () {
+                self._onSaveClickedOnCreateForm();
+                return false;
+            });
+
             //Open the form
             self._$addRecordDiv.append($addRecordForm).dialog('open');
             self._trigger("formCreated", null, { form: $addRecordForm, formType: 'create' });
@@ -2083,37 +2245,62 @@ THE SOFTWARE.
         _saveAddRecordForm: function ($addRecordForm, $saveButton) {
             var self = this;
 
-            //Make an Ajax call to update record
-            $addRecordForm.data('submitting', true);
-
-            self._submitFormUsingAjax(
-                $addRecordForm.attr('action'),
-                $addRecordForm.serialize(),
-                function (data) {
-                    
-                    if (data.Result != 'OK') {
-                        self._showError(data.Message);
-                        self._setEnabledOfDialogButton($saveButton, true, self.options.messages.save);
-                        return;
-                    }
-                    
-                    if (!data.Record) {
-                        self._logError('Server must return the created Record object.');
-                        self._setEnabledOfDialogButton($saveButton, true, self.options.messages.save);
-                        return;
-                    }
-
-                    self._onRecordAdded(data);
-                    self._addRow(
-                        self._createRowFromRecord(data.Record), {
-                            isNewRow: true
-                        });
-                    self._$addRecordDiv.dialog("close");
-                },
-                function () {
-                    self._showError(self.options.messages.serverCommunicationError);
+            var completeAddRecord = function (data) {
+                if (data.Result != 'OK') {
+                    self._showError(data.Message);
                     self._setEnabledOfDialogButton($saveButton, true, self.options.messages.save);
-                });
+                    return;
+                }
+
+                if (!data.Record) {
+                    self._logError('Server must return the created Record object.');
+                    self._setEnabledOfDialogButton($saveButton, true, self.options.messages.save);
+                    return;
+                }
+
+                self._onRecordAdded(data);
+                self._addRow(
+                    self._createRowFromRecord(data.Record), {
+                        isNewRow: true
+                    });
+                self._$addRecordDiv.dialog("close");
+            };
+
+            $addRecordForm.data('submitting', true); //TODO: Why it's used, can remove? Check it.
+
+            //createAction may be a function, check if it is
+            if ($.isFunction(self.options.actions.createAction)) {
+
+                //Execute the function
+                var funcResult = self.options.actions.createAction($addRecordForm.serialize());
+
+                //Check if result is a jQuery Deferred object
+                if (self._isDeferredObject(funcResult)) {
+                    //Wait promise
+                    funcResult.done(function (data) {
+                        completeAddRecord(data);
+                    }).fail(function () {
+                        self._showError(self.options.messages.serverCommunicationError);
+                        self._setEnabledOfDialogButton($saveButton, true, self.options.messages.save);
+                    });
+                } else { //assume it returned the creation result
+                    completeAddRecord(funcResult);
+                }
+
+            } else { //Assume it's a URL string
+
+                //Make an Ajax call to create record
+                self._submitFormUsingAjax(
+                    self.options.actions.createAction,
+                    $addRecordForm.serialize(),
+                    function (data) {
+                        completeAddRecord(data);
+                    },
+                    function () {
+                        self._showError(self.options.messages.serverCommunicationError);
+                        self._setEnabledOfDialogButton($saveButton, true, self.options.messages.save);
+                    });
+            }
         },
 
         _onRecordAdded: function (data) {
@@ -2170,6 +2357,11 @@ THE SOFTWARE.
         *************************************************************************/
         _create: function () {
             base._create.apply(this, arguments);
+            
+            if (!this.options.actions.updateAction) {
+                return;
+            }
+            
             this._createEditDialogDiv();
         },
 
@@ -2201,24 +2393,12 @@ THE SOFTWARE.
                             id: 'EditDialogSaveButton',
                             text: self.options.messages.save,
                             click: function () {
-                                
-                                //row maybe removed by another source, if so, do nothing
-                                if (self._$editingRow.hasClass('jtable-row-removed')) {
-                                    self._$editDiv.dialog('close');
-                                    return;
-                                }
-
-                                var $saveButton = self._$editDiv.find('#EditDialogSaveButton');
-                                var $editForm = self._$editDiv.find('form');
-                                if (self._trigger("formSubmitting", null, { form: $editForm, formType: 'edit', row: self._$editingRow }) != false) {
-                                    self._setEnabledOfDialogButton($saveButton, false, self.options.messages.saving);
-                                    self._saveEditForm($editForm, $saveButton);
-                                }
+                                self._onSaveClickedOnEditForm();
                             }
                         }],
                 close: function () {
                     var $editForm = self._$editDiv.find('form:first');
-                    var $saveButton = $('#EditDialogSaveButton');
+                    var $saveButton = self._$editDiv.parent().find('#EditDialogSaveButton');
                     self._trigger("formClosed", null, { form: $editForm, formType: 'edit', row: self._$editingRow });
                     self._setEnabledOfDialogButton($saveButton, true, self.options.messages.save);
                     $editForm.remove();
@@ -2226,8 +2406,27 @@ THE SOFTWARE.
             });
         },
 
+        /* Saves editing form to server.
+        *************************************************************************/
+        _onSaveClickedOnEditForm: function () {
+            var self = this;
+            
+            //row maybe removed by another source, if so, do nothing
+            if (self._$editingRow.hasClass('jtable-row-removed')) {
+                self._$editDiv.dialog('close');
+                return;
+            }
+
+            var $saveButton = self._$editDiv.parent().find('#EditDialogSaveButton');
+            var $editForm = self._$editDiv.find('form');
+            if (self._trigger("formSubmitting", null, { form: $editForm, formType: 'edit', row: self._$editingRow }) != false) {
+                self._setEnabledOfDialogButton($saveButton, false, self.options.messages.saving);
+                self._saveEditForm($editForm, $saveButton);
+            }
+        },
+
         /************************************************************************
-        * PUNLIC METHODS                                                        *
+        * PUBLIC METHODS                                                        *
         *************************************************************************/
 
         /* Updates a record on the table (optionally on the server also)
@@ -2237,7 +2436,6 @@ THE SOFTWARE.
             options = $.extend({
                 clientOnly: false,
                 animationsEnabled: self.options.animationsEnabled,
-                url: self.options.actions.updateAction,
                 success: function () { },
                 error: function () { }
             }, options);
@@ -2255,7 +2453,7 @@ THE SOFTWARE.
 
             var $updatingRow = self.getRowByKey(key);
             if ($updatingRow == null) {
-                self._logWarn('Can not found any row by key: ' + key);
+                self._logWarn('Can not found any row by key "' + key + '" on the table. Updating row must be visible on the table.');
                 return;
             }
 
@@ -2271,31 +2469,59 @@ THE SOFTWARE.
                 return;
             }
 
-            self._submitFormUsingAjax(
-                options.url,
-                $.param(options.record),
-                function (data) {
-                    if (data.Result != 'OK') {
-                        self._showError(data.Message);
-                        options.error(data);
-                        return;
-                    }
+            var completeEdit = function (data) {
+                if (data.Result != 'OK') {
+                    self._showError(data.Message);
+                    options.error(data);
+                    return;
+                }
 
-                    $.extend($updatingRow.data('record'), options.record);
-                    self._updateRecordValuesFromServerResponse($updatingRow.data('record'), data);
+                $.extend($updatingRow.data('record'), options.record);
+                self._updateRecordValuesFromServerResponse($updatingRow.data('record'), data);
 
-                    self._updateRowTexts($updatingRow);
-                    self._onRecordUpdated($updatingRow, data);
-                    if (options.animationsEnabled) {
-                        self._showUpdateAnimationForRow($updatingRow);
-                    }
+                self._updateRowTexts($updatingRow);
+                self._onRecordUpdated($updatingRow, data);
+                if (options.animationsEnabled) {
+                    self._showUpdateAnimationForRow($updatingRow);
+                }
 
-                    options.success(data);
-                },
-                function () {
-                    self._showError(self.options.messages.serverCommunicationError);
-                    options.error();
-                });
+                options.success(data);
+            };
+
+            //updateAction may be a function, check if it is
+            if (!options.url && $.isFunction(self.options.actions.updateAction)) {
+
+                //Execute the function
+                var funcResult = self.options.actions.updateAction($.param(options.record));
+
+                //Check if result is a jQuery Deferred object
+                if (self._isDeferredObject(funcResult)) {
+                    //Wait promise
+                    funcResult.done(function (data) {
+                        completeEdit(data);
+                    }).fail(function () {
+                        self._showError(self.options.messages.serverCommunicationError);
+                        options.error();
+                    });
+                } else { //assume it returned the creation result
+                    completeEdit(funcResult);
+                }
+
+            } else { //Assume it's a URL string
+
+                //Make an Ajax call to create record
+                self._submitFormUsingAjax(
+                    options.url || self.options.actions.updateAction,
+                    $.param(options.record),
+                    function (data) {
+                        completeEdit(data);
+                    },
+                    function () {
+                        self._showError(self.options.messages.serverCommunicationError);
+                        options.error();
+                    });
+
+            }
         },
 
         /************************************************************************
@@ -2345,7 +2571,7 @@ THE SOFTWARE.
             var record = $tableRow.data('record');
 
             //Create edit form
-            var $editForm = $('<form id="jtable-edit-form" class="jtable-dialog-form jtable-edit-form" action="' + self.options.actions.updateAction + '" method="POST"></form>');
+            var $editForm = $('<form id="jtable-edit-form" class="jtable-dialog-form jtable-edit-form"></form>');
 
             //Create input fields
             for (var i = 0; i < self._fieldList.length; i++) {
@@ -2393,8 +2619,13 @@ THE SOFTWARE.
                         form: $editForm
                     }));
             }
-
+            
             self._makeCascadeDropDowns($editForm, record, 'edit');
+
+            $editForm.submit(function () {
+                self._onSaveClickedOnEditForm();
+                return false;
+            });
 
             //Open dialog
             self._$editingRow = $tableRow;
@@ -2406,37 +2637,66 @@ THE SOFTWARE.
         *************************************************************************/
         _saveEditForm: function ($editForm, $saveButton) {
             var self = this;
-            self._submitFormUsingAjax(
-                $editForm.attr('action'),
-                $editForm.serialize(),
-                function (data) {
-                    //Check for errors
-                    if (data.Result != 'OK') {
-                        self._showError(data.Message);
-                        self._setEnabledOfDialogButton($saveButton, true, self.options.messages.save);
-                        return;
-                    }
-
-                    var record = self._$editingRow.data('record');
-
-                    self._updateRecordValuesFromForm(record, $editForm);
-                    self._updateRecordValuesFromServerResponse(record, data);
-                    self._updateRowTexts(self._$editingRow);
-
-                    self._$editingRow.attr('data-record-key', self._getKeyValueOfRecord(record));
-
-                    self._onRecordUpdated(self._$editingRow, data);
-
-                    if (self.options.animationsEnabled) {
-                        self._showUpdateAnimationForRow(self._$editingRow);
-                    }
-
-                    self._$editDiv.dialog("close");
-                },
-                function () {
-                    self._showError(self.options.messages.serverCommunicationError);
+            
+            var completeEdit = function (data) {
+                if (data.Result != 'OK') {
+                    self._showError(data.Message);
                     self._setEnabledOfDialogButton($saveButton, true, self.options.messages.save);
-                });
+                    return;
+                }
+
+                var record = self._$editingRow.data('record');
+
+                self._updateRecordValuesFromForm(record, $editForm);
+                self._updateRecordValuesFromServerResponse(record, data);
+                self._updateRowTexts(self._$editingRow);
+
+                self._$editingRow.attr('data-record-key', self._getKeyValueOfRecord(record));
+
+                self._onRecordUpdated(self._$editingRow, data);
+
+                if (self.options.animationsEnabled) {
+                    self._showUpdateAnimationForRow(self._$editingRow);
+                }
+
+                self._$editDiv.dialog("close");
+            };
+
+
+            //updateAction may be a function, check if it is
+            if ($.isFunction(self.options.actions.updateAction)) {
+
+                //Execute the function
+                var funcResult = self.options.actions.updateAction($editForm.serialize());
+
+                //Check if result is a jQuery Deferred object
+                if (self._isDeferredObject(funcResult)) {
+                    //Wait promise
+                    funcResult.done(function (data) {
+                        completeEdit(data);
+                    }).fail(function () {
+                        self._showError(self.options.messages.serverCommunicationError);
+                        self._setEnabledOfDialogButton($saveButton, true, self.options.messages.save);
+                    });
+                } else { //assume it returned the creation result
+                    completeEdit(funcResult);
+                }
+
+            } else { //Assume it's a URL string
+
+                //Make an Ajax call to update record
+                self._submitFormUsingAjax(
+                    self.options.actions.updateAction,
+                    $editForm.serialize(),
+                    function(data) {
+                        completeEdit(data);
+                    },
+                    function() {
+                        self._showError(self.options.messages.serverCommunicationError);
+                        self._setEnabledOfDialogButton($saveButton, true, self.options.messages.save);
+                    });
+            }
+
         },
 
         /* This method ensures updating of current record with server response,
@@ -2469,6 +2729,7 @@ THE SOFTWARE.
             var $columns = $tableRow.find('td');
             for (var i = 0; i < this._columnList.length; i++) {
                 var displayItem = this._getDisplayTextForRecordField(record, this._columnList[i]);
+                if ((displayItem != "") && (displayItem == 0)) displayItem = "0";
                 $columns.eq(this._firstDataColumnOffset + i).html(displayItem || '');
             }
 
@@ -2478,8 +2739,13 @@ THE SOFTWARE.
         /* Shows 'updated' animation for a table row.
         *************************************************************************/
         _showUpdateAnimationForRow: function ($tableRow) {
-            $tableRow.stop(true, true).addClass('jtable-row-updated', 'slow', '', function () {
-                $tableRow.removeClass('jtable-row-updated', 5000);
+            var className = 'jtable-row-updated';
+            if (this.options.jqueryuiTheme) {
+                className = className + ' ui-state-highlight';
+            }
+
+            $tableRow.stop(true, true).addClass(className, 'slow', '', function () {
+                $tableRow.removeClass(className, 5000);
             });
         },
 
@@ -2559,6 +2825,11 @@ THE SOFTWARE.
         _createDeleteDialogDiv: function () {
             var self = this;
 
+            //Check if deleteAction is supplied
+            if (!self.options.actions.deleteAction) {
+                return;
+            }
+
             //Create div element for delete confirmation dialog
             self._$deleteRecordDiv = $('<div><p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span><span class="jtable-delete-confirm-message"></span></p></div>').appendTo(self._$mainContainer);
 
@@ -2579,14 +2850,14 @@ THE SOFTWARE.
                             id: 'DeleteDialogButton',
                             text: self.options.messages.deleteText,
                             click: function () {
-                                
+
                                 //row maybe removed by another source, if so, do nothing
                                 if (self._$deletingRow.hasClass('jtable-row-removed')) {
                                     self._$deleteRecordDiv.dialog('close');
                                     return;
                                 }
 
-                                var $deleteButton = $('#DeleteDialogButton');
+                                var $deleteButton = self._$deleteRecordDiv.parent().find('#DeleteDialogButton');
                                 self._setEnabledOfDialogButton($deleteButton, false, self.options.messages.deleting);
                                 self._deleteRecordFromServer(
                                     self._$deletingRow,
@@ -2602,7 +2873,7 @@ THE SOFTWARE.
                             }
                         }],
                 close: function () {
-                    var $deleteButton = $('#DeleteDialogButton');
+                    var $deleteButton = self._$deleteRecordDiv.parent().find('#DeleteDialogButton');
                     self._setEnabledOfDialogButton($deleteButton, true, self.options.messages.deleteText);
                 }
             });
@@ -2621,7 +2892,7 @@ THE SOFTWARE.
                 self._logWarn('No rows specified to jTable deleteRows method.');
                 return;
             }
-            
+
             if (self._isBusy()) {
                 self._logWarn('Can not delete rows since jTable is busy!');
                 return;
@@ -2828,10 +3099,27 @@ THE SOFTWARE.
         },
 
         /* Performs an ajax call to server to delete record
-        *  and removesd row of record from table if ajax call success.
+        *  and removes row of the record from table if ajax call success.
         *************************************************************************/
         _deleteRecordFromServer: function ($row, success, error, url) {
             var self = this;
+
+            var completeDelete = function(data) {
+                if (data.Result != 'OK') {
+                    $row.data('deleting', false);
+                    if (error) {
+                        error(data.Message);
+                    }
+
+                    return;
+                }
+
+                self._trigger("recordDeleted", null, { record: $row.data('record'), row: $row, serverResponse: data });
+
+                if (success) {
+                    success(data);
+                }
+            };
 
             //Check if it is already being deleted right now
             if ($row.data('deleting') == true) {
@@ -2842,34 +3130,45 @@ THE SOFTWARE.
 
             var postData = {};
             postData[self._keyField] = self._getKeyValueOfRecord($row.data('record'));
+            
+            //deleteAction may be a function, check if it is
+            if (!url && $.isFunction(self.options.actions.deleteAction)) {
 
-            this._ajax({
-                url: (url || self.options.actions.deleteAction),
-                data: postData,
-                success: function (data) { 
-                    
-                    if (data.Result != 'OK') {
+                //Execute the function
+                var funcResult = self.options.actions.deleteAction(postData);
+
+                //Check if result is a jQuery Deferred object
+                if (self._isDeferredObject(funcResult)) {
+                    //Wait promise
+                    funcResult.done(function (data) {
+                        completeDelete(data);
+                    }).fail(function () {
                         $row.data('deleting', false);
                         if (error) {
-                            error(data.Message);
+                            error(self.options.messages.serverCommunicationError);
                         }
-
-                        return;
-                    }
-
-                    self._trigger("recordDeleted", null, { record: $row.data('record'), row: $row, serverResponse: data });
-
-                    if (success) {
-                        success(data);
-                    }
-                },
-                error: function () {
-                    $row.data('deleting', false);
-                    if (error) {
-                        error(self.options.messages.serverCommunicationError);
-                    }
+                    });
+                } else { //assume it returned the deletion result
+                    completeDelete(funcResult);
                 }
-            });
+
+            } else { //Assume it's a URL string
+                //Make ajax call to delete the record from server
+                this._ajax({
+                    url: (url || self.options.actions.deleteAction),
+                    data: postData,
+                    success: function (data) {
+                        completeDelete(data);
+                    },
+                    error: function () {
+                        $row.data('deleting', false);
+                        if (error) {
+                            error(self.options.messages.serverCommunicationError);
+                        }
+                    }
+                });
+
+            }
         },
 
         /* Removes a row from table after a 'deleting' animation.
@@ -2882,8 +3181,13 @@ THE SOFTWARE.
             }
 
             if (animationsEnabled) {
+                var className = 'jtable-row-deleting';
+                if (this.options.jqueryuiTheme) {
+                    className = className + ' ui-state-disabled';
+                }
+
                 //Stop current animation (if does exists) and begin 'deleting' animation.
-                $rows.stop(true, true).addClass('jtable-row-deleting', 'slow', '').promise().done(function () {
+                $rows.stop(true, true).addClass(className, 'slow', '').promise().done(function () {
                     self._removeRowsFromTable($rows, 'deleted');
                 });
             } else {
@@ -3061,6 +3365,7 @@ THE SOFTWARE.
 
             var $columnHeader = $('<th class=""></th>')
                 .addClass('jtable-command-column-header jtable-column-header-selecting');
+            this._jqueryuiThemeAddClass($columnHeader, 'ui-state-default');
 
             var $headerContainer = $('<div />')
                 .addClass('jtable-column-header-container')
@@ -3224,6 +3529,8 @@ THE SOFTWARE.
             }
 
             $rows.addClass('jtable-row-selected');
+            this._jqueryuiThemeAddClass($rows, 'ui-state-highlight');
+
             if (this.options.selectingCheckboxes) {
                 $rows.find('>td.jtable-selecting-column >input').prop('checked', true);
             }
@@ -3234,7 +3541,7 @@ THE SOFTWARE.
         /* Makes row/rows 'non selected'.
         *************************************************************************/
         _deselectRows: function ($rows) {
-            $rows.removeClass('jtable-row-selected');
+            $rows.removeClass('jtable-row-selected ui-state-highlight');
             if (this.options.selectingCheckboxes) {
                 $rows.find('>td.jtable-selecting-column >input').prop('checked', false);
             }
@@ -3288,6 +3595,7 @@ THE SOFTWARE.
         _create: $.hik.jtable.prototype._create,
         _setOption: $.hik.jtable.prototype._setOption,
         _createRecordLoadUrl: $.hik.jtable.prototype._createRecordLoadUrl,
+        _createJtParamsForLoading: $.hik.jtable.prototype._createJtParamsForLoading,
         _addRowToTable: $.hik.jtable.prototype._addRowToTable,
         _addRow: $.hik.jtable.prototype._addRow,
         _removeRowsFromTable: $.hik.jtable.prototype._removeRowsFromTable,
@@ -3334,7 +3642,7 @@ THE SOFTWARE.
 
         /* Overrides base method to do paging-specific constructions.
         *************************************************************************/
-        _create: function () {
+        _create: function() {
             base._create.apply(this, arguments);
             if (this.options.paging) {
                 this._loadPagingSettings();
@@ -3347,7 +3655,7 @@ THE SOFTWARE.
 
         /* Loads user preferences for paging.
         *************************************************************************/
-        _loadPagingSettings: function () {
+        _loadPagingSettings: function() {
             if (!this.options.saveUserPreferences) {
                 return;
             }
@@ -3360,10 +3668,12 @@ THE SOFTWARE.
 
         /* Creates bottom panel and adds to the page.
         *************************************************************************/
-        _createBottomPanel: function () {
+        _createBottomPanel: function() {
             this._$bottomPanel = $('<div />')
                 .addClass('jtable-bottom-panel')
                 .insertAfter(this._$table);
+
+            this._jqueryuiThemeAddClass(this._$bottomPanel, 'ui-state-default');
 
             $('<div />').addClass('jtable-left-area').appendTo(this._$bottomPanel);
             $('<div />').addClass('jtable-right-area').appendTo(this._$bottomPanel);
@@ -3371,7 +3681,7 @@ THE SOFTWARE.
 
         /* Creates page list area.
         *************************************************************************/
-        _createPageListArea: function () {
+        _createPageListArea: function() {
             this._$pagingListArea = $('<span></span>')
                 .addClass('jtable-page-list')
                 .appendTo(this._$bottomPanel.find('.jtable-left-area'));
@@ -3383,7 +3693,7 @@ THE SOFTWARE.
 
         /* Creates page list change area.
         *************************************************************************/
-        _createPageSizeSelection: function () {
+        _createPageSizeSelection: function() {
             var self = this;
 
             if (!self.options.pageSizeChangeArea) {
@@ -3393,7 +3703,7 @@ THE SOFTWARE.
             //Add current page size to page sizes list if not contains it
             if (self._findIndexInArray(self.options.pageSize, self.options.pageSizes) < 0) {
                 self.options.pageSizes.push(parseInt(self.options.pageSize));
-                self.options.pageSizes.sort(function (a, b) { return a - b; });
+                self.options.pageSizes.sort(function(a, b) { return a - b; });
             }
 
             //Add a span to contain page size change items
@@ -3416,14 +3726,14 @@ THE SOFTWARE.
             $pageSizeChangeCombobox.val(self.options.pageSize);
 
             //Change page size on combobox change
-            $pageSizeChangeCombobox.change(function () {
+            $pageSizeChangeCombobox.change(function() {
                 self._changePageSize(parseInt($(this).val()));
             });
         },
 
         /* Creates go to page area.
         *************************************************************************/
-        _createGotoPageInput: function () {
+        _createGotoPageInput: function() {
             var self = this;
 
             if (!self.options.gotoPageArea || self.options.gotoPageArea == 'none') {
@@ -3444,7 +3754,7 @@ THE SOFTWARE.
                 self._$gotoPageInput = $('<select></select>')
                     .appendTo(this._$gotoPageArea)
                     .data('pageCount', 1)
-                    .change(function () {
+                    .change(function() {
                         self._changePage(parseInt($(this).val()));
                     });
                 self._$gotoPageInput.append('<option value="1">1</option>');
@@ -3453,7 +3763,7 @@ THE SOFTWARE.
 
                 self._$gotoPageInput = $('<input type="text" maxlength="10" value="' + self._currentPageNo + '" />')
                     .appendTo(this._$gotoPageArea)
-                    .keypress(function (event) {
+                    .keypress(function(event) {
                         if (event.which == 13) { //enter
                             event.preventDefault();
                             self._changePage(parseInt(self._$gotoPageInput.val()));
@@ -3482,7 +3792,7 @@ THE SOFTWARE.
 
         /* Refreshes the 'go to page' input.
         *************************************************************************/
-        _refreshGotoPageInput: function () {
+        _refreshGotoPageInput: function() {
             if (!this.options.gotoPageArea || this.options.gotoPageArea == 'none') {
                 return;
             }
@@ -3529,7 +3839,7 @@ THE SOFTWARE.
 
         /* Overrides load method to set current page to 1.
         *************************************************************************/
-        load: function () {
+        load: function() {
             this._currentPageNo = 1;
 
             base.load.apply(this, arguments);
@@ -3537,7 +3847,7 @@ THE SOFTWARE.
 
         /* Used to change options dynamically after initialization.
         *************************************************************************/
-        _setOption: function (key, value) {
+        _setOption: function(key, value) {
             base._setOption.apply(this, arguments);
 
             if (key == 'pageSize') {
@@ -3547,7 +3857,7 @@ THE SOFTWARE.
 
         /* Changes current page size with given value.
         *************************************************************************/
-        _changePageSize: function (pageSize) {
+        _changePageSize: function(pageSize) {
             if (pageSize == this.options.pageSize) {
                 return;
             }
@@ -3580,7 +3890,7 @@ THE SOFTWARE.
 
         /* Saves user preferences for paging
         *************************************************************************/
-        _savePagingSettings: function () {
+        _savePagingSettings: function() {
             if (!this.options.saveUserPreferences) {
                 return;
             }
@@ -3590,10 +3900,23 @@ THE SOFTWARE.
 
         /* Overrides _createRecordLoadUrl method to add paging info to URL.
         *************************************************************************/
-        _createRecordLoadUrl: function () {
+        _createRecordLoadUrl: function() {
             var loadUrl = base._createRecordLoadUrl.apply(this, arguments);
             loadUrl = this._addPagingInfoToUrl(loadUrl, this._currentPageNo);
             return loadUrl;
+        },
+
+        /* Overrides _createJtParamsForLoading method to add paging parameters to jtParams object.
+        *************************************************************************/
+        _createJtParamsForLoading: function () {
+            var jtParams = base._createJtParamsForLoading.apply(this, arguments);
+            
+            if (this.options.paging) {
+                jtParams.jtStartIndex = (this._currentPageNo - 1) * this.options.pageSize;
+                jtParams.jtPageSize = this.options.pageSize;
+            }
+
+            return jtParams;
         },
 
         /* Overrides _addRowToTable method to re-load table when a new row is created.
@@ -3701,9 +4024,14 @@ THE SOFTWARE.
                 .data('pageNumber', this._currentPageNo - 1)
                 .appendTo(this._$pagingListArea);
 
+            this._jqueryuiThemeAddClass($first, 'ui-button ui-state-default', 'ui-state-hover');
+            this._jqueryuiThemeAddClass($previous, 'ui-button ui-state-default', 'ui-state-hover');
+
             if (this._currentPageNo <= 1) {
                 $first.addClass('jtable-page-number-disabled');
                 $previous.addClass('jtable-page-number-disabled');
+                this._jqueryuiThemeAddClass($first, 'ui-state-disabled');
+                this._jqueryuiThemeAddClass($previous, 'ui-state-disabled');
             }
         },
 
@@ -3721,9 +4049,14 @@ THE SOFTWARE.
                 .data('pageNumber', pageCount)
                 .appendTo(this._$pagingListArea);
 
+            this._jqueryuiThemeAddClass($next, 'ui-button ui-state-default', 'ui-state-hover');
+            this._jqueryuiThemeAddClass($last, 'ui-button ui-state-default', 'ui-state-hover');
+
             if (this._currentPageNo >= pageCount) {
                 $next.addClass('jtable-page-number-disabled');
                 $last.addClass('jtable-page-number-disabled');
+                this._jqueryuiThemeAddClass($next, 'ui-state-disabled');
+                this._jqueryuiThemeAddClass($last, 'ui-state-disabled');
             }
         },
 
@@ -3754,9 +4087,11 @@ THE SOFTWARE.
                 .data('pageNumber', pageNumber)
                 .appendTo(this._$pagingListArea);
 
+            this._jqueryuiThemeAddClass($pageNumber, 'ui-button ui-state-default', 'ui-state-hover');
+            
             if (this._currentPageNo == pageNumber) {
-                $pageNumber.addClass('jtable-page-number-active');
-                $pageNumber.addClass('jtable-page-number-disabled');
+                $pageNumber.addClass('jtable-page-number-active jtable-page-number-disabled');
+                this._jqueryuiThemeAddClass($pageNumber, 'ui-state-active');
             }
         },
 
@@ -3856,7 +4191,8 @@ THE SOFTWARE.
         _initializeFields: $.hik.jtable.prototype._initializeFields,
         _normalizeFieldOptions: $.hik.jtable.prototype._normalizeFieldOptions,
         _createHeaderCellForField: $.hik.jtable.prototype._createHeaderCellForField,
-        _createRecordLoadUrl: $.hik.jtable.prototype._createRecordLoadUrl
+        _createRecordLoadUrl: $.hik.jtable.prototype._createRecordLoadUrl,
+        _createJtParamsForLoading: $.hik.jtable.prototype._createJtParamsForLoading
     };
 
     //extension members
@@ -3932,7 +4268,7 @@ THE SOFTWARE.
                     if (fieldProps.sorting) {
                         var colOffset = orderValue.indexOf(fieldName);
                         if (colOffset > -1) {
-                            if (orderValue.toUpperCase().indexOf('DESC', colOffset) > -1) {
+                            if (orderValue.toUpperCase().indexOf(' DESC', colOffset) > -1) {
                                 self._lastSorting.push({
                                     fieldName: fieldName,
                                     sortOrder: 'DESC'
@@ -4025,6 +4361,23 @@ THE SOFTWARE.
             });
 
             return (url + (url.indexOf('?') < 0 ? '?' : '&') + 'jtSorting=' + sorting.join(","));
+        },
+
+        /* Overrides _createJtParamsForLoading method to add sorging parameters to jtParams object.
+        *************************************************************************/
+        _createJtParamsForLoading: function () {
+            var jtParams = base._createJtParamsForLoading.apply(this, arguments);
+
+            if (this.options.sorting && this._lastSorting.length) {
+                var sorting = [];
+                $.each(this._lastSorting, function (idx, value) {
+                    sorting.push(value.fieldName + ' ' + value.sortOrder);
+                });
+
+                jtParams.jtSorting = sorting.join(",");
+            }
+
+            return jtParams;
         }
 
     });
@@ -4523,6 +4876,11 @@ THE SOFTWARE.
         openChildTable: function ($row, tableOptions, opened) {
             var self = this;
 
+            //Apply theming as same as parent table unless explicitily set
+            if (tableOptions.jqueryuiTheme == undefined) {
+                tableOptions.jqueryuiTheme = self.options.jqueryuiTheme;
+            }
+
             //Show close button as default
             tableOptions.showCloseButton = (tableOptions.showCloseButton != false);
 
@@ -4624,14 +4982,14 @@ THE SOFTWARE.
         /* Overrides _removeRowsFromTable method to remove child rows of deleted rows.
         *************************************************************************/
         _removeRowsFromTable: function ($rows, reason) {
-            var self = this;
+            //var self = this;
 
             if (reason == 'deleted') {
                 $rows.each(function () {
                     var $row = $(this);
                     var $childRow = $row.data('childRow');
                     if ($childRow) {
-                        self.closeChildTable($row);
+                        //self.closeChildTable($row); //Removed since it causes "Uncaught Error: cannot call methods on jtable prior to initialization; attempted to call method 'destroy'"
                         $childRow.remove();
                     }
                 });
@@ -4660,3 +5018,4 @@ THE SOFTWARE.
     });
 
 })(jQuery);
+
