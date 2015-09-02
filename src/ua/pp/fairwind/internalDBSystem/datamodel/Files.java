@@ -19,6 +19,7 @@ public class Files {
     String fileNameComments;
     @ManyToOne
     FilesType filesType;
+    String fileMimeType;
     @Lob
     @JsonIgnore
     @Column(name = "BIN_FILE_DATA",nullable = false)
@@ -64,5 +65,13 @@ public class Files {
 
     public void setVersionId(long versionId) {
         this.versionId = versionId;
+    }
+
+    public String getFileMimeType() {
+        return fileMimeType;
+    }
+
+    public void setFileMimeType(String fileMimeType) {
+        this.fileMimeType = fileMimeType;
     }
 }

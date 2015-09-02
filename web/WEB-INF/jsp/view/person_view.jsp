@@ -28,6 +28,29 @@
 <%-- customized javascript code to manage JTable --%>
 <script>
   $(document).ready(function() {
+    // Read a page's GET URL variables and return them as an associative array.
+    function getVars(url)
+    {
+      var formData = new FormData();
+      var split;
+      $.each(url.split("&"), function(key, value) {
+        split = value.split("=");
+        formData.append(split[0], decodeURIComponent(split[1].replace(/\+/g, " ")));
+      });
+
+      return formData;
+    }
+
+// Variable to store your files
+    var files;
+
+    $( document ).delegate('#input-image','change', prepareUpload);
+
+// Grab the files and set them to our variable
+    function prepareUpload(event)
+    {
+      files = event.target.files;
+    }
 
     //setup the jtable that will display the results
     $('#ExpenseTableContainer').jtable({
@@ -36,6 +59,7 @@
       paging: true, //Enable paging
       pageSize: 10, //Set page size (default: 10)
       sorting: true, //Enable sorting
+      useBootstrap: true,
       actions: {
         //listAction: 'datatable/getAllExpenses',
         listAction: '${pageContext.request.contextPath}/person/listClients',
@@ -99,12 +123,13 @@
                         paging: true, //Enable paging
                         pageSize: 10, //Set page size (default: 10)
                         sorting: true, //Enable sorting
-
+                        useBootstrap: true,
                         actions: {
                           <sec:authorize ifAnyGranted="ROLE_GROUP_EDIT,ROLE_SUPER_EDIT,ROLE_MAIN_EDIT">
 
 
-                          deleteAction: '${pageContext.request.contextPath}/dossers/remove?personId=' + rolesdata.record.personId,
+                          //deleteAction: '${pageContext.request.contextPath}/dossers/remove',
+                          deleteAction: '${pageContext.request.contextPath}/dossers/delete',
                           //createAction: '${pageContext.request.contextPath}/dossers/add?personId=' + rolesdata.record.personId,
                           createAction: '${pageContext.request.contextPath}/dossers/add',
                           /*createAction: function (postData) {
@@ -144,9 +169,16 @@
                            });
                            });
                            },/**/
-                          /**/createAction: function (postData) {
+                          /*createAction: function (postData) {
                            console.log("creating from custom function...");
                            var deferred = $.Deferred();
+
+                            // Capture form submit result from the hidden iframe
+                            $("#postiframe").load(function () {
+                              iframeContents = $("#postiframe").contents().find("body").text();
+                              var result = $.parseJSON(iframeContents);
+                              deferred.resolve(result);
+                            });
 
                            // Submit form with file upload settings
                            var form = $('#jtable-create-form');
@@ -159,6 +191,56 @@
                            form.submit();
                            return deferred;
                            },/**/
+                          createAction: function (postData) {
+                            var formData = getVars(postData);
+
+                            if($('#input-image').val() !== ""){
+                              formData.append("file", $('#input-image').get(0).files[0]);
+                            }
+
+                            return $.Deferred(function ($dfd) {
+                              $.ajax({
+                                url: '${pageContext.request.contextPath}/dossers/add?personId=' + rolesdata.record.personId,
+                                type: 'POST',
+                                dataType: 'json',
+                                data: formData,
+                                processData: false, // Don't process the files
+                                contentType: false, // Set content type to false as jQuery will tell the server its a query string request
+                                success: function (data) {
+                                  $dfd.resolve(data);
+                                  $('#table-container').jtable('load');
+                                },
+                                error: function () {
+                                  $dfd.reject();
+                                }
+                              });
+                            });
+                          },
+                          updateAction: function (postData) {
+                            var formData = getVars(postData);
+
+                            if($('#input-image').val() !== ""){
+                              formData.append("file", $('#input-image').get(0).files[0]);
+                            }
+
+                            return $.Deferred(function ($dfd) {
+                              $.ajax({
+                                url: '${pageContext.request.contextPath}/dossers/update',
+                                type: 'POST',
+                                dataType: 'json',
+                                data: formData,
+                                processData: false, // Don't process the files
+                                contentType: false, // Set content type to false as jQuery will tell the server its a query string request
+                                success: function (data) {
+                                  $dfd.resolve(data);
+                                  $('#table-container').jtable('load');
+                                },
+                                error: function () {
+                                  $dfd.reject();
+                                }
+                              });
+                            });
+                          },
                           </sec:authorize>
                           listAction: '${pageContext.request.contextPath}/dossers/listClientDossers?personId=' + rolesdata.record.personId
                         },
@@ -220,7 +302,7 @@
                             list: false
                           },
                           </sec:authorize>
-                          "subdivision_name": {
+                          "subdivision.name": {
                             title: 'SUBDIVISIONS NAME',
                             width: '10%',
                             edit: false,
@@ -233,7 +315,7 @@
                               }
                             }
                           },
-                          "category_name": {
+                          "category.name": {
                             title: 'CATEGORY NAME',
                             width: '10%',
                             edit: false,
@@ -246,8 +328,8 @@
                               }
                             }
                           },
-                          "infotype_typeName": {
-                            title: 'CATEGORY NAME',
+                          "infotype.typeName": {
+                            title: 'INFOTYPE NAME',
                             width: '10%',
                             edit: false,
                             create: false,
@@ -263,7 +345,7 @@
                             title: 'INFO',
                             width: '20%',
                           },
-                          "fileinfo_filesType": {
+                          "fileinfo.filesType": {
                             title: 'FILE TYPE',
                             width: '10%',
                             edit: false,
@@ -286,9 +368,9 @@
                             //type:'date',
                             input: function (data) {
                               if (data.record) {
-                                  return '<input type="file" name="file">';
+                                  return '<input type="file" name="userfile" id="input-image"><iframe name="postiframe" id="postiframe" style="display: none" />';
                               } else {
-                                  return '<input type="file" name="file">';
+                                  return '<input type="file" name="userfile" id="input-image"><iframe name="postiframe" id="postiframe" style="display: none" />';
                               }
                             },
                             list: false,
@@ -302,10 +384,82 @@
                             edit: false,
                             create: false,
                           },
+                          AddServiceToCart: {
+                            title: '',
+                            width: '1%',
+                            sorting: false,
+                            create: false,
+                            edit: false,
+                            list: true,
+                            display: function (data) {
+                              if (data.record.fileinfo !== null && data.record.fileinfo !== undefined) {
+                              var $myVal = data.record.fileinfo.fileId;
+                              var mimeType= data.record.fileinfo.fileMimeType;
+                              if(mimeType!== null && mimeType!==undefined){
+                                    if(mimeType.match(/image*/)){
+                                        var $link = $('<a href="#" class ="PassServiceLink"><i class="fa fa-search fa-fw"></i></a>');
+                                        $link.on("click",function () {
+                                          $('#add_service_to_cart_dialog').dialog({
+                                            autoOpen: false,
+                                            modal: true,
+                                            resizable: true,
+                                            autoResize:true,
+                                            width:'auto',
+                                            height:'auto',
+                                            closeOnEscape: true,
+                                            open: function (event, ui) {
+                                              $(this).empty();
+                                              $(this).append('<img src="${pageContext.request.contextPath}/file/view?fileID='+$myVal+'" />');
+                                                      //load('${pageContext.request.contextPath}/file/view?fileID=' + $myVal);
+                                              }
+
+                                          });
+
+                                          $('#add_service_to_cart_dialog').dialog("open");
+                                        });
+                                        return $link;
+                                    } else {
+                                      return '<a href="${pageContext.request.contextPath}/file/view?fileID='+$myVal+'" class ="PassServiceLink" target="_blank"><i class="fa fa-search fa-fw"></i></a>';
+                                    }
+                                }else {
+                                  return '<i class="fa fa-remove fa-fw"></i>';
+                                }
+                              } else {
+                                return '<i class="fa fa-remove fa-fw"></i>';
+                              }
+
+                            }
+                          }
                         },
                         formCreated:function(event, data){
                           data.form.attr("enctype", "multipart/form-data");
-                          data.form.attr("encoding", "multipart/form-data")
+                          data.form.attr("encoding", "multipart/form-data");
+
+
+                          var parent=data.form.parent().parent();
+                          $('#Edit-subdivId').multiselect({
+                            multiple: false,
+                            appendTo : parent,
+                            selectedList: 1
+                          }).multiselectfilter();
+
+                          $('#Edit-categoryId').multiselect({
+                            multiple: false,
+                            appendTo : parent,
+                            selectedList: 1
+                          }).multiselectfilter();
+
+                          $('#Edit-infoTypeId').multiselect({
+                            multiple: false,
+                            appendTo : parent,
+                            selectedList: 1
+                          }).multiselectfilter();
+
+                          $('#Edit-fileTypeId').multiselect({
+                            multiple: false,
+                            appendTo : parent,
+                            selectedList: 1
+                          }).multiselectfilter();
                           /*
                           var parent=data.form.parent().parent();
                           $('#Edit-subdivsId2').multiselect({
@@ -336,12 +490,7 @@
       },
       formCreated:function(event, data){
 
-        var parent=data.form.parent().parent();
-        $('#Edit-subdivsId2').multiselect({
-          show: "bounce",
-          hide: "explode",
-          appendTo : parent,
-        }).multiselectfilter();
+
 
 
       },
@@ -384,3 +533,4 @@
 <div>
   <div id="ExpenseTableContainer" style="width:99%;"></div>
 </div>
+<div id="add_service_to_cart_dialog"></div>

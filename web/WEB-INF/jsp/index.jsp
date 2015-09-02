@@ -76,10 +76,10 @@
               <a href="#"><i class="fa fa-inbox fa-fw"></i>PERSONS<span class="fa arrow"></span></a>
               <ul class="nav nav-second-level">
                 <li>
-                  <a href="person/" onclick="$('#page-wrapper').load('persons/'); return false;"><c:message code="label.persons.clients"/></a>
+                  <a href="person/" onclick="$('#page-wrapper').load('person/'); return false;"><c:message code="label.persons.clients"/></a>
                 </li>
                 <li>
-                  <a href="person/" onclick="$('#page-wrapper').load('persons/'); return false;"><c:message code="label.persons.workers"/></a>
+                  <a href="person/" onclick="$('#page-wrapper').load('person/'); return false;"><c:message code="label.persons.workers"/></a>
                 </li>
               </ul>
               <!-- /.nav-second-level -->

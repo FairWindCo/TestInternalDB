@@ -24,6 +24,7 @@ import ua.pp.fairwind.internalDBSystem.datamodel.directories.PersonType;
 import ua.pp.fairwind.internalDBSystem.dateTable.FormSort;
 import ua.pp.fairwind.internalDBSystem.dateTable.JSTableExpenseListResp;
 import ua.pp.fairwind.internalDBSystem.dateTable.JSTableExpenseResp;
+import ua.pp.fairwind.internalDBSystem.dateTable.JSTableExpenseResult;
 import ua.pp.fairwind.internalDBSystem.security.UserDetailsAdapter;
 import ua.pp.fairwind.internalDBSystem.services.repository.*;
 
@@ -56,7 +57,6 @@ public class DosserController {
     @RequestMapping(value = "/listClientDossers", method = {RequestMethod.GET,RequestMethod.POST})
     @ResponseBody
     public JSTableExpenseListResp<Dosser> getClientsDossers(@RequestParam int jtStartIndex, @RequestParam int jtPageSize,@RequestParam(required = false) String jtSorting,@RequestParam long personId) {
-
         Sort sort= FormSort.formSortFromSortDescription(jtSorting);
         PageRequest pager;
         Page<Dosser> page;
@@ -103,7 +103,7 @@ public class DosserController {
 
     @Transactional(readOnly = false)
     @Secured({"ROLE_SUPER_EDIT","ROLE_GROUP_EDIT","ROLE_MAIN_EDIT"})
-    @RequestMapping(value = "/add", method = {RequestMethod.POST,RequestMethod.GET})
+    @RequestMapping(value = "/add", method = {RequestMethod.POST})
     @ResponseBody
     public JSTableExpenseResp<Dosser> insert(@ModelAttribute Dosser dosser, BindingResult result,@RequestParam(value = "file",required = false) MultipartFile file, @RequestParam long personId,@RequestParam("subdivId") long subdivId,@RequestParam("categoryId") String categoryId,@RequestParam("infoTypeId") String infoTypeId,@RequestParam(value = "fileTypeId",required = false) Long fileTypeId) {
         JSTableExpenseResp jsonJtableResponse;
@@ -127,6 +127,7 @@ public class DosserController {
             if(fileTypeId!=null){
                 ft=filyTypeService.findOne(fileTypeId);
             }
+            dosser.setCreationTime(System.currentTimeMillis());
             dosser.setPerson(person);
             dosser.setSubdivision(sub);
             dosser.setCategory(cat);
@@ -135,6 +136,7 @@ public class DosserController {
             dosser.setCreateUser(user.getUserP());
             if(ft!=null && file!=null && !file.isEmpty()){
                 Files fl=new Files();
+                fl.setFileMimeType(file.getContentType());
                 fl.setFilesType(ft);
                 fl.setFileData(file.getBytes());
                 dosser.setFileinfo(fl);
@@ -148,6 +150,98 @@ public class DosserController {
         return jsonJtableResponse;
     }
 
+    @Transactional(readOnly = false)
+    @Secured({"ROLE_SUPER_EDIT","ROLE_GROUP_EDIT","ROLE_MAIN_EDIT"})
+    @RequestMapping(value = "/remove", method = {RequestMethod.POST})
+    @ResponseBody
+    public JSTableExpenseResp<Dosser>  remove(@ModelAttribute Dosser dosser, BindingResult result) {
+        JSTableExpenseResp<Dosser>  jsonJtableResponse;
+        try {
+            dosserService.delete(dosser.getDossierId());
+            jsonJtableResponse = new JSTableExpenseResp<>(JSTableExpenseResult.OK,"OK");
+        } catch (Exception e) {
+            jsonJtableResponse = new JSTableExpenseResp<>(e.getMessage());
+        }
+        return jsonJtableResponse;
+    }
+
+    @Transactional(readOnly = false)
+    @Secured({"ROLE_SUPER_EDIT","ROLE_GROUP_EDIT","ROLE_MAIN_EDIT"})
+    @RequestMapping(value = "/delete", method = {RequestMethod.POST})
+    @ResponseBody
+    public JSTableExpenseResp<Dosser>  delete(@ModelAttribute Dosser dosser, BindingResult result) {
+        JSTableExpenseResp<Dosser>  jsonJtableResponse;
+        try {
+            Dosser old=dosserService.findOne(dosser.getDossierId());
+            if(old!=null){
+                old.setRecord_status(DosserType.DELETED);
+                jsonJtableResponse = new JSTableExpenseResp<>(JSTableExpenseResult.OK,"OK");
+            } else {
+                jsonJtableResponse = new JSTableExpenseResp<>(JSTableExpenseResult.ERROR,"NOT FOUND!");
+            }
+
+        } catch (Exception e) {
+            jsonJtableResponse = new JSTableExpenseResp<>(e.getMessage());
+        }
+        return jsonJtableResponse;
+    }
+
+    @Transactional(readOnly = false)
+    @Secured({"ROLE_SUPER_EDIT","ROLE_GROUP_EDIT","ROLE_MAIN_EDIT"})
+    @RequestMapping(value = "/update", method = {RequestMethod.POST})
+    @ResponseBody
+    public JSTableExpenseResp<Dosser> update(@RequestParam long dossierId,@RequestParam(value = "file",required = false) MultipartFile file, @RequestParam long personId,@RequestParam("subdivId") long subdivId,@RequestParam("categoryId") String categoryId,@RequestParam("infoTypeId") String infoTypeId,@RequestParam(value = "fileTypeId",required = false) Long fileTypeId) {
+        JSTableExpenseResp jsonJtableResponse;
+        Dosser old=null;
+        try {
+            old=dosserService.findOne(dossierId);
+            if(old!=null){
+                old.setRecord_status(DosserType.MODIFIED);
+            }
+        } catch (Exception e) {
+            return new JSTableExpenseResp<>(e.getMessage());
+        }
+        if(categoryId==null || categoryId.isEmpty()||"----".equals(categoryId)){
+            return new JSTableExpenseResp<>("No category select!");
+        }
+        if(infoTypeId==null || infoTypeId.isEmpty()||"----".equals(infoTypeId)){
+            return new JSTableExpenseResp<>("No Info Type select!");
+        }
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        UserDetailsAdapter user=(UserDetailsAdapter)auth.getPrincipal();
+        try {
+            Subdivision sub=subdivService.findOne(subdivId);
+            Category cat=categService.findOne(Long.valueOf(categoryId));
+            InfoType info=infoService.findOne(Long.valueOf(infoTypeId));
+            Person person=personService.findOne(personId);
+            FilesType ft=null;
+            if(fileTypeId!=null){
+                ft=filyTypeService.findOne(fileTypeId);
+            }
+            Dosser dosser=new Dosser();
+            dosser.setParentDossierId(old);
+            dosser.setCreationTime(System.currentTimeMillis());
+            dosser.setPerson(person);
+            dosser.setSubdivision(sub);
+            dosser.setCategory(cat);
+            dosser.setInfotype(info);
+            dosser.setRecord_status(DosserType.ACTIVE);
+            dosser.setCreateUser(user.getUserP());
+            if(ft!=null && file!=null && !file.isEmpty()){
+                Files fl=new Files();
+                fl.setFileMimeType(file.getContentType());
+                fl.setFilesType(ft);
+                fl.setFileData(file.getBytes());
+                dosser.setFileinfo(fl);
+                fileService.saveAndFlush(fl);
+            }
+            dosserService.saveAndFlush(dosser);
+            jsonJtableResponse = new JSTableExpenseResp<>(dosser);
+        } catch (Exception e) {
+            jsonJtableResponse = new JSTableExpenseResp<>(e.getMessage());
+        }
+        return jsonJtableResponse;
+    }
 
 
 }

@@ -30,7 +30,7 @@ public class Dosser {
     private InfoType infotype;
     private boolean confidential;
     private String textinfo;
-    @ManyToOne
+    @ManyToOne(cascade = {CascadeType.PERSIST,CascadeType.REMOVE})
     private Files fileinfo;
     @ManyToOne
     private User createUser;
@@ -38,6 +38,7 @@ public class Dosser {
     private Dosser parentDossierId;
     @Enumerated(EnumType.ORDINAL)
     private DosserType record_status;
+
     @CreatedDate
     private long creationTime;
     @Version
