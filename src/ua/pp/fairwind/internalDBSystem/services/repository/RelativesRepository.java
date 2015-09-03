@@ -11,13 +11,15 @@ import ua.pp.fairwind.internalDBSystem.dateTable.JSTableExpenseOptionsBean;
 import java.util.List;
 
 /**
- * Created by Сергей on 17.07.2015.
+ * Created by пїЅпїЅпїЅпїЅпїЅпїЅ on 17.07.2015.
  */
 public interface RelativesRepository extends JpaRepository<Relatives,Long> {
     List<Relatives> findByName(String name);
     Page<Relatives> findByName(String name, Pageable pageRequest);
     List<Relatives> findByNameLike(String name);
     Page<Relatives> findByNameLike(String name, Pageable pageRequest);
+    Page<Relatives> findByNameContains(String name, Pageable pageRequest);
+    List<Relatives> findByNameContains(String name);
     @Query("Select new ua.pp.fairwind.internalDBSystem.dateTable.JSTableExpenseOptionsBean(rel.id,rel.name) from Relatives rel")
     List<JSTableExpenseOptionsBean> getAllRelativesOptions();
 }

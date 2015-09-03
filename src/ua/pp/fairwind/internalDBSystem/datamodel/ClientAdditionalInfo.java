@@ -1,5 +1,6 @@
 package ua.pp.fairwind.internalDBSystem.datamodel;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import ua.pp.fairwind.internalDBSystem.datamodel.directories.Segments;
 
 import javax.persistence.*;
@@ -7,7 +8,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Created by Сергей on 17.07.2015.
+ * Created by пїЅпїЅпїЅпїЅпїЅпїЅ on 17.07.2015.
  */
 @Entity
 @Table(name = "CLIENT_ADDITIONAL")
@@ -16,6 +17,7 @@ public class ClientAdditionalInfo {
     @GeneratedValue
     private Long id;
     @OneToMany
+    @JsonIgnore
     private Set<RelationDegrees> relationDegrees=new HashSet<>();
     private String clientColorCODE;
     private String clientColorComments;

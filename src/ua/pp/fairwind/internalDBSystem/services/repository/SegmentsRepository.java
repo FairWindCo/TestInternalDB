@@ -11,13 +11,15 @@ import ua.pp.fairwind.internalDBSystem.dateTable.JSTableExpenseOptionsBean;
 import java.util.List;
 
 /**
- * Created by Сергей on 17.07.2015.
+ * Created by пїЅпїЅпїЅпїЅпїЅпїЅ on 17.07.2015.
  */
 public interface SegmentsRepository extends JpaRepository<Segments,Long> {
     List<Segments> findByName(String name);
     Page<Segments> findByName(String name, Pageable pageRequest);
     List<Segments> findByNameLike(String name);
     Page<Segments> findByNameLike(String name, Pageable pageRequest);
+    Page<Segments> findByNameContains(String name, Pageable pageRequest);
+    List<Segments> findByNameContains(String name);
     @Query("Select new ua.pp.fairwind.internalDBSystem.dateTable.JSTableExpenseOptionsBean(seg.id,seg.name) from Segments seg")
     List<JSTableExpenseOptionsBean> getAllSegmentsOptions();
 }

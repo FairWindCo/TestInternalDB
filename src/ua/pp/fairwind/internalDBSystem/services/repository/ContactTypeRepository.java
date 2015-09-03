@@ -11,13 +11,15 @@ import ua.pp.fairwind.internalDBSystem.dateTable.JSTableExpenseOptionsBean;
 import java.util.List;
 
 /**
- * Created by Сергей on 17.07.2015.
+ * Created by пїЅпїЅпїЅпїЅпїЅпїЅ on 17.07.2015.
  */
 public interface ContactTypeRepository extends JpaRepository<ContactType,Long> {
     List<ContactType> findByCobtactTypeName(String cobtactTypeName);
     Page<ContactType> findByCobtactTypeName(String cobtactTypeName, Pageable pageRequest);
     List<ContactType> findByCobtactTypeNameLike(String cobtactTypeName);
     Page<ContactType> findByCobtactTypeNameLike(String cobtactTypeName, Pageable pageRequest);
+    Page<ContactType> findByCobtactTypeNameContains(String cobtactTypeName, Pageable pageRequest);
+    List<ContactType> findByCobtactTypeNameContains(String cobtactTypeName);
     @Query("Select new ua.pp.fairwind.internalDBSystem.dateTable.JSTableExpenseOptionsBean(ct.id,ct.cobtactTypeName) from ContactType ct")
     List<JSTableExpenseOptionsBean> getAllFileTypeOptions();
 }

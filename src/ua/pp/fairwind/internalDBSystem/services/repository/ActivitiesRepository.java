@@ -11,13 +11,15 @@ import ua.pp.fairwind.internalDBSystem.dateTable.JSTableExpenseOptionsBean;
 import java.util.List;
 
 /**
- * Created by Сергей on 17.07.2015.
+ * Created by пїЅпїЅпїЅпїЅпїЅпїЅ on 17.07.2015.
  */
 public interface ActivitiesRepository extends JpaRepository<Activities,Long> {
     List<Activities> findByActivitiesTypeName(String activitiesTypeName);
     Page<Activities> findByActivitiesTypeName(String activitiesTypeName, Pageable pageRequest);
     List<Activities> findByActivitiesTypeNameLike(String activitiesTypeName);
     Page<Activities> findByActivitiesTypeNameLike(String activitiesTypeName, Pageable pageRequest);
+    Page<Activities> findByActivitiesTypeNameContains(String activitiesTypeName, Pageable pageRequest);
+    List<Activities> findByActivitiesTypeNameContains(String activitiesTypeName);
     @Query("Select new ua.pp.fairwind.internalDBSystem.dateTable.JSTableExpenseOptionsBean(a.activitiesTypeId,a.activitiesTypeName) from Activities a")
     List<JSTableExpenseOptionsBean> getAllActivitiesOptions();
 }

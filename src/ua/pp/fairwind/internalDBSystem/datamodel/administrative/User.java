@@ -1,5 +1,6 @@
 package ua.pp.fairwind.internalDBSystem.datamodel.administrative;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import javax.persistence.*;

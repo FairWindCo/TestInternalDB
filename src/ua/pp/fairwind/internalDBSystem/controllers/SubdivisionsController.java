@@ -19,6 +19,7 @@ import ua.pp.fairwind.internalDBSystem.dateTable.*;
 import ua.pp.fairwind.internalDBSystem.security.UserDetailsAdapter;
 import ua.pp.fairwind.internalDBSystem.services.repository.SubdivisionRepository;
 
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -156,28 +157,43 @@ public class SubdivisionsController {
     @Transactional(readOnly = true)
     @RequestMapping(value = "/listing", method = RequestMethod.GET)
     @ResponseBody
-    public JSComboExpenseResp<Subdivision> simpleList(Model model,@RequestParam int page_num, @RequestParam int per_page) {
+    public Object simpleList(Model model,@RequestParam(required = false) Integer page_num, @RequestParam(required = false) Integer per_page,@RequestParam(value = "pkey_val[]",required = false) String pkey,@RequestParam(value = "q_word[]",required = false) String[] qword) {
 
         logger.log(Level.INFO,"Received request to show "+per_page+" filetypes from"+page_num);
 
         // Retrieve all persons by delegating the call to PersonService
-        Sort sort= null;//FormSort.formSortFromSortDescription(jtSorting);
-        PageRequest pager;
-        Page<Subdivision> page;
-
-        if(sort!=null){
-            pager=new PageRequest(page_num-1,per_page,sort);
-        } else {
-            pager=new PageRequest(page_num-1, per_page);
+        //Sort sort= FormSort.formSortFromSortDescription(orderby);
+        Sort sort=new Sort(Sort.Direction.ASC,"name");
+        PageRequest pager=null;
+        if(page_num!=null && per_page!=null) {
+            pager = new PageRequest(page_num - 1, per_page, sort);
         }
-        /*
-        if(searchname!=null && !searchname.isEmpty()){
-            page =  subdivisionsservice.findByNameLike(searchname, pager);
+        if(pager!=null) {
+            Page<Subdivision> page;
+            if (qword != null && qword.length > 0) {
+                page = subdivisionsservice.findByNameContains(qword[0], pager);
+            } else {
+                page = subdivisionsservice.findAll(pager);
+            }
+            return new JSComboExpenseResp<>(page);
         } else {
-            page = subdivisionsservice.findAll(pager);
-        }*/
-        page = subdivisionsservice.findAll(pager);
-        return new JSComboExpenseResp<>(page);
+            if(pkey!=null && !pkey.isEmpty()){
+                Long key=Long.valueOf(pkey);
+                Subdivision ft=null;
+                if(key!=null) {
+                    ft = subdivisionsservice.findOne(key);
+                }
+                return ft;
+            } else {
+                List<Subdivision> page;
+                if (qword != null && qword.length > 0) {
+                    page = subdivisionsservice.findByNameContains(qword[0]);
+                } else {
+                    page = subdivisionsservice.findAll(sort);
+                }
+                return new JSComboExpenseResp<>(page);
+            }
+        }
     }
 
 

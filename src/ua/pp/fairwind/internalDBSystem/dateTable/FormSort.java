@@ -5,9 +5,37 @@ import org.springframework.data.domain.Sort;
 import java.util.ArrayList;
 
 /**
- * Created by Сергей on 21.07.2015.
+ * Created by пїЅпїЅпїЅпїЅпїЅпїЅ on 21.07.2015.
  */
 public class FormSort {
+    public static Sort formSortFromSortDescription(String[][] sortdescription){
+        if(sortdescription!=null && sortdescription.length>0) {
+            ArrayList<Sort.Order> listorder = new ArrayList<>();
+            for (String[] oneDescription : sortdescription) {
+                if (oneDescription != null) {
+                    if (oneDescription.length > 1) {
+                        switch (oneDescription[0]) {
+                            case "ASC":
+                                listorder.add(new Sort.Order(Sort.Direction.ASC, oneDescription[1]));
+                            case "DESC":
+                                listorder.add(new Sort.Order(Sort.Direction.DESC, oneDescription[1]));
+                            default:
+                                listorder.add(new Sort.Order(Sort.Direction.ASC, oneDescription[1]));
+                        }
+                    } else if (oneDescription.length == 1) {
+                        listorder.add(new Sort.Order(Sort.Direction.ASC, oneDescription[0]));
+                    }
+                    if (listorder.size() > 0) {
+                        return new Sort(listorder.toArray(new Sort.Order[listorder.size()]));
+                    }
+                } else {
+                    return null;
+                }
+            }
+        }
+        return null;
+    }
+
     public static Sort formSortFromSortDescription(String sortdescription){
 
         if(sortdescription!=null && !sortdescription.isEmpty()){
@@ -34,6 +62,8 @@ public class FormSort {
         }
         return null;
     }
+
+
 
     public static Sort.Order formOrder(String orderDeclaration){
         if(orderDeclaration==null || orderDeclaration.isEmpty()) return null;

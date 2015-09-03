@@ -1,5 +1,6 @@
 package ua.pp.fairwind.internalDBSystem.datamodel;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import ua.pp.fairwind.internalDBSystem.datamodel.directories.Activities;
@@ -38,19 +39,27 @@ public class Person {
     @Enumerated(EnumType.ORDINAL)
     private PersonType personType;
     @OneToOne(targetEntity = Files.class,cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    @JsonIgnore
     private Files photo;
     @OneToMany(targetEntity = Files.class,cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    @JsonIgnore
     private Set<Files> files=new HashSet<>();
+    @JsonIgnore
     @OneToMany(targetEntity = Contact.class,cascade = CascadeType.ALL,fetch = FetchType.EAGER)
     private Set<Contact> contacts=new HashSet<>();
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnore
     private Hobbies hobbie;
     @Column(name = "hobbies")
     private String hobbiesComments;
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnore
     private Activities activities;
     @Column(name = "activities")
     private String activitiesComments;
+    @OneToOne(targetEntity = ClientAdditionalInfo.class,cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    @JsonIgnore
+    private ClientAdditionalInfo additionalInfo;
 
     //AUDITING
     @CreatedDate
@@ -145,5 +154,61 @@ public class Person {
 
     public void setVersion(long version) {
         this.version = version;
+    }
+
+    public ClientAdditionalInfo getAdditionalInfo() {
+        return additionalInfo;
+    }
+
+    public void setAdditionalInfo(ClientAdditionalInfo additionalInfo) {
+        this.additionalInfo = additionalInfo;
+    }
+
+    public Files getPhoto() {
+        return photo;
+    }
+
+    public void setPhoto(Files photo) {
+        this.photo = photo;
+    }
+
+    public Hobbies getHobbie() {
+        return hobbie;
+    }
+
+    public void setHobbie(Hobbies hobbie) {
+        this.hobbie = hobbie;
+    }
+
+    public Activities getActivities() {
+        return activities;
+    }
+
+    public void setActivities(Activities activities) {
+        this.activities = activities;
+    }
+
+    public String getHobbiesComments() {
+        return hobbiesComments;
+    }
+
+    public void setHobbiesComments(String hobbiesComments) {
+        this.hobbiesComments = hobbiesComments;
+    }
+
+    public String getActivitiesComments() {
+        return activitiesComments;
+    }
+
+    public void setActivitiesComments(String activitiesComments) {
+        this.activitiesComments = activitiesComments;
+    }
+
+    public Set<Contact> getContacts() {
+        return contacts;
+    }
+
+    public Set<Files> getFiles() {
+        return files;
     }
 }

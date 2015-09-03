@@ -14,11 +14,12 @@ import ua.pp.fairwind.internalDBSystem.datamodel.directories.Hobbies;
 import ua.pp.fairwind.internalDBSystem.dateTable.*;
 import ua.pp.fairwind.internalDBSystem.services.repository.HobbiesRepository;
 
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Created by Сергей on 21.07.2015.
+ * Created by пїЅпїЅпїЅпїЅпїЅпїЅ on 21.07.2015.
  */
 @Controller
 @RequestMapping("/hobbies")
@@ -140,6 +141,48 @@ public class HobbiesController {
             jsonJtableResponse = new JSTableOptionsResponse<>(e.getMessage());
         }
         return jsonJtableResponse;
+    }
+
+    @Transactional(readOnly = true)
+    @RequestMapping(value = "/listing", method = RequestMethod.GET)
+    @ResponseBody
+    public Object simpleList(Model model,@RequestParam(required = false) Integer page_num, @RequestParam(required = false) Integer per_page,@RequestParam(value = "pkey_val[]",required = false) String pkey,@RequestParam(value = "q_word[]",required = false) String[] qword) {
+
+        logger.log(Level.INFO,"Received request to show "+per_page+" filetypes from"+page_num);
+
+        // Retrieve all persons by delegating the call to PersonService
+        //Sort sort= FormSort.formSortFromSortDescription(orderby);
+        Sort sort=new Sort(Sort.Direction.ASC,"filesTypeName");
+        PageRequest pager=null;
+        if(page_num!=null && per_page!=null) {
+            pager = new PageRequest(page_num - 1, per_page, sort);
+        }
+        if(pager!=null) {
+            Page<Hobbies> page;
+            if (qword != null && qword.length > 0) {
+                page = hobiesservice.findByHobbieNameContains(qword[0], pager);
+            } else {
+                page = hobiesservice.findAll(pager);
+            }
+            return new JSComboExpenseResp<>(page);
+        } else {
+            if(pkey!=null && !pkey.isEmpty()){
+                Long key=Long.valueOf(pkey);
+                Hobbies ft=null;
+                if(key!=null) {
+                    ft = hobiesservice.findOne(key);
+                }
+                return ft;
+            } else {
+                List<Hobbies> page;
+                if (qword != null && qword.length > 0) {
+                    page = hobiesservice.findByHobbieNameContains(qword[0]);
+                } else {
+                    page = hobiesservice.findAll(sort);
+                }
+                return new JSComboExpenseResp<>(page);
+            }
+        }
     }
 
 }

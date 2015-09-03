@@ -19,6 +19,8 @@ public interface SubdivisionRepository extends JpaRepository<Subdivision,Long> {
     Page<Subdivision> findByName(String name, Pageable pageRequest);
     List<Subdivision> findByNameLike(String name);
     Page<Subdivision> findByNameLike(String name, Pageable pageRequest);
+    Page<Subdivision> findByNameContains(String name, Pageable pageRequest);
+    List<Subdivision> findByNameContains(String name);
     @Query("Select new ua.pp.fairwind.internalDBSystem.dateTable.JSTableExpenseOptionsBean(s.subdivisionId,s.name) from Subdivision s")
     List<JSTableExpenseOptionsBean> getAllSubdivisionOptions();
     @Query("Select new ua.pp.fairwind.internalDBSystem.dateTable.JSTableExpenseOptionsBean(s.subdivisionId,s.name) from Subdivision s where s.subdivisionId in ?1")

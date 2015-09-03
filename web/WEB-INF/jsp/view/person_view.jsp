@@ -23,7 +23,8 @@
 
 <%-- JMultiSelect--%>
 <%@include file="/WEB-INF/include/jmultselect_include.jsp" %>
-
+<%-- JCombobox --%>
+<%@include file="/WEB-INF/include/jcombo_include.jsp" %>
 
 <%-- customized javascript code to manage JTable --%>
 <script>
@@ -476,6 +477,64 @@
             });
             return $img;
           },
+        },
+        editAdditional: {
+          title: '',
+          width: '1%',
+          sorting: false,
+          create: false,
+          edit: false,
+          list: true,
+          display: function (data) {
+            var $link_edit = $('<a href="#" class ="PassServiceLink"><i class="fa fa-search fa-fw"></i></a>');
+            $link_edit.on("click",function () {
+
+              var dialog=$('<div>We failed</div>')
+                      .dialog(
+                      {
+                        title: 'Edit Info for:'+data.record.fio,
+                        autoOpen: false,
+                        modal: true,
+                        resizable: true,
+                        autoResize:true,
+                        width:400,
+                        height:250,
+                        closeOnEscape: true,
+                        close: function(event, ui)
+                        {
+                          $(this).destroy().remove();
+                        },
+                        open: function (event, ui) {
+                          $(this).empty();
+                          var form=$('<form action="" ></form>');
+                          var input1=$('<input id="ac01_mainsubdivisions_id" name="mainsubdivisions_ids" type="text" />');
+                          var input2=$('<input id="mainsubdivisions_id" name="mainsubdivisions_id" type="hidden" value="0" />');
+                          $(this).append(form);
+                          form.append(input1);
+                          form.append(input2);
+                          $(input1).ajaxComboBox('${pageContext.request.contextPath}/subdivisions/listing',
+                                  { lang: 'en',
+                                    select_only: true,
+                                    field: 'name',
+                                    primary_key: 'subdivisionId',
+                                    db_table: 'nation',
+                                    order_by: [
+                                      'name DESC'
+                                    ],
+                                    per_page: 20,
+                                    hidden_name:'mainsubdivisions_id',
+                                    bind_to:'setup',
+                                  }).bind('setup',function(){
+                                    $(":input[name=mainsubdivisions_id]").val($(":input[name=mainsubdivisions_ids_primary_key]").val());
+                                    //alert($(this).val() + ' is selected.');
+                                  });
+
+                        }
+                      });
+              dialog.dialog("open");
+            });
+            return $link_edit;
+          }
         },
         version: {
           title: '<c:message code="label.version"/>',
