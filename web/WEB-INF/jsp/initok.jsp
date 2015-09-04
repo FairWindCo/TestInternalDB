@@ -10,11 +10,12 @@
 <html>
   <head>
     <title></title>
-    <script src="<c:url value="/resources/jquery-1.11.3.min.js"/>"></script>
-    <script src="<c:url value="/resources/jquery-ui.min.js"/>"></script>
-    <link rel="stylesheet" href="<c:url value="/resources/jquery-ui.min.css"/>">
-    <link rel="stylesheet" href="<c:url value="/resources/jquery-ui.theme.min.css"/>">
-    <link rel="stylesheet" href="<c:url value="/resources/jquery-ui.structure.min.css"/>">
+    <%-- JQuery --%>
+    <%@include file="/WEB-INF/include/jquery_lib_include.jsp" %>
+
+    <%-- JQueryUI --%>
+    <%@include file="/WEB-INF/include/jquery_ui_include.jsp" %>
+
 
     <script>
       $(function() {
