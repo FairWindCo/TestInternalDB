@@ -152,7 +152,7 @@ public class HobbiesController {
 
         // Retrieve all persons by delegating the call to PersonService
         //Sort sort= FormSort.formSortFromSortDescription(orderby);
-        Sort sort=new Sort(Sort.Direction.ASC,"filesTypeName");
+        Sort sort=new Sort(Sort.Direction.ASC,"hobbieName");
         PageRequest pager=null;
         if(page_num!=null && per_page!=null) {
             pager = new PageRequest(page_num - 1, per_page, sort);

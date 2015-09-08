@@ -19,7 +19,10 @@ import java.util.Set;
  */
 public interface DossersRepository extends JpaRepository<Dosser,Long> {
     Page<Dosser> findByPersonPersonIdAndPersonPersonType(Long personId,PersonType personType, Pageable pageRequest);
+    Page<Dosser> findByPersonPersonIdAndPersonPersonTypeAndConfidential(Long personId,PersonType personType,boolean Confidential,Pageable pageRequest);
 
     @Query("Select dos from Dosser dos join dos.subdivision sub where sub.subdivisionId IN  :sundivs and dos.person.personId=:personId and dos.person.personType=:personType")
     Page<Dosser> getAvaibleDossers(@Param("sundivs")Set<Long> trustedSubdivisionsIds,@Param("personType")PersonType personType,@Param("personId")Long personId, Pageable pageRequest);
+    @Query("Select dos from Dosser dos join dos.subdivision sub where sub.subdivisionId IN  :sundivs and dos.person.personId=:personId and dos.person.personType=:personType and dos.confidential=:confidentional")
+    Page<Dosser> getAvaibleDossers(@Param("sundivs")Set<Long> trustedSubdivisionsIds,@Param("personType")PersonType personType,@Param("personId")Long personId,@Param("confidentional")boolean confidentional, Pageable pageRequest);
 }

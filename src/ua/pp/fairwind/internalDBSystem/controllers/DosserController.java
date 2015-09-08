@@ -68,10 +68,18 @@ public class DosserController {
         }
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         UserDetailsAdapter user=(UserDetailsAdapter)auth.getPrincipal();
-        if (user.hasRole("ROLE_SUPER_EDIT")||user.hasRole("ROLE_SUPER_VIEW")) {
-            page=dosserService.findByPersonPersonIdAndPersonPersonType(personId, PersonType.CLIENT, pager);
+        if(user.hasRole("ROLE_CONFIDENTIAL")){
+            if (user.hasRole("ROLE_SUPER_EDIT") || user.hasRole("ROLE_SUPER_VIEW")) {
+                page = dosserService.findByPersonPersonIdAndPersonPersonType(personId, PersonType.CLIENT, pager);
+            } else {
+                page = dosserService.getAvaibleDossers(user.getTrustedSubvisionsId(), PersonType.CLIENT, personId, pager);
+            }
         } else {
-            page=dosserService.getAvaibleDossers(user.getTrustedSubvisionsId(),PersonType.CLIENT,  personId, pager);
+            if (user.hasRole("ROLE_SUPER_EDIT") || user.hasRole("ROLE_SUPER_VIEW")) {
+                page = dosserService.findByPersonPersonIdAndPersonPersonTypeAndConfidential(personId, PersonType.CLIENT, false, pager);
+            } else {
+                page = dosserService.getAvaibleDossers(user.getTrustedSubvisionsId(), PersonType.CLIENT, personId,false, pager);
+            }
         }
         return new JSTableExpenseListResp<>(page);
     }
@@ -93,10 +101,18 @@ public class DosserController {
         }
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         UserDetailsAdapter user=(UserDetailsAdapter)auth.getPrincipal();
-        if (user.hasRole("ROLE_SUPER_EDIT")||user.hasRole("ROLE_SUPER_VIEW")) {
-            page=dosserService.findByPersonPersonIdAndPersonPersonType(personId, PersonType.WORKER, pager);
+        if(user.hasRole("ROLE_CONFIDENTIAL")){
+            if (user.hasRole("ROLE_SUPER_EDIT") || user.hasRole("ROLE_SUPER_VIEW")) {
+                page = dosserService.findByPersonPersonIdAndPersonPersonType(personId, PersonType.WORKER, pager);
+            } else {
+                page = dosserService.getAvaibleDossers(user.getTrustedSubvisionsId(), PersonType.WORKER, personId, pager);
+            }
         } else {
-            page=dosserService.getAvaibleDossers(user.getTrustedSubvisionsId(),PersonType.WORKER,  personId, pager);
+            if (user.hasRole("ROLE_SUPER_EDIT") || user.hasRole("ROLE_SUPER_VIEW")) {
+                page = dosserService.findByPersonPersonIdAndPersonPersonTypeAndConfidential(personId, PersonType.WORKER, false,pager);
+            } else {
+                page = dosserService.getAvaibleDossers(user.getTrustedSubvisionsId(), PersonType.WORKER, personId,false, pager);
+            }
         }
         return new JSTableExpenseListResp<>(page);
     }

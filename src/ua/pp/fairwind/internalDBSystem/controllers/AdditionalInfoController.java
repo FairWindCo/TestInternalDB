@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import ua.pp.fairwind.internalDBSystem.datamodel.*;
 import ua.pp.fairwind.internalDBSystem.datamodel.directories.*;
+import ua.pp.fairwind.internalDBSystem.dateTable.FormSort;
 import ua.pp.fairwind.internalDBSystem.dateTable.JSTableExpenseListResp;
 import ua.pp.fairwind.internalDBSystem.dateTable.JSTableExpenseResp;
 import ua.pp.fairwind.internalDBSystem.dateTable.JSTableExpenseResult;
@@ -254,6 +255,8 @@ public class AdditionalInfoController {
                         newfile.setFileMimeType(file.getContentType());
                         if(fileNameComments==null||fileNameComments.isEmpty()){
                             newfile.setFileNameComments(file.getOriginalFilename());
+                        } else {
+                            newfile.setFileNameComments(fileNameComments);
                         }
                         newfile.setFileMimeType(file.getContentType());
                         FilesType ft=null;
@@ -321,10 +324,18 @@ public class AdditionalInfoController {
             if (person != null) {
                 ClientAdditionalInfo additional=person.getAdditionalInfo();
                 if(additional==null)additional=new ClientAdditionalInfo();
-                Long sergments_id = Long.valueOf(request.getParameter("sergments_id"));
-                Long activities_id = Long.valueOf(request.getParameter("activities_id"));
-                Long hobbie_id = Long.valueOf(request.getParameter("hobbie_id"));
-                Long filetype_id = Long.valueOf(request.getParameter("filetype_id"));
+                //<input type="hidden" name="sergments_ids_primary_key" id="sergments_ids_primary_key" value="">
+                //Long sergments_id = FormSort.getLongFromString(request.getParameter("sergments_ids_primary_key"));
+                Long sergments_id = FormSort.getLongFromString(request.getParameter("sergments_id"));
+                //<input type="hidden" name="activities_ids_primary_key" id="activities_ids_primary_key" value="">
+                //Long activities_id = FormSort.getLongFromString(request.getParameter("activities_id"));
+                Long activities_id = FormSort.getLongFromString(request.getParameter("activities_ids_primary_key"));
+                //<input type="hidden" name="hobbie_ids_primary_key" id="hobbie_ids_primary_key" value="1">
+                //Long hobbie_id = FormSort.getLongFromString(request.getParameter("hobbie_id"));
+                Long hobbie_id = FormSort.getLongFromString(request.getParameter("hobbie_ids_primary_key"));
+                //<input type="hidden" name="filetype_ids_primary_key" id="filetype_ids_primary_key" value="1">
+                //Long filetype_id = FormSort.getLongFromString(request.getParameter("filetype_id"));
+                Long filetype_id = FormSort.getLongFromString(request.getParameter("filetype_ids_primary_key"));
                 Segments seg=null;
                 Activities act=null;
                 Hobbies hob=null;
@@ -339,7 +350,7 @@ public class AdditionalInfoController {
                     hob=hobbyService.findOne(hobbie_id);
                 }
                 if(filetype_id!=null){
-                    ft=filyTypeService.findOne(filesTypeId);
+                    ft=filyTypeService.findOne(filetype_id);
                 }
 
                 person.setPassportInfo(request.getParameter("passportInfo"));
@@ -376,6 +387,35 @@ public class AdditionalInfoController {
         }
         return "no_person";
     }
-
+    @Transactional(readOnly = false)
+    @ResponseBody
+    @RequestMapping(value = "/addRelation", method = {RequestMethod.POST})
+    public JSTableExpenseResp<RelationDegrees> addRelation(@RequestParam Long personId,@RequestParam long relativiesId_primary_key,@RequestParam long personId_primary_key){
+        JSTableExpenseResp<RelationDegrees>  jsonJtableResponse;
+        if(personId!=null) {
+            Person person=personService.findOne(personId);
+            if(person!=null){
+                try {
+                    ClientAdditionalInfo info=person.getAdditionalInfo()!=null?person.getAdditionalInfo():new ClientAdditionalInfo();
+                    RelationDegrees rd=new RelationDegrees();
+                    Person ps=personService.findOne(personId_primary_key);
+                    Relatives rl=relationsService.findOne(relativiesId_primary_key);
+                    rd.setPerson(ps);
+                    rd.setRelatives(rl);
+                    info.getRelationDegrees().add(rd);
+                    person.setAdditionalInfo(info);
+                    personService.save(person);
+                    return new JSTableExpenseResp<>(rd);
+                }catch (Exception e){
+                    jsonJtableResponse = new JSTableExpenseResp<>(e.getMessage());
+                }
+            } else {
+                jsonJtableResponse = new JSTableExpenseResp<>("NO PERSON FOUND ID="+personId);
+            }
+        } else {
+            jsonJtableResponse = new JSTableExpenseResp<>("NO PERSON FOUND ID="+personId);
+        }
+        return jsonJtableResponse;
+    }
 
 }

@@ -25,84 +25,7 @@
 <%@include file="/WEB-INF/include/jcombo_include.jsp" %>
 <script>
   $(document).ready(function() {
-    function getVars(url)
-    {
-      var formData = new FormData();
-      var split;
-      $.each(url.split("&"), function(key, value) {
-        split = value.split("=");
-        formData.append(split[0], decodeURIComponent(split[1].replace(/\+/g, " ")));
-      });
-
-      return formData;
-    }
-
-// Variable to store your files
-    var files;
-
-    $( document ).delegate('#input-image','change', prepareUpload);
-
-// Grab the files and set them to our variable
-    function prepareUpload(event)
-    {
-      files = event.target.files;
-    }
-
-
-    //FORM HOBIE COMBOBOX
-    $("#Edit-ac_hobbie_id").ajaxComboBox('${pageContext.request.contextPath}/hobbies/listing',
-            { lang: 'en',
-              select_only: true,
-              field: 'hobbieName',
-              primary_key: 'hobbieId',
-              db_table: 'nation',
-              per_page: 20,
-              hidden_name:'Edit-hobbie_id',
-              <jp:if test="${not empty person.hobbie}">
-              init_record: ['${person.hobbie.hobbieId}'],
-              </jp:if>
-            });
-    //FORM activities COMBOBOX
-    $("#Edit-ac_activities_id").ajaxComboBox('${pageContext.request.contextPath}/activities/listing',
-            { lang: 'en',
-              select_only: true,
-              field: 'activitiesName',
-              primary_key: 'activitiesId',
-              db_table: 'nation',
-              per_page: 20,
-              hidden_name:'Edit-activities_id',
-              <jp:if test="${not empty person.activities}">
-              init_record: ['${person.activities.activitiesId}'],
-              </jp:if>
-            });
-    //FORM Segments COMBOBOX
-    $("#Edit-ac_sergments_id").ajaxComboBox('${pageContext.request.contextPath}/activities/listing',
-            { lang: 'en',
-              select_only: true,
-              field: 'name',
-              primary_key: 'sergmentsId',
-              db_table: 'nation',
-              per_page: 20,
-              hidden_name:'Edit-sergments_id',
-              <jp:if test="${not empty person.additionalInfo and not empty person.additionalInfo.clientSegment}">
-                init_record: ${person.additionalInfo.clientSegment.sergmentsId},
-              </jp:if>
-            });
-    //FORM FileType COMBOBOX
-    $("#Edit-ac_filetype_id").ajaxComboBox('${pageContext.request.contextPath}/filetypes/listing',
-            { lang: 'en',
-              select_only: true,
-              field: 'filesTypeName',
-              primary_key: 'filesTypeId',
-              db_table: 'nation',
-              per_page: 20,
-              hidden_name:'Edit-filetype_id',
-              <jp:if test="${not empty person.photo and not empty person.photo.filesType}">
-              init_record: ['${person.photo.filesType.filesTypeId}'],
-              </jp:if>
-            });
-    //=======================================================================================================================================================================
-    //TABLES
+   //TABLES
     //TABLE contacts
     $('#contactsTableContainer').jtable({
       title: '<c:message code="label.edit.persons.contact.table_title"/>',
@@ -114,9 +37,6 @@
       actions: {
         //listAction: 'datatable/getAllExpenses',
         listAction: '${pageContext.request.contextPath}/additional/contactsList?personId=<jp:out value="${person.personId}" />',
-        createAction: '${pageContext.request.contextPath}/additional/addContact?personId=<jp:out value="${person.personId}" />',
-        updateAction: '${pageContext.request.contextPath}/additional/updateContact?personId=<jp:out value="${person.personId}" />',
-        deleteAction: '${pageContext.request.contextPath}/additional/removeContact?personId=<jp:out value="${person.personId}" />'
       },
       fields: {
         contactId: {
@@ -136,13 +56,6 @@
             }
           },
         },
-        contactTypeId: {
-          title: '<c:message code="label.edit.persons.contactstable.contact_type.col_title"/>',
-          list: false,
-          create: true,
-          edit: true,
-          options:'${pageContext.request.contextPath}/contacttypes/options',
-        },
         contactinfo: {
           title: '<c:message code="label.edit.persons.contactstable.contact_info.col_title"/>',
           list: true,
@@ -160,35 +73,7 @@
       sorting: true, //Enable sorting
       useBootstrap: true,
       actions: {
-        //listAction: 'datatable/getAllExpenses',
         listAction: '${pageContext.request.contextPath}/additional/fileList?personId=<jp:out value="${person.personId}" />',
-        //createAction: '${pageContext.request.contextPath}/additional/add?personId=<jp:out value="${person.personId}" />',
-        deleteAction: '${pageContext.request.contextPath}/additional/removeFile?personId=<jp:out value="${person.personId}" />',
-        createAction: function (postData) {
-          var formData = getVars(postData);
-
-          if($('#input-image').val() !== ""){
-            formData.append("file", $('#input-image').get(0).files[0]);
-          }
-
-          return $.Deferred(function ($dfd) {
-            $.ajax({
-              url: '${pageContext.request.contextPath}/additional/addFile?personId=<jp:out value="${person.personId}" />',
-              type: 'POST',
-              dataType: 'json',
-              data: formData,
-              processData: false, // Don't process the files
-              contentType: false, // Set content type to false as jQuery will tell the server its a query string request
-              success: function (data) {
-                $dfd.resolve(data);
-                $('#table-container').jtable('load');
-              },
-              error: function () {
-                $dfd.reject();
-              }
-            });
-          });
-        },
       },
       fields: {
         fileId: {
@@ -223,28 +108,6 @@
               return '<b>----</b>';
             }
           }
-        },
-        filesTypeId: {
-          title: '<c:message code="label.edit.persons.files.file_type.col_title"/>',
-          width: '30%',
-          options: '${pageContext.request.contextPath}/filetypes/options',
-          list: false,
-          create: true,
-        },
-        "FileUpload": {
-          title: '<c:message code="label.edit.persons.files.file.col_title"/>',
-          width: '10%',
-          //type:'date',
-          input: function (data) {
-            if (data.record) {
-              return '<input type="file" name="userfile" id="input-image"><iframe name="postiframe" id="postiframe" style="display: none" />';
-            } else {
-              return '<input type="file" name="userfile" id="input-image"><iframe name="postiframe" id="postiframe" style="display: none" />';
-            }
-          },
-          list: false,
-          edit: true,
-          create: true,
         },
         AddServiceToCart: {
           title: '',
@@ -307,9 +170,6 @@
       actions: {
         //listAction: 'datatable/getAllExpenses',
         listAction: '${pageContext.request.contextPath}/additional/relationList?personId=<jp:out value="${person.personId}" />',
-        createAction: '${pageContext.request.contextPath}/additional/addRelation?personId=<jp:out value="${person.personId}" />',
-        updateAction: '${pageContext.request.contextPath}/additional/updateRelation?personId=<jp:out value="${person.personId}" />',
-        deleteAction: '${pageContext.request.contextPath}/additional/removeRelation?personId=<jp:out value="${person.personId}" />'
       },
       fields: {
         id: {
@@ -342,63 +202,6 @@
             }
           },
         },
-        /*relatives_id: {
-          title: 'RELATIVES',
-          list: false,
-          create: true,
-          edit: true,
-          options:'${pageContext.request.contextPath}/relatives/options',
-        },/**/
-        relatives_id: {
-          title: '<c:message code="label.edit.persons.relation.relative_name.col_title"/>',
-          list: false,
-          create: true,
-          edit: true,
-          input:function(){
-            var div=$('<div style="width:450;height: 200;"></div>');
-            var input1=$('<input id="ac01_relativiesId" name="relativiesId" type="text" style="width:250;"/>');
-            $(div).append(input1);
-            var input2=$(input1).ajaxComboBox('${pageContext.request.contextPath}/relatives/listing',
-                    { lang: 'en',
-                      select_only: true,
-                      field: 'name',
-                      primary_key: 'relativiesId',
-                      db_table: 'nation',
-                      order_by: [
-                        'fio DESC'
-                      ],
-                      per_page: 20,
-                      hidden_name:'relativiesId',
-                    });
-
-            return div;
-          },
-        },
-        persons_id: {
-          title: '<c:message code="label.edit.persons.relation.person_name.col_title"/>',
-          list: false,
-          create: true,
-          edit: true,
-          input:function(){
-            var div=$('<div style="width:450;height: 200;"></div>');
-            var input1=$('<input id="ac01_personId_id" name="personId" type="text" style="width:250;"/>');
-            $(div).append(input1);
-            var input2=$(input1).ajaxComboBox('${pageContext.request.contextPath}/person/listing',
-                    { lang: 'en',
-                      select_only: true,
-                      field: 'fio',
-                      primary_key: 'personId',
-                      db_table: 'nation',
-                      order_by: [
-                        'fio DESC'
-                      ],
-                      per_page: 20,
-                      hidden_name:'personId',
-                    });
-
-            return div;
-          },
-        },
       },
     }).jtable('load');
 
@@ -414,9 +217,6 @@
     <h3 class="panel-title"><c:message code="label.edit.persons.title"/>: <jp:out value="${person.fio}" /></h3>
   </div>
   <div class="panel-body">
-        <form action="${pageContext.request.contextPath}/additional/save" enctype="multipart/form-data" encoding="multipart/form-data" method="post">
-        <input type="hidden" name="personId" id="Edit-personId" value="<jp:out value="${person.personId}" />"/>
-
     <div id="#myTabs">
 
       <!-- Nav tabs -->
@@ -436,27 +236,27 @@
             </tr>
             <tr>
               <td><c:message code="label.edit.persons.passportInfo"/></td><td>
-              <input type="text" name="passportInfo" id="Edit-passportInfo" value="<jp:out value="${person.passportInfo}" />"/>
+              <jp:out value="${person.passportInfo}" />
             </td>
             </tr>
           <tr>
             <td><c:message code="label.edit.persons.hobbie_ids"/></td><td>
-            <input id="Edit-ac_hobbie_id" name="hobbie_ids" type="text" />
+            ${empty person.hobbie?'':person.hobbie.hobbieName}
           </td>
           </tr>
           <tr>
             <td><c:message code="label.edit.persons.hobbiesComments"/></td><td>
-            <input type="text" name="hobbiesComments" id="Edit-hobbiesComments" value="<jp:out value="${person.hobbiesComments}" />"/>
+            <jp:out value="${person.hobbiesComments}" />
           </td>
           </tr>
             <tr>
               <td><c:message code="label.edit.persons.activities_ids"/></td><td>
-              <input id="Edit-ac_activities_id" name="activities_ids" type="text" />
+              ${empty person.activities?'':person.activities.activitiesTypeName}
             </td>
             </tr>
             <tr>
               <td><c:message code="label.edit.persons.activitiesComments"/></td><td>
-              <input type="text" name="activitiesComments" id="Edit-activitiesComments" value="<jp:out value="${person.activitiesComments}" />"/>
+              <jp:out value="${person.activitiesComments}" />
             </td>
             </tr>
         </table></div>
@@ -464,17 +264,17 @@
           <table class="table">
           <tr>
             <td><c:message code="label.edit.persons.sergments_ids"/></td><td>
-            <input id="Edit-ac_sergments_id" name="sergments_ids" type="text" />
+            ${(empty person.additionalInfo or empty person.additionalInfo.clientSegment)?'':person.additionalInfo.clientSegment.name}
           </td>
           </tr>
           <tr>
             <td><c:message code="label.edit.persons.clientColorCode"/></td><td>
-            <input type="text" name="clientColorCode" id="Edit-clientColorCode" value="${empty person.additionalInfo?'':person.additionalInfo.clientColorCODE}"/>
+            ${empty person.additionalInfo?'':person.additionalInfo.clientColorCODE}
           </td>
           </tr>
           <tr>
             <td><c:message code="label.edit.persons.clientColorComments"/></td><td>
-            <input type="text" name="clientColorComments" id="Edit-clientColorComments" value="${empty person.additionalInfo?'':person.additionalInfo.clientColorComments}"/>
+            ${empty person.additionalInfo?'':person.additionalInfo.clientColorComments}
           </td>
           </tr>
           </table>
@@ -491,12 +291,12 @@
             </tr>
             <tr>
               <td><c:message code="label.edit.persons.photo_file_comments"/></td>
-              <td><input type="text" value="${empty person.photo?'':person.photo.fileNameComments}"/> </td>
+              <td>${empty person.photo?'':person.photo.fileNameComments}</td>
             </tr>
             <tr>
               <td><c:message code="label.edit.persons.photo_file_type"/></td>
               <td>
-                <input id="Edit-ac_filetype_id" name="filetype_ids" type="text" />
+                ${(empty person.photo or empty person.photo.filesType)?'':person.photo.filesType.filesTypeName}
               </td>
             </tr>
           </table>
@@ -507,10 +307,6 @@
       </div>
 
     </div>
-          <div class="panel panel-default">
-            <input type="submit" value="<c:message code="label.edit.persons.submit"/>">
-          </div>
-        </form>
   </div>
 </div>
 <div id="view_image_dialog"></div>

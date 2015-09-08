@@ -16,7 +16,7 @@ public class ClientAdditionalInfo {
     @Id
     @GeneratedValue
     private Long id;
-    @OneToMany
+    @OneToMany(cascade = CascadeType.PERSIST)
     @JsonIgnore
     private Set<RelationDegrees> relationDegrees=new HashSet<>();
     private String clientColorCODE;

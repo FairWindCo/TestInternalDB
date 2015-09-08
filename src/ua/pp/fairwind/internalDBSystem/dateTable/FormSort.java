@@ -84,4 +84,13 @@ public class FormSort {
         System.out.println(formSortFromSortDescription("filesTypeName%20ASC"));
         System.out.println(formSortFromSortDescription("filesTypeName ASC"));
     }
+
+    public static Long getLongFromString(String str){
+        if(str==null || str.isEmpty()) return null;
+        try {
+            return new Long(str);
+        } catch (NumberFormatException e){
+            return null;
+        }
+    }
 }
