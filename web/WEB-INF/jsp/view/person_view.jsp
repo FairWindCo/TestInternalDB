@@ -478,6 +478,68 @@
             return $img;
           },
         },
+        viewDetail: {
+          title: '',
+          width: '1%',
+          sorting: false,
+          create: false,
+          edit: false,
+          list: true,
+          display: function (data) {
+              var $myVal = data.record.personId;
+              var $link = $('<a href="#" class ="PassServiceLink"><i class="fa fa-search fa-fw"></i></a>');
+              $link.on("click",function () {
+                    $('#add_service_to_cart_dialog').dialog({
+                      autoOpen: false,
+                      modal: true,
+                      resizable: true,
+                      autoResize:true,
+                      width:'auto',
+                      height:'auto',
+                      position: { my: "left top", at: "left top", of: "#fv-editarea" },
+                      closeOnEscape: true,
+                      /*
+                      open: function (event, ui) {
+                        $(this).empty();
+                        $(this).load('${pageContext.request.contextPath}/additional/view?personID=' + $myVal);
+                      }/**/
+                    });
+                $('#add_service_to_cart_dialog').load('${pageContext.request.contextPath}/additional/view?personID=' + $myVal).dialog("open");
+              });
+              return $link;
+          }
+        },
+        editDetail: {
+          title: '',
+          width: '1%',
+          sorting: false,
+          create: false,
+          edit: false,
+          list: true,
+          display: function (data) {
+            var $myVal = data.record.personId;
+            var $link = $('<a href="#" class ="PassServiceLink"><i class="fa fa-pencil fa-fw"></i></a>');
+            $link.on("click",function () {
+              $('#add_service_to_cart_dialog').dialog({
+                autoOpen: false,
+                modal: true,
+                resizable: true,
+                autoResize:true,
+                position: { my: "left top", at: "left top", of: "#fv-editarea" },
+                width:'auto',
+                height:'auto',
+                closeOnEscape: true,
+                /*open: function (event, ui) {
+                  $(this).empty();
+                  $(this).load('${pageContext.request.contextPath}/additional/edit?personID=' + $myVal);
+                }/**/
+              });
+              $('#add_service_to_cart_dialog').load('${pageContext.request.contextPath}/additional/edit?personID=' + $myVal).dialog("open");
+            });
+            return $link;
+          }
+        },
+        /*
         editAdditional: {
           title: '',
           width: '1%',
@@ -535,7 +597,7 @@
             });
             return $link_edit;
           }
-        },
+        },/***/
         version: {
           title: '<c:message code="label.version"/>',
           defaultValue:'0',
@@ -581,7 +643,7 @@
   });
 </script>
 
-
+<div id="fv-editarea">
 <div class="filtering">
   <form>
     Name: <input type="text" name="searchname" id="searchname" />
@@ -593,3 +655,4 @@
   <div id="ExpenseTableContainer" style="width:99%;"></div>
 </div>
 <div id="add_service_to_cart_dialog"></div>
+</div>
