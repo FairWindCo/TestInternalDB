@@ -44,4 +44,8 @@ public interface CategoryRepository extends JpaRepository<Category,Long> {
     List<JSTableExpenseOptionsBean> getAllSubdivisionsOptions();
     @Query("Select new ua.pp.fairwind.internalDBSystem.dateTable.JSTableExpenseOptionsBean(sub.subdivisionId,sub.name) from Subdivision sub where sub IN ?1")
     List<JSTableExpenseOptionsBean> getAllSubdivisionsOptionsSecurity(Set<Subdivision> trustedSubdivisions);
+
+
+    @Query("Select new ua.pp.fairwind.internalDBSystem.dateTable.JSTableExpenseOptionsBean(c.categoryId,c.name) from Category c join c.subdivision sub where sub.subdivisionId IN  ?1 ")
+    Set<JSTableExpenseOptionsBean> getCategoryForSubdivisions(Set<Long> sunbdivisionsIDS);
 }

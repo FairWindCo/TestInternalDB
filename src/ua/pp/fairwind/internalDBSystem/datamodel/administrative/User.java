@@ -25,6 +25,7 @@ public class User {
     private String passwordHash;
     @Column(name = "ENABLED")
     private boolean enabled;
+    @JsonIgnore
     @ManyToMany(fetch = FetchType.EAGER)
     private Set<Roles> userRoles=new HashSet<>();
     @ManyToMany(fetch = FetchType.EAGER)

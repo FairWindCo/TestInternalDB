@@ -21,6 +21,7 @@ public class InfoType {
     @JsonManagedReference
     @JoinColumn(name="CATEGORY_ID", nullable=true)
     Category category;
+    String key1c;
 
     public Long getTypeId() {
         return typeId;
@@ -62,5 +63,13 @@ public class InfoType {
         if(category!=null){
             this.category = category;
         }
+    }
+
+    public String getKey1c() {
+        return key1c;
+    }
+
+    public void setKey1c(String key1c) {
+        this.key1c = key1c;
     }
 }

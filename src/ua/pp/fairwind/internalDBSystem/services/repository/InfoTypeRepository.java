@@ -38,4 +38,11 @@ public interface InfoTypeRepository extends JpaRepository<InfoType,Long> {
     @Query("Select new ua.pp.fairwind.internalDBSystem.dateTable.JSTableExpenseOptionsBean(inf.typeId,inf.typeName) from InfoType inf where inf.category.categoryId=?1")
     List<JSTableExpenseOptionsBean> getAllInfoTypesForCategory(long categoryId);
 
+
+
+    @Query("Select new ua.pp.fairwind.internalDBSystem.dateTable.JSTableExpenseOptionsBean(inf.typeId,inf.typeName) from InfoType inf join inf.category cat where cat.categoryId IN  ?1 ")
+    Set<JSTableExpenseOptionsBean> getInfoForCategory(Set<Long> categoryIDS);
+    @Query("Select new ua.pp.fairwind.internalDBSystem.dateTable.JSTableExpenseOptionsBean(inf.typeId,inf.typeName) from InfoType inf join inf.category cat join cat.subdivision sub where sub.subdivisionId IN  ?1 ")
+    Set<JSTableExpenseOptionsBean> getInfoForCategorySubdiv(Set<Long> subdivsIDS);
+
 }

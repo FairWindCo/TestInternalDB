@@ -3,6 +3,8 @@ package ua.pp.fairwind.internalDBSystem.dateTable;
 import org.springframework.data.domain.Sort;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Created by ������ on 21.07.2015.
@@ -92,5 +94,22 @@ public class FormSort {
         } catch (NumberFormatException e){
             return null;
         }
+    }
+
+    public static Set<Long> getIdFromString(String s){
+        if(s==null || s.length()==0)return null;
+        String[] ids=s.split(",");
+        if(ids==null | ids.length==0)return null;
+        Set<Long> set=new HashSet<>();
+        for (String id:ids){
+            try {
+                Long val=new Long(id);
+                set.add(val);
+            }catch (NumberFormatException e){
+                //do nothing
+            }
+        }
+        if(set.size()==0)return null;
+        return set;
     }
 }

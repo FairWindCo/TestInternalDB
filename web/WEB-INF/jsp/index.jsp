@@ -73,13 +73,13 @@
               <!-- /.nav-second-level -->
             </li>
             <li>
-              <a href="#"><i class="fa fa-inbox fa-fw"></i>PERSONS<span class="fa arrow"></span></a>
+              <a href="#"><i class="fa fa-inbox fa-fw"></i><c:message code="label.persons"/><span class="fa arrow"></span></a>
               <ul class="nav nav-second-level">
                 <li>
                   <a href="person/" onclick="$('#page-wrapper').load('person/'); return false;"><c:message code="label.persons.clients"/></a>
                 </li>
                 <li>
-                  <a href="person/" onclick="$('#page-wrapper').load('person/'); return false;"><c:message code="label.persons.workers"/></a>
+                  <a href="person/worker" onclick="$('#page-wrapper').load('person/worker'); return false;"><c:message code="label.persons.workers"/></a>
                 </li>
               </ul>
               <!-- /.nav-second-level -->
@@ -99,25 +99,25 @@
             </sec:authorize>
             <sec:authorize ifAnyGranted="ROLE_GLOBAL_INFO_EDIT">
             <li>
-              <a href=""><i class="fa fa-sitemap fa-fw"></i>the Global Directory<span class="fa arrow"></span></a>
+              <a href=""><i class="fa fa-sitemap fa-fw"></i><c:message code="label.menu.globaldirectory"/><span class="fa arrow"></span></a>
               <ul class="nav nav-second-level">
                 <li>
-                  <a href="filetypes/" onclick="$('#page-wrapper').load('filetypes/'); return false;">File Types</a>
+                  <a href="filetypes/" onclick="$('#page-wrapper').load('filetypes/'); return false;"><c:message code="label.menu.globaldirectory.filetype"/></a>
                 </li>
                 <li>
-                  <a href="activities/" onclick="$('#page-wrapper').load('activities/'); return false;">Activities</a>
+                  <a href="activities/" onclick="$('#page-wrapper').load('activities/'); return false;"><c:message code="label.menu.globaldirectory.activity"/></a>
                 </li>
                 <li>
-                  <a href="contacttypes/" onclick="$('#page-wrapper').load('contacttypes/'); return false;">Contact Types</a>
+                  <a href="contacttypes/" onclick="$('#page-wrapper').load('contacttypes/'); return false;"><c:message code="label.menu.globaldirectory.contacttype"/></a>
                 </li>
                 <li>
-                  <a href="hobbies/" onclick="$('#page-wrapper').load('hobbies/'); return false;">Hobbies</a>
+                  <a href="hobbies/" onclick="$('#page-wrapper').load('hobbies/'); return false;"><c:message code="label.menu.globaldirectory.hobbi"/></a>
                 </li>
                 <li>
-                  <a href="relatives/" onclick="$('#page-wrapper').load('relatives/'); return false;">Relativies</a>
+                  <a href="relatives/" onclick="$('#page-wrapper').load('relatives/'); return false;"><c:message code="label.menu.globaldirectory.relative"/></a>
                 </li>
                 <li>
-                  <a href="segments/" onclick="$('#page-wrapper').load('segments/'); return false;">Segments</a>
+                  <a href="segments/" onclick="$('#page-wrapper').load('segments/'); return false;"><c:message code="label.menu.globaldirectory.segments"/></a>
                 </li>
               </ul>
               <!-- /.nav-second-level -->
@@ -138,7 +138,7 @@
               <!-- /.nav-second-level -->
             </li>
             </sec:authorize>
-            <li><a href="logout"><i class="fa fa-sign-out fa-fw"></i> Logout</a>
+            <li><a href="logout"><i class="fa fa-sign-out fa-fw"></i> <c:message code="label.menu.Logout"/></a>
           </ul>
         </div>
         <!-- /.sidebar-collapse -->

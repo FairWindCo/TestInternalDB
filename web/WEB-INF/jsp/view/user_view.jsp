@@ -33,6 +33,7 @@
       paging: true, //Enable paging
       pageSize: 10, //Set page size (default: 10)
       sorting: true, //Enable sorting
+      messages: <c:message code="label.messages"/>,
       actions: {
         //listAction: 'datatable/getAllExpenses',
         listAction: '${pageContext.request.contextPath}/users/listedit',
@@ -50,20 +51,20 @@
           visibility:"hidden"
         },
         userName: {
-          title: 'LOGIN NAME',
+          title: '<c:message code="label.usertables.table.col_title.login"/>',
           width: '15%',
         },
         passwordHash: {
-          title: 'PASSWORD',
+          title: '<c:message code="label.usertables.table.col_title.password"/>',
           width: '15%',
           type: 'password',
         },
         fio: {
-          title: 'F.I.O.',
+          title: '<c:message code="label.usertables.table.col_title.fio"/>',
           width: '15%',
         },
         enabled: {
-          title: 'ENABLED',
+          title: '<c:message code="label.usertables.table.col_title.enabled"/>',
           width: '5%',
 
           type: 'checkbox',
@@ -71,7 +72,7 @@
           defaultValue: 'true'
         },
         mainsubdivisions_id: {
-          title: 'Main Subdivisions',
+          title: '<c:message code="label.usertables.table.col_title.mainsubdivisions"/>',
           width: '10%',
           options: '${pageContext.request.contextPath}/users/subdivOpt',
           display: function (data) {
@@ -86,20 +87,21 @@
           },
         },
         userRoles:{
-          title: 'ROLES',
+          title: '<c:message code="label.usertables.table.col_title.roles"/>',
           width: '2%',
           sorting: false,
           edit: false,
           create: false,
           display: function (rolesdata) {
             //Create an image that will be used to open child table
-            var $img = $('<img src="<c:url value="/images/list_metro.png" />" title="Edit phone numbers" >');
+            var $img = $('<img src="<c:url value="/images/list_metro.png" />" title="<c:message code="label.usertables.table.col_edit.roles"/>" >');
             //Open child table when user clicks the image
             $img.click(function () {
               $('#ExpenseTableContainer').jtable('openChildTable',
                       $img.closest('tr'),
                       {
-                        title: rolesdata.record.userName + ' - user roles',
+                        title: rolesdata.record.userName + '<c:message code="label.usertables.table.roles.title"/>',
+                        messages: <c:message code="label.messages"/>,
                         actions: {
                           listAction: '${pageContext.request.contextPath}/users/roles?userID=' + rolesdata.record.userID,
                           deleteAction: '${pageContext.request.contextPath}/users/removeuserrole?userId=' + rolesdata.record.userID,
@@ -113,7 +115,7 @@
                             list: false
                           },
                           newRoleID: {
-                            title: 'ROLE NAME',
+                            title: '<c:message code="label.usertables.table.roles.col_title.name"/>',
                             width: '30%',
                             //options: 'avaibleRolesOpt?userID=' + rolesdata.record.userID,
                             options: function(data) {
@@ -123,13 +125,13 @@
                             list: false
                           },
                           roleName: {
-                            title: 'ROLE NAME',
+                            title: '<c:message code="label.usertables.table.roles.col_title.name"/>',
                             width: '10%',
                             edit: false,
                             create: false,
                           },
                           roleDescription: {
-                            title: 'DESCRIPTION',
+                            title: '<c:message code="label.usertables.table.roles.col_title.desc"/>',
                             width: '30%',
                             edit: false,
                             create: false,
@@ -143,7 +145,7 @@
           },
         },
         trustedSubdivisions:{
-          title: 'TRUSTED SUBDIVISIONS',
+          title: '<c:message code="label.usertables.table.col_title.subdivs"/>',
           width: '12%',
           sorting: false,
           edit: false,
@@ -156,7 +158,8 @@
               $('#ExpenseTableContainer').jtable('openChildTable',
                       $img.closest('tr'),
                       {
-                        title:'SUBDIVISIONS TRUSTED TO USER '+ rolesdata.record.userName,
+                        title:'<c:message code="label.usertables.table.subdiv.title"/>'+ rolesdata.record.userName,
+                        messages: <c:message code="label.messages"/>,
                         actions: {
                           listAction: '${pageContext.request.contextPath}/users/avaibleGrantedSubdiv?userID=' + rolesdata.record.userID,
                           deleteAction: '${pageContext.request.contextPath}/users/removegrantedsubdivision?userId=' + rolesdata.record.userID,
@@ -170,7 +173,7 @@
                             list: false
                           },
                           subdivId: {
-                            title: 'SUBDIVISIONS NAME',
+                            title: '<c:message code="label.usertables.table.subdiv.col_title.name"/>',
                             width: '30%',
                             //options: 'avaibleRolesOpt?userID=' + rolesdata.record.userID,
                             options: function(data) {
@@ -180,7 +183,7 @@
                             list: false
                           },
                           name: {
-                            title: 'SUBDIVISIONS NAME',
+                            title: '<c:message code="label.usertables.table.subdiv.col_title.name"/>',
                             width: '10%',
                             edit: false,
                             create: false,
@@ -253,9 +256,9 @@
 
 <div class="filtering">
   <form>
-    Name: <input type="text" name="searchname" id="searchname" />
-    <button type="submit" id="LoadRecordsButton">Load records</button>
-    <button type="submit" id="AllRecordsButton">All records</button>
+    <c:message code="label.field.name2"/>: <input type="text" name="searchname" id="searchname" />
+    <button type="submit" id="LoadRecordsButton">'<c:message code="label.button.loadrecord"/>'</button>
+    <button type="submit" id="AllRecordsButton">'<c:message code="label.button.allrecord"/>'</button>
   </form>
 </div>
 <div>

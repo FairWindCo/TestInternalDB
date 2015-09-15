@@ -28,8 +28,6 @@ import ua.pp.fairwind.internalDBSystem.dateTable.JSTableExpenseResult;
 import ua.pp.fairwind.internalDBSystem.security.UserDetailsAdapter;
 import ua.pp.fairwind.internalDBSystem.services.repository.*;
 
-import javax.servlet.annotation.MultipartConfig;
-
 /**
  * Created by Сергей on 31.08.2015.
  */
@@ -70,15 +68,15 @@ public class DosserController {
         UserDetailsAdapter user=(UserDetailsAdapter)auth.getPrincipal();
         if(user.hasRole("ROLE_CONFIDENTIAL")){
             if (user.hasRole("ROLE_SUPER_EDIT") || user.hasRole("ROLE_SUPER_VIEW")) {
-                page = dosserService.findByPersonPersonIdAndPersonPersonType(personId, PersonType.CLIENT, pager);
+                page = dosserService.findByPersonPersonIdAndPersonPersonTypeAndRecordStatus(personId, PersonType.CLIENT, DosserType.ACTIVE, pager);
             } else {
-                page = dosserService.getAvaibleDossers(user.getTrustedSubvisionsId(), PersonType.CLIENT, personId, pager);
+                page = dosserService.getAvaibleDossers(user.getTrustedSubvisionsId(), PersonType.CLIENT, personId,DosserType.ACTIVE, pager);
             }
         } else {
             if (user.hasRole("ROLE_SUPER_EDIT") || user.hasRole("ROLE_SUPER_VIEW")) {
-                page = dosserService.findByPersonPersonIdAndPersonPersonTypeAndConfidential(personId, PersonType.CLIENT, false, pager);
+                page = dosserService.findByPersonPersonIdAndPersonPersonTypeAndConfidentialAndRecordStatus(personId, PersonType.CLIENT, false, DosserType.ACTIVE, pager);
             } else {
-                page = dosserService.getAvaibleDossers(user.getTrustedSubvisionsId(), PersonType.CLIENT, personId,false, pager);
+                page = dosserService.getAvaibleDossers(user.getTrustedSubvisionsId(), PersonType.CLIENT, personId,false,DosserType.ACTIVE, pager);
             }
         }
         return new JSTableExpenseListResp<>(page);
@@ -103,15 +101,15 @@ public class DosserController {
         UserDetailsAdapter user=(UserDetailsAdapter)auth.getPrincipal();
         if(user.hasRole("ROLE_CONFIDENTIAL")){
             if (user.hasRole("ROLE_SUPER_EDIT") || user.hasRole("ROLE_SUPER_VIEW")) {
-                page = dosserService.findByPersonPersonIdAndPersonPersonType(personId, PersonType.WORKER, pager);
+                page = dosserService.findByPersonPersonIdAndPersonPersonTypeAndRecordStatus(personId, PersonType.WORKER, DosserType.ACTIVE, pager);
             } else {
-                page = dosserService.getAvaibleDossers(user.getTrustedSubvisionsId(), PersonType.WORKER, personId, pager);
+                page = dosserService.getAvaibleDossers(user.getTrustedSubvisionsId(), PersonType.WORKER, personId,DosserType.ACTIVE, pager);
             }
         } else {
             if (user.hasRole("ROLE_SUPER_EDIT") || user.hasRole("ROLE_SUPER_VIEW")) {
-                page = dosserService.findByPersonPersonIdAndPersonPersonTypeAndConfidential(personId, PersonType.WORKER, false,pager);
+                page = dosserService.findByPersonPersonIdAndPersonPersonTypeAndConfidentialAndRecordStatus(personId, PersonType.WORKER, false, DosserType.ACTIVE, pager);
             } else {
-                page = dosserService.getAvaibleDossers(user.getTrustedSubvisionsId(), PersonType.WORKER, personId,false, pager);
+                page = dosserService.getAvaibleDossers(user.getTrustedSubvisionsId(), PersonType.WORKER, personId,false,DosserType.ACTIVE, pager);
             }
         }
         return new JSTableExpenseListResp<>(page);
@@ -148,13 +146,14 @@ public class DosserController {
             dosser.setSubdivision(sub);
             dosser.setCategory(cat);
             dosser.setInfotype(info);
-            dosser.setRecord_status(DosserType.ACTIVE);
+            dosser.setRecordStatus(DosserType.ACTIVE);
             dosser.setCreateUser(user.getUserP());
             if(ft!=null && file!=null && !file.isEmpty()){
                 Files fl=new Files();
                 fl.setFileMimeType(file.getContentType());
                 fl.setFilesType(ft);
                 fl.setFileData(file.getBytes());
+                fl.setFileOriginalName(file.getOriginalFilename());
                 dosser.setFileinfo(fl);
                 fileService.saveAndFlush(fl);
             }
@@ -190,7 +189,7 @@ public class DosserController {
         try {
             Dosser old=dosserService.findOne(dosser.getDossierId());
             if(old!=null){
-                old.setRecord_status(DosserType.DELETED);
+                old.setRecordStatus(DosserType.DELETED);
                 jsonJtableResponse = new JSTableExpenseResp<>(JSTableExpenseResult.OK,"OK");
             } else {
                 jsonJtableResponse = new JSTableExpenseResp<>(JSTableExpenseResult.ERROR,"NOT FOUND!");
@@ -212,7 +211,7 @@ public class DosserController {
         try {
             old=dosserService.findOne(dossierId);
             if(old!=null){
-                old.setRecord_status(DosserType.MODIFIED);
+                old.setRecordStatus(DosserType.MODIFIED);
             }
         } catch (Exception e) {
             return new JSTableExpenseResp<>(e.getMessage());
@@ -241,13 +240,14 @@ public class DosserController {
             dosser.setSubdivision(sub);
             dosser.setCategory(cat);
             dosser.setInfotype(info);
-            dosser.setRecord_status(DosserType.ACTIVE);
+            dosser.setRecordStatus(DosserType.ACTIVE);
             dosser.setCreateUser(user.getUserP());
             if(ft!=null && file!=null && !file.isEmpty()){
                 Files fl=new Files();
                 fl.setFileMimeType(file.getContentType());
                 fl.setFilesType(ft);
                 fl.setFileData(file.getBytes());
+                fl.setFileOriginalName(file.getOriginalFilename());
                 dosser.setFileinfo(fl);
                 fileService.saveAndFlush(fl);
             }

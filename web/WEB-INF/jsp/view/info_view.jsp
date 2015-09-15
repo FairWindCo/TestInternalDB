@@ -36,6 +36,7 @@
       paging: true, //Enable paging
       pageSize: 10, //Set page size (default: 10)
       sorting: true, //Enable sorting
+      messages: <c:message code="label.messages"/>,
       actions: {
         //listAction: 'datatable/getAllExpenses',
         listAction: '${pageContext.request.contextPath}/info/listedit',
@@ -53,11 +54,11 @@
           visibility:"hidden"
         },
         typeName: {
-          title: 'INFOTYPE NAME',
+          title: '<c:message code="label.infotables.table.col_title.name"/>',
           width: '65%',
         },
         categoryName: {
-          title: 'CATEGORY NAME',
+          title: '<c:message code="label.infotables.table.col_title.category"/>',
           width: '65%',
           display: function (data) {
             if(data.record.category!==null && data.record.category!==undefined){
@@ -70,11 +71,18 @@
           create: false,
         },
         categoryId: {
-          title: 'CATEGORY NAME',
+          title: '<c:message code="label.infotables.table.col_title.category"/>',
           width: '30%',
           //options: 'avaibleRolesOpt?userID=' + rolesdata.record.userID,
           options: '${pageContext.request.contextPath}/info/avaibleCategoryes',
           list: false,
+        },
+        key1c: {
+          title: '<c:message code="label.sql.table.label"/>',
+          width: '25%',
+          list: true,
+          create: true,
+          edit: true,
         },
         versionid: {
           title: '<c:message code="label.version"/>',
@@ -128,9 +136,9 @@
 
 <div class="filtering">
   <form>
-    Name: <input type="text" name="searchname" id="searchname" />
-    <button type="submit" id="LoadRecordsButton">Load records</button>
-    <button type="submit" id="AllRecordsButton">All records</button>
+    <c:message code="label.field.name"/>: <input type="text" name="searchname" id="searchname" />
+    <button type="submit" id="LoadRecordsButton">'<c:message code="label.button.loadrecord"/>'</button>
+    <button type="submit" id="AllRecordsButton">'<c:message code="label.button.allrecord"/>'</button>
   </form>
 </div>
 <div>

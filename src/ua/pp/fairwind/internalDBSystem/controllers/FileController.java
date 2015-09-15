@@ -37,6 +37,12 @@ public class FileController {
                     response.setContentType(fileConten.getFileMimeType());
                     response.setContentLength((int) data.length);
                     // get output stream of the response
+                    if(fileConten.getFileOriginalName()!=null) {
+                        String headerKey = "Content-Disposition";
+                        String headerValue = String.format("attachment; filename=\"%s\"",
+                                fileConten.getFileOriginalName());
+                        response.setHeader(headerKey, headerValue);
+                    }
                     OutputStream outStream = response.getOutputStream();
                     outStream.write(data);
                     outStream.close();

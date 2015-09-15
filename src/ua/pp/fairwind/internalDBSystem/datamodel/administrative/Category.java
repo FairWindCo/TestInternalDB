@@ -25,6 +25,7 @@ public class Category {
     @JsonBackReference
     @OneToMany(cascade = CascadeType.ALL,mappedBy = "category")
     Set<InfoType> infoTypes=new HashSet<>();
+    String key1c;
     @Version
     long versionid;
 
@@ -107,5 +108,13 @@ public class Category {
 
     public void setVersionid(long versionid) {
         this.versionid = versionid;
+    }
+
+    public String getKey1c() {
+        return key1c;
+    }
+
+    public void setKey1c(String key1c) {
+        this.key1c = key1c;
     }
 }

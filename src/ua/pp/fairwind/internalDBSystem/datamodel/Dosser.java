@@ -1,6 +1,5 @@
 package ua.pp.fairwind.internalDBSystem.datamodel;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.data.annotation.CreatedDate;
 import ua.pp.fairwind.internalDBSystem.datamodel.administrative.Category;
 import ua.pp.fairwind.internalDBSystem.datamodel.administrative.InfoType;
@@ -9,6 +8,7 @@ import ua.pp.fairwind.internalDBSystem.datamodel.administrative.User;
 import ua.pp.fairwind.internalDBSystem.datamodel.directories.DosserType;
 
 import javax.persistence.*;
+import java.util.Date;
 
 /**
  * Created by ������ on 17.07.2015.
@@ -37,7 +37,8 @@ public class Dosser {
     @ManyToOne
     private Dosser parentDossierId;
     @Enumerated(EnumType.ORDINAL)
-    private DosserType record_status;
+    @Column(name = "record_status")
+    private DosserType recordStatus;
 
     @CreatedDate
     private long creationTime;
@@ -132,12 +133,12 @@ public class Dosser {
         this.parentDossierId = parentDossierId;
     }
 
-    public DosserType getRecord_status() {
-        return record_status;
+    public DosserType getRecordStatus() {
+        return recordStatus;
     }
 
-    public void setRecord_status(DosserType status) {
-        this.record_status = status;
+    public void setRecordStatus(DosserType status) {
+        this.recordStatus = status;
     }
 
     public long getVersion() {
@@ -146,5 +147,9 @@ public class Dosser {
 
     public void setVersion(long version) {
         this.version = version;
+    }
+
+    public Date getFormatedCreationTime(){
+        return new Date(creationTime);
     }
 }

@@ -20,6 +20,7 @@ public class Subdivision {
     @ManyToMany(mappedBy = "subdivision",cascade = {CascadeType.PERSIST,CascadeType.REFRESH}/*,fetch = FetchType.EAGER*/)
     @JsonBackReference
     Set<Category> categories=new HashSet<>();
+    String key1c;
     @Version
     long versionid;
 
@@ -82,5 +83,12 @@ public class Subdivision {
     public void removeAllCategories() {
         categories.forEach(cat->cat.removeSubdivision(this));
         this.categories.clear();
+    }
+    public String getKey1c() {
+        return key1c;
+    }
+
+    public void setKey1c(String key1c) {
+        this.key1c = key1c;
     }
 }

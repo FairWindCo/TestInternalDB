@@ -26,11 +26,12 @@
             $(document).ready(function() {
                 //setup the jtable that will display the results
                 $('#ExpenseTableContainer').jtable({
-                    title: 'Table of File Types',
+                    title: '<c:message code="label.filesType.table.label"/>',
                     selecting: true, //Enable selecting
                     paging: true, //Enable paging
                     pageSize: 10, //Set page size (default: 10)
                     sorting: true, //Enable sorting
+                    messages: <c:message code="label.messages"/>,
                     actions: {
                         //listAction: 'datatable/getAllExpenses',
                         listAction: '${pageContext.request.contextPath}/filetypes/listedit',
@@ -48,11 +49,18 @@
                             visibility:"hidden"
                         },
                         filesTypeName: {
-                            title: 'FILE TYPE NAME',
+                            title: '<c:message code="label.filesType.table.col_title.name"/>',
                             width: '70%',
                         },
+                        key1c: {
+                            title: '<c:message code="label.sql.table.label"/>',
+                            width: '15%',
+                            list: true,
+                            create: true,
+                            edit: true,
+                        },
                         version: {
-                            title: 'VERSION',
+                            title: '<c:message code="label.version"/>',
                             defaultValue:'0',
                             edit: false,
                             create: false,
@@ -87,9 +95,9 @@
         </script>
     <div class="filtering">
         <form>
-            Name: <input type="text" name="searchname" id="searchname" />
-            <button type="submit" id="LoadRecordsButton">Load records</button>
-            <button type="submit" id="AllRecordsButton">All records</button>
+            <c:message code="label.field.name2"/>: <input type="text" name="searchname" id="searchname" />
+            <button type="submit" id="LoadRecordsButton">'<c:message code="label.button.loadrecord"/>'</button>
+            <button type="submit" id="AllRecordsButton">'<c:message code="label.button.allrecord"/>'</button>
         </form>
     </div>
         <div>       

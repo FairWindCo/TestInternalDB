@@ -31,11 +31,12 @@
 
     //setup the jtable that will display the results
     $('#ExpenseTableContainer').jtable({
-      title: '<c:message code="label.categorytables"/>',
+      title: '<c:message code="label.category.table.label"/>',
       selecting: true, //Enable selecting
       paging: true, //Enable paging
       pageSize: 10, //Set page size (default: 10)
       sorting: true, //Enable sorting
+      messages: <c:message code="label.messages"/>,
       actions: {
         //listAction: 'datatable/getAllExpenses',
         listAction: '${pageContext.request.contextPath}/category/listedit',
@@ -53,7 +54,7 @@
           visibility:"hidden"
         },
         name: {
-          title: 'CATEGORY NAME',
+          title: '<c:message code="label.category.table.col_title.name"/>',
           width: '65%',
         },
         /*
@@ -70,7 +71,7 @@
         */
 
         subdivsId2: {
-          title: 'SUBDIVISIONS NAME',
+          title: '<c:message code="label.category.table.col_title.subdiv"/>',
           width: '30%',
           //options: 'avaibleRolesOpt?userID=' + rolesdata.record.userID,
           options: function(data) {
@@ -81,7 +82,7 @@
           edit: false
         },
         selsubdivisions:{
-          title: 'SUBDIVISIONS',
+          title: '<c:message code="label.category.table.col_title.subdivs"/>',
           width: '10%',
           sorting: false,
           edit: false,
@@ -95,6 +96,7 @@
                       $img.closest('tr'),
                       {
                         title:'SUBDIVISIONS ASSIGNED TO CATEGORY '+ rolesdata.record.name,
+                        messages: <c:message code="label.messages"/>,
                         actions: {
                           listAction: '${pageContext.request.contextPath}/category/avaibleSubdiv?categoryId=' + rolesdata.record.categoryId,
                           deleteAction: '${pageContext.request.contextPath}/category/removesubdivision?categoryId=' + rolesdata.record.categoryId,
@@ -108,7 +110,7 @@
                             list: false
                           },
                           subdivId: {
-                            title: 'SUBDIVISIONS NAME',
+                            title: '<c:message code="label.category.table.col_title.subdiv"/>',
                             width: '30%',
                             //options: 'avaibleRolesOpt?userID=' + rolesdata.record.userID,
                             options: function(data) {
@@ -118,7 +120,7 @@
                             list: false
                           },
                           name: {
-                            title: 'SUBDIVISIONS NAME',
+                            title: '<c:message code="label.category.table.col_title.subdivname"/>',
                             width: '10%',
                             edit: false,
                             create: false,
@@ -130,6 +132,13 @@
             });
             return $img;
           },
+        },
+        key1c: {
+          title: '<c:message code="label.sql.table.label"/>',
+          width: '15%',
+          list: true,
+          create: true,
+          edit: true,
         },
         versionid: {
           title: '<c:message code="label.version"/>',
@@ -190,9 +199,9 @@
 
 <div class="filtering">
   <form>
-    Name: <input type="text" name="searchname" id="searchname" />
-    <button type="submit" id="LoadRecordsButton">Load records</button>
-    <button type="submit" id="AllRecordsButton">All records</button>
+    <c:message code="label.field.name2"/>: <input type="text" name="searchname" id="searchname" />
+    <button type="submit" id="LoadRecordsButton">'<c:message code="label.button.loadrecord"/>'</button>
+    <button type="submit" id="AllRecordsButton">'<c:message code="label.button.allrecord"/>'</button>
   </form>
 </div>
 <div>

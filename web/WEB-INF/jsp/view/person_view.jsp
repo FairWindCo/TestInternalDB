@@ -61,12 +61,16 @@
       pageSize: 10, //Set page size (default: 10)
       sorting: true, //Enable sorting
       useBootstrap: true,
+      messages: <c:message code="label.messages"/>,
       actions: {
-        //listAction: 'datatable/getAllExpenses',
         listAction: '${pageContext.request.contextPath}/person/listClients',
-        createAction: '${pageContext.request.contextPath}/person/add',
+        <sec:authorize ifAnyGranted="ROLE_CLIENT_ADD">
+        createAction: '${pageContext.request.contextPath}/person/addClient',
+        </sec:authorize>
+        <sec:authorize ifAnyGranted="ROLE_CLIENT_EDIT">
         updateAction: '${pageContext.request.contextPath}/person/update',
-        deleteAction: '${pageContext.request.contextPath}/person/delete'
+        //deleteAction: '${pageContext.request.contextPath}/person/delete'
+        </sec:authorize>
       },
       fields: {
         personId: {
@@ -78,20 +82,34 @@
           visibility:"hidden"
         },
         fio: {
-          title: 'F.I.O.',
+          title: '<c:message code="label.clientstables.col_title.fio"/>',
           width: '15%',
         },
         code: {
-          title: 'CODE',
+          title: '<c:message code="label.clientstables.col_title.code"/>',
           width: '10%',
         },
-        bethday: {
-          title: 'bethday',
+        dateberthdey: {
+          title: '<c:message code="label.clientstables.col_title.bethday"/>',
           width: '10%',
+          display: function (data) {
+            var options = {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+            };
+            var date=new Date(data.record.dateberthdey);
+            return date.toLocaleString("ru", options);
+          },
+            input:function(data) {
+              var input='<input id = "Edit-dateberthdey" type = "text" name = "dateberthdey" >';
+              return input;
+            }
         },
         personStatus: {
-          title: 'status',
+          title: '<c:message code="label.clientstables.col_title.status"/>',
           width: '10%',
+          options:['ACTIVE','BLACK_LIST','OFFLINE'],
         },
         /*
         "subdivs[multiple]": {
@@ -107,7 +125,7 @@
         */
 
         dossers:{
-          title: 'dossers',
+          title: '<c:message code="label.clientstables.col_title.dossers"/>',
           width: '10%',
           sorting: false,
           edit: false,
@@ -120,19 +138,17 @@
               $('#ExpenseTableContainer').jtable('openChildTable',
                       $img.closest('tr'),
                       {
-                        title:'DOSSERS FOR CLIENT: '+ rolesdata.record.fio,
+                        title:'<c:message code="label.clientstables.dossers"/>'+ rolesdata.record.fio,
                         paging: true, //Enable paging
                         pageSize: 10, //Set page size (default: 10)
                         sorting: true, //Enable sorting
                         useBootstrap: true,
+                        messages: <c:message code="label.messages"/>,
                         actions: {
                           <sec:authorize ifAnyGranted="ROLE_GROUP_EDIT,ROLE_SUPER_EDIT,ROLE_MAIN_EDIT">
-
-
                           //deleteAction: '${pageContext.request.contextPath}/dossers/remove',
                           deleteAction: '${pageContext.request.contextPath}/dossers/delete',
                           //createAction: '${pageContext.request.contextPath}/dossers/add?personId=' + rolesdata.record.personId,
-                          createAction: '${pageContext.request.contextPath}/dossers/add',
                           /*createAction: function (postData) {
                            console.log("creating from custom function...");
                            var deferred = $.Deferred();
@@ -192,31 +208,6 @@
                            form.submit();
                            return deferred;
                            },/**/
-                          createAction: function (postData) {
-                            var formData = getVars(postData);
-
-                            if($('#input-image').val() !== ""){
-                              formData.append("file", $('#input-image').get(0).files[0]);
-                            }
-
-                            return $.Deferred(function ($dfd) {
-                              $.ajax({
-                                url: '${pageContext.request.contextPath}/dossers/add?personId=' + rolesdata.record.personId,
-                                type: 'POST',
-                                dataType: 'json',
-                                data: formData,
-                                processData: false, // Don't process the files
-                                contentType: false, // Set content type to false as jQuery will tell the server its a query string request
-                                success: function (data) {
-                                  $dfd.resolve(data);
-                                  $('#table-container').jtable('load');
-                                },
-                                error: function () {
-                                  $dfd.reject();
-                                }
-                              });
-                            });
-                          },
                           updateAction: function (postData) {
                             var formData = getVars(postData);
 
@@ -242,6 +233,32 @@
                               });
                             });
                           },
+                          //createAction: '${pageContext.request.contextPath}/dossers/add',
+                          createAction: function (postData) {
+                            var formData = getVars(postData);
+
+                            if($('#input-image').val() !== ""){
+                              formData.append("file", $('#input-image').get(0).files[0]);
+                            }
+
+                            return $.Deferred(function ($dfd) {
+                              $.ajax({
+                                url: '${pageContext.request.contextPath}/dossers/add?personId=' + rolesdata.record.personId,
+                                type: 'POST',
+                                dataType: 'json',
+                                data: formData,
+                                processData: false, // Don't process the files
+                                contentType: false, // Set content type to false as jQuery will tell the server its a query string request
+                                success: function (data) {
+                                  $dfd.resolve(data);
+                                  $('#table-container').jtable('load');
+                                },
+                                error: function () {
+                                  $dfd.reject();
+                                }
+                              });
+                            });
+                          },
                           </sec:authorize>
                           listAction: '${pageContext.request.contextPath}/dossers/listClientDossers?personId=' + rolesdata.record.personId
                         },
@@ -252,6 +269,24 @@
                             edit: false,
                             list: false
                           },
+                          <sec:authorize ifAnyGranted="ROLE_CONFIDENTIAL">
+                          confidential:{
+                            title: '<c:message code="label.clientstables.dosers.col_title.confidentional"/>',
+                            create: true,
+                            edit: true,
+                            list: true,
+                            sort:false,
+                            type:'checkbox',
+                            values: { 'false': 'NOT CONFIDENTIAL', 'true': 'CONFIDENTIAL' },
+                            display:function(data){
+                              if (data.record.confidential !== null && data.record.confidential !== undefined && data.record.confidential) {
+                                return '<i class="fa fa-lock fa-fw">';
+                              } else {
+                                return '<i class="fa fa-tag fa-fw">';
+                              }
+                            }
+                          },
+                          </sec:authorize>
                           <sec:authorize ifAnyGranted="ROLE_GROUP_EDIT,ROLE_SUPER_EDIT,ROLE_MAIN_EDIT">
                           personId: {
                             create: true,
@@ -261,13 +296,13 @@
                             type:'hidden'
                           },
                           subdivId: {
-                            title: 'SUBDIVISIONS NAME',
+                            title: '<c:message code="label.clientstables.dosers.col_title.subdiv"/>',
                             width: '30%',
                             options: '${pageContext.request.contextPath}/subdivisions/optionsList',
                             list: false
                           },
                           categoryId: {
-                            title: 'CATEGORY NAME',
+                            title: '<c:message code="label.clientstables.dosers.col_title.categeory"/>',
                             width: '30%',
                             dependsOn:'subdivId',
                             //options: 'avaibleRolesOpt?userID=' + rolesdata.record.userID,
@@ -282,7 +317,7 @@
                             list: false
                           },
                           infoTypeId: {
-                            title: 'INFOTYPE NAME',
+                            title: '<c:message code="label.clientstables.dosers.col_title.info"/>',
                             width: '30%',
                             dependsOn:'categoryId',
                             //options: 'avaibleRolesOpt?userID=' + rolesdata.record.userID,
@@ -297,14 +332,14 @@
                             list: false
                           },
                           fileTypeId: {
-                            title: 'FILE TYPE',
+                            title: '<c:message code="label.clientstables.dosers.col_title.filytype"/>',
                             width: '30%',
                             options: '${pageContext.request.contextPath}/filetypes/options',
                             list: false
                           },
                           </sec:authorize>
                           "subdivision.name": {
-                            title: 'SUBDIVISIONS NAME',
+                            title: '<c:message code="label.clientstables.dosers.col_title.subdiv"/>',
                             width: '10%',
                             edit: false,
                             create: false,
@@ -317,7 +352,7 @@
                             }
                           },
                           "category.name": {
-                            title: 'CATEGORY NAME',
+                            title: '<c:message code="label.clientstables.dosers.col_title.categeory"/>',
                             width: '10%',
                             edit: false,
                             create: false,
@@ -330,7 +365,7 @@
                             }
                           },
                           "infotype.typeName": {
-                            title: 'INFOTYPE NAME',
+                            title: '<c:message code="label.clientstables.dosers.col_title.info"/>',
                             width: '10%',
                             edit: false,
                             create: false,
@@ -343,11 +378,11 @@
                             }
                           },
                           "textinfo": {
-                            title: 'INFO',
+                            title: '<c:message code="label.clientstables.dosers.col_title.text"/>',
                             width: '20%',
                           },
                           "fileinfo.filesType": {
-                            title: 'FILE TYPE',
+                            title: '<c:message code="label.clientstables.dosers.col_title.filytype"/>',
                             width: '10%',
                             edit: false,
                             create: false,
@@ -364,7 +399,7 @@
                             }
                           },
                           "FileUpload": {
-                            title: 'FILE',
+                            title: '<c:message code="label.clientstables.dosers.col_title.file"/>',
                             width: '10%',
                             //type:'date',
                             input: function (data) {
@@ -379,9 +414,17 @@
                             create: true,
                           },
                           "creationTime": {
-                            title: 'CREATED',
+                            title: '<c:message code="label.clientstables.dosers.col_title.created"/>',
                             width: '10%',
-                            //type:'date',
+                            display: function (data) {
+                              var options = {
+                                year: 'numeric',
+                                month: 'long',
+                                day: 'numeric',
+                              };
+                              var date=new Date(data.record.creationTime);
+                              return date.toLocaleString("ru", options);
+                            },
                             edit: false,
                             create: false,
                           },
@@ -478,6 +521,85 @@
             return $img;
           },
         },
+        <sec:authorize ifAnyGranted="ROLE_CLIENT_VIEW,ROLE_CLIENT_EDIT">
+        printDetail: {
+          title: '',
+          width: '1%',
+          sorting: false,
+          create: false,
+          edit: false,
+          list: true,
+          display: function (data) {
+            var $myVal = data.record.personId;
+            var $print = '<a href="${pageContext.request.contextPath}/person/print?personId=' + $myVal+'" class ="PassServiceLink" target="new"><i class="fa fa-print fa-fw"></i></a>';
+            return $print;
+          }
+        },
+        viewDetail: {
+          title: '',
+          width: '1%',
+          sorting: false,
+          create: false,
+          edit: false,
+          list: true,
+          display: function (data) {
+              var $myVal = data.record.personId;
+              var $link = $('<a href="#" class ="PassServiceLink"><i class="fa fa-search fa-fw"></i></a>');
+              $link.on("click",function () {
+                    $('#add_service_to_cart_dialog').dialog({
+                      autoOpen: false,
+                      modal: true,
+                      resizable: true,
+                      autoResize:true,
+                      width:'auto',
+                      height:'auto',
+                      position: { my: "left top", at: "left top", of: "#fv-editarea" },
+                      closeOnEscape: true,
+                      /*
+                      open: function (event, ui) {
+                        $(this).empty();
+                        $(this).load('${pageContext.request.contextPath}/additional/view?personID=' + $myVal);
+                      }/**/
+                    });
+                $('#add_service_to_cart_dialog').load('${pageContext.request.contextPath}/additional/view?personID=' + $myVal).dialog("open");
+              });
+              return $link;
+          }
+        },
+        </sec:authorize>
+        <sec:authorize ifAnyGranted="ROLE_CLIENT_EDIT">
+        editDetail: {
+          title: '',
+          width: '1%',
+          sorting: false,
+          create: false,
+          edit: false,
+          list: true,
+          display: function (data) {
+            var $myVal = data.record.personId;
+            var $link = $('<a href="#" class ="PassServiceLink"><i class="fa fa-pencil fa-fw"></i></a>');
+            $link.on("click",function () {
+              $('#add_service_to_cart_dialog').dialog({
+                autoOpen: false,
+                modal: true,
+                resizable: true,
+                autoResize:true,
+                position: { my: "left top", at: "left top", of: "#fv-editarea" },
+                width:'auto',
+                height:'auto',
+                closeOnEscape: true,
+                /*open: function (event, ui) {
+                  $(this).empty();
+                  $(this).load('${pageContext.request.contextPath}/additional/edit?personID=' + $myVal);
+                }/**/
+              });
+              $('#add_service_to_cart_dialog').load('${pageContext.request.contextPath}/additional/edit?personID=' + $myVal).dialog("open");
+            });
+            return $link;
+          }
+        },
+        </sec:authorize>
+        /*
         editAdditional: {
           title: '',
           width: '1%',
@@ -535,7 +657,7 @@
             });
             return $link_edit;
           }
-        },
+        },/***/
         version: {
           title: '<c:message code="label.version"/>',
           defaultValue:'0',
@@ -548,10 +670,14 @@
         },
       },
       formCreated:function(event, data){
-
-
-
-
+        var date;
+        if(data.record!==null && data.record!==undefined) {
+          date = $.datepicker.parseDate("@", data.record.dateberthdey);
+        } else {
+          date=new Date();
+        }
+        $( "#Edit-dateberthdey" ).datepicker();
+        $( "#Edit-dateberthdey" ).datepicker("setDate",date);
       },
       //Register to selectionChanged event to hanlde events
       recordAdded: function (event, data) {
@@ -581,15 +707,16 @@
   });
 </script>
 
-
+<div id="fv-editarea">
 <div class="filtering">
   <form>
-    Name: <input type="text" name="searchname" id="searchname" />
-    <button type="submit" id="LoadRecordsButton">Load records</button>
-    <button type="submit" id="AllRecordsButton">All records</button>
+    <c:message code="label.field.name"/>: <input type="text" name="searchname" id="searchname" />
+    <button type="submit" id="LoadRecordsButton">'<c:message code="label.button.loadrecord"/>'</button>
+    <button type="submit" id="AllRecordsButton">'<c:message code="label.button.allrecord"/>'</button>
   </form>
 </div>
 <div>
   <div id="ExpenseTableContainer" style="width:99%;"></div>
 </div>
 <div id="add_service_to_cart_dialog"></div>
+</div>

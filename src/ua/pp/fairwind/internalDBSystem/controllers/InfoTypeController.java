@@ -203,6 +203,29 @@ public class InfoTypeController {
         }
     }
 
+    @Secured({"ROLE_GROUP_INF_EDIT", "ROLE_SUPER_INF_EDIT","ROLE_MAIN_INF_EDIT","ROLE_GROUP_INF_VIEW", "ROLE_SUPER_INF_VIEW","ROLE_MAIN_INF_VIEW"})
+    @Transactional(readOnly = true,propagation = Propagation.REQUIRED)
+    @RequestMapping(value = "/subdivisionsCategory", method = {RequestMethod.GET,RequestMethod.POST})
+    @ResponseBody
+    public JSSelectExpenseResp<JSTableExpenseOptionsBean> getAvaibleSubdivisionsSelOpt(@RequestParam(required = false) String categoryes) {
+        JSSelectExpenseResp<JSTableExpenseOptionsBean>  jsonJtableResponse;
+        try {
+            Set<Long> assignedSubdivID;
+            if(categoryes==null || categoryes.isEmpty()){
+                Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+                UserDetailsAdapter user=(UserDetailsAdapter)auth.getPrincipal();
+                assignedSubdivID=user.getTrustedSubvisionsId();
+                return new JSSelectExpenseResp<>(infoservice.getInfoForCategorySubdiv(assignedSubdivID));
+            } else {
+                assignedSubdivID = FormSort.getIdFromString(categoryes);
+                return new JSSelectExpenseResp<>(infoservice.getInfoForCategory(assignedSubdivID));
+            }
+
+        } catch (Exception e) {
+            jsonJtableResponse = new JSSelectExpenseResp<>(e.getMessage());
+        }
+        return jsonJtableResponse;
+    }
 
 
 }

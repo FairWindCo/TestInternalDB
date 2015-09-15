@@ -112,6 +112,7 @@ public class SubdivisionsController {
             Subdivision subdivisionDB=subdivisionsservice.findOne(subdivision.getSubdivisionId());
             if(subdivisionDB!=null && subdivisionDB.getVersionid()<=subdivision.getVersionid()) {
                 subdivisionDB.setName(subdivision.getName());
+                subdivisionDB.setKey1c(subdivision.getKey1c());
                 subdivisionsservice.save(subdivisionDB);
                 jsonJtableResponse = new JSTableExpenseResp<>(subdivision);
             } else {

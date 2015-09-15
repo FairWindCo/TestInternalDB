@@ -20,6 +20,7 @@ public class Files {
     @ManyToOne
     FilesType filesType;
     String fileMimeType;
+    String fileOriginalName;
     @Lob
     @JsonIgnore
     @Column(name = "BIN_FILE_DATA",nullable = false)
@@ -73,5 +74,13 @@ public class Files {
 
     public void setFileMimeType(String fileMimeType) {
         this.fileMimeType = fileMimeType;
+    }
+
+    public String getFileOriginalName() {
+        return fileOriginalName;
+    }
+
+    public void setFileOriginalName(String fileOriginalName) {
+        this.fileOriginalName = fileOriginalName;
     }
 }

@@ -1,6 +1,7 @@
 package ua.pp.fairwind.internalDBSystem.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
@@ -18,9 +19,7 @@ import ua.pp.fairwind.internalDBSystem.dateTable.JSTableExpenseResult;
 import ua.pp.fairwind.internalDBSystem.services.repository.*;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,6 +39,8 @@ public class AdditionalInfoController {
     @Autowired
     RelationsRepository relationsService;
     @Autowired
+    RelationsDegreeRepository relationsDegreeService;
+    @Autowired
     AdditionalInfoRepository additionalService;
     @Autowired
     SegmentsRepository segmentService;
@@ -52,7 +53,7 @@ public class AdditionalInfoController {
     @Autowired
     FileTypeRepository filyTypeService;
 
-
+    @Secured({"ROLE_CLIENT_VIEW","ROLE_PERSONAL_VIEW"})
     @RequestMapping(value = "/view", method = {RequestMethod.POST,RequestMethod.GET})
     public String doView(@RequestParam Long personID,ModelMap model){
         if(personID!=null) {
@@ -65,6 +66,7 @@ public class AdditionalInfoController {
         return "no_person";
     }
 
+    @Secured({"ROLE_CLIENT_EDIT","ROLE_PERSONAL_EDIT"})
     @RequestMapping(value = "/edit", method = {RequestMethod.POST,RequestMethod.GET})
     public String doEdit(@RequestParam Long personID,ModelMap model){
         if(personID!=null) {
@@ -77,6 +79,7 @@ public class AdditionalInfoController {
         return "no_person";
     }
 
+    @Secured({"ROLE_CLIENT_EDIT","ROLE_PERSONAL_EDIT","ROLE_CLIENT_VIEW","ROLE_PERSONAL_VIEW"})
     @RequestMapping(value = "/contactsList", method = {RequestMethod.POST,RequestMethod.GET})
     @Transactional(readOnly = true)
     @ResponseBody
@@ -99,6 +102,8 @@ public class AdditionalInfoController {
         }
         return jsonJtableResponse;
     }
+
+    @Secured({"ROLE_CLIENT_EDIT","ROLE_PERSONAL_EDIT","ROLE_CLIENT_VIEW","ROLE_PERSONAL_VIEW"})
     @Transactional(readOnly = true)
     @ResponseBody
     @RequestMapping(value = "/fileList", method = {RequestMethod.POST,RequestMethod.GET})
@@ -121,6 +126,7 @@ public class AdditionalInfoController {
         }
         return jsonJtableResponse;
     }
+    @Secured({"ROLE_CLIENT_EDIT","ROLE_PERSONAL_EDIT","ROLE_CLIENT_VIEW","ROLE_PERSONAL_VIEW"})
     @Transactional(readOnly = true)
     @ResponseBody
     @RequestMapping(value = "/relationList", method = {RequestMethod.POST,RequestMethod.GET})
@@ -143,6 +149,7 @@ public class AdditionalInfoController {
         }
         return jsonJtableResponse;
     }
+    @Secured({"ROLE_CLIENT_EDIT","ROLE_PERSONAL_EDIT"})
     @Transactional(readOnly = false)
     @ResponseBody
     @RequestMapping(value = "/addContact", method = {RequestMethod.POST,RequestMethod.GET})
@@ -171,6 +178,7 @@ public class AdditionalInfoController {
         }
         return jsonJtableResponse;
     }
+    @Secured({"ROLE_CLIENT_EDIT","ROLE_PERSONAL_EDIT"})
     @Transactional(readOnly = false)
     @ResponseBody
     @RequestMapping(value = "/removeContact", method = {RequestMethod.POST,RequestMethod.GET})
@@ -205,6 +213,7 @@ public class AdditionalInfoController {
         }
         return jsonJtableResponse;
     }
+    @Secured({"ROLE_CLIENT_EDIT","ROLE_PERSONAL_EDIT"})
     @Transactional(readOnly = false)
     @ResponseBody
     @RequestMapping(value = "/updateContact", method = {RequestMethod.POST,RequestMethod.GET})
@@ -240,7 +249,7 @@ public class AdditionalInfoController {
         return jsonJtableResponse;
     }
 
-
+    @Secured({"ROLE_CLIENT_EDIT","ROLE_PERSONAL_EDIT"})
     @Transactional(readOnly = false)
     @ResponseBody
     @RequestMapping(value = "/addFile", method = {RequestMethod.POST,RequestMethod.GET})
@@ -258,6 +267,7 @@ public class AdditionalInfoController {
                         } else {
                             newfile.setFileNameComments(fileNameComments);
                         }
+                        newfile.setFileOriginalName(file.getOriginalFilename());
                         newfile.setFileMimeType(file.getContentType());
                         FilesType ft=null;
                         if(filesTypeId!=null){
@@ -283,6 +293,7 @@ public class AdditionalInfoController {
         }
         return jsonJtableResponse;
     }
+    @Secured({"ROLE_CLIENT_EDIT","ROLE_PERSONAL_EDIT"})
     @Transactional(readOnly = false)
     @ResponseBody
     @RequestMapping(value = "/removeFile", method = {RequestMethod.POST,RequestMethod.GET})
@@ -316,17 +327,22 @@ public class AdditionalInfoController {
         }
         return jsonJtableResponse;
     }
-
+    @Secured({"ROLE_CLIENT_EDIT","ROLE_PERSONAL_EDIT"})
     @RequestMapping(value = "/save", method = {RequestMethod.POST})
-    public String doSave(HttpServletRequest request,ModelMap model,@RequestParam Long personId,@RequestParam(required = false) String fileNameComments,@RequestParam(required = false) Long filesTypeId,@RequestParam(value = "file",required = false) MultipartFile file) throws IOException {
+    public String doSave(HttpServletRequest request,ModelMap model,@RequestParam Long personId,@RequestParam(required = false) String fileNameComments,@RequestParam(required = false) Long filesTypeId,@RequestParam(value = "file",required = false) MultipartFile file,@RequestParam long person_version,@RequestParam(required = false) Long additional_version) throws IOException {
         if(personId!=null) {
             Person person = personService.findOne(personId);
             if (person != null) {
+                if(person.getVersion()!=person_version) return "TRUNSACT_ERROR";
                 ClientAdditionalInfo additional=person.getAdditionalInfo();
-                if(additional==null)additional=new ClientAdditionalInfo();
+                if(additional==null){
+                    additional=new ClientAdditionalInfo();
+                } else {
+                    if(additional.getVersion()!=additional_version) return "TRUNSACT_ERROR";
+                }
                 //<input type="hidden" name="sergments_ids_primary_key" id="sergments_ids_primary_key" value="">
                 //Long sergments_id = FormSort.getLongFromString(request.getParameter("sergments_ids_primary_key"));
-                Long sergments_id = FormSort.getLongFromString(request.getParameter("sergments_id"));
+                Long sergments_id = FormSort.getLongFromString(request.getParameter("sergments_ids_primary_key"));
                 //<input type="hidden" name="activities_ids_primary_key" id="activities_ids_primary_key" value="">
                 //Long activities_id = FormSort.getLongFromString(request.getParameter("activities_id"));
                 Long activities_id = FormSort.getLongFromString(request.getParameter("activities_ids_primary_key"));
@@ -366,6 +382,7 @@ public class AdditionalInfoController {
                     Files newFile=new Files();
                     newFile.setFilesType(ft);
                     newFile.setFileMimeType(file.getContentType());
+                    newFile.setFileOriginalName(file.getOriginalFilename());
                     if(fileNameComments==null||fileNameComments.isEmpty()){
                         newFile.setFileNameComments(file.getOriginalFilename());
                     }
@@ -387,13 +404,14 @@ public class AdditionalInfoController {
         }
         return "no_person";
     }
+    @Secured({"ROLE_CLIENT_EDIT","ROLE_PERSONAL_EDIT"})
     @Transactional(readOnly = false)
     @ResponseBody
     @RequestMapping(value = "/addRelation", method = {RequestMethod.POST})
-    public JSTableExpenseResp<RelationDegrees> addRelation(@RequestParam Long personId,@RequestParam long relativiesId_primary_key,@RequestParam long personId_primary_key){
+    public JSTableExpenseResp<RelationDegrees> addRelation(@RequestParam Long edit_personId,@RequestParam long relativiesId_primary_key,@RequestParam long personId_primary_key){
         JSTableExpenseResp<RelationDegrees>  jsonJtableResponse;
-        if(personId!=null) {
-            Person person=personService.findOne(personId);
+        if(edit_personId!=null) {
+            Person person=personService.findOne(edit_personId);
             if(person!=null){
                 try {
                     ClientAdditionalInfo info=person.getAdditionalInfo()!=null?person.getAdditionalInfo():new ClientAdditionalInfo();
@@ -402,18 +420,83 @@ public class AdditionalInfoController {
                     Relatives rl=relationsService.findOne(relativiesId_primary_key);
                     rd.setPerson(ps);
                     rd.setRelatives(rl);
-                    info.getRelationDegrees().add(rd);
-                    person.setAdditionalInfo(info);
-                    personService.save(person);
+                    if(ps==person)return new JSTableExpenseResp<>("SELF RELATION ERROR");
+                    if(info.getRelationDegrees().add(rd)){
+                        person.setAdditionalInfo(info);
+                        relationsDegreeService.save(rd);
+                        additionalService.save(info);
+                        personService.save(person);
+                    }
                     return new JSTableExpenseResp<>(rd);
                 }catch (Exception e){
                     jsonJtableResponse = new JSTableExpenseResp<>(e.getMessage());
                 }
             } else {
-                jsonJtableResponse = new JSTableExpenseResp<>("NO PERSON FOUND ID="+personId);
+                jsonJtableResponse = new JSTableExpenseResp<>("NO PERSON FOUND ID="+edit_personId);
             }
         } else {
-            jsonJtableResponse = new JSTableExpenseResp<>("NO PERSON FOUND ID="+personId);
+            jsonJtableResponse = new JSTableExpenseResp<>("NO PERSON FOUND ID="+edit_personId);
+        }
+        return jsonJtableResponse;
+    }
+    @Secured({"ROLE_CLIENT_EDIT","ROLE_PERSONAL_EDIT"})
+    @Transactional(readOnly = false)
+    @ResponseBody
+    @RequestMapping(value = "/updateRelation", method = {RequestMethod.POST})
+    public JSTableExpenseResp<RelationDegrees> updateRelation(@RequestParam Long id,@RequestParam long relativiesId_primary_key,@RequestParam long personId_primary_key,@RequestParam(required = false) Long edit_personId){
+        JSTableExpenseResp<RelationDegrees>  jsonJtableResponse;
+        if(id !=null) {
+                try {
+                    RelationDegrees rd=relationsDegreeService.findOne(id);
+                    if(rd!=null){
+                    Person ps=personService.findOne(personId_primary_key);
+                    Relatives rl=relationsService.findOne(relativiesId_primary_key);
+                    if(ps.getPersonId()==edit_personId)return new JSTableExpenseResp<>("SELF RELATION ERROR");
+                    rd.setPerson(ps);
+                    rd.setRelatives(rl);
+                    relationsDegreeService.save(rd);
+                    return new JSTableExpenseResp<>(rd);
+                    } else {
+                        jsonJtableResponse = new JSTableExpenseResp<>("NO RELATION FOUND ID="+ id);
+                    }
+                }catch (Exception e){
+                    jsonJtableResponse = new JSTableExpenseResp<>(e.getMessage());
+                }
+        } else {
+            jsonJtableResponse = new JSTableExpenseResp<>("NO RELATION");
+        }
+        return jsonJtableResponse;
+    }
+    @Secured({"ROLE_CLIENT_EDIT","ROLE_PERSONAL_EDIT"})
+    @Transactional(readOnly = false)
+    @ResponseBody
+    @RequestMapping(value = "/removeRelation", method = {RequestMethod.POST})
+    public JSTableExpenseResp<RelationDegrees> removeRelation(@RequestParam Long edit_personId,@RequestParam Long id){
+        JSTableExpenseResp<RelationDegrees>  jsonJtableResponse;
+        if(edit_personId!=null) {
+            Person person=personService.findOne(edit_personId);
+            if(person!=null && id!=null){
+                try {
+                    ClientAdditionalInfo info=person.getAdditionalInfo();
+                    if(info!=null){
+                        RelationDegrees rd=relationsDegreeService.findOne(id);
+                        if(rd!=null){
+                            if(info.getRelationDegrees().remove(rd)) {
+                                relationsDegreeService.delete(rd);
+                                additionalService.save(info);
+                                personService.save(person);
+                            }
+                        }
+                    }
+                    return new JSTableExpenseResp<>(JSTableExpenseResult.OK,"OK");
+                }catch (Exception e){
+                    jsonJtableResponse = new JSTableExpenseResp<>(e.getMessage());
+                }
+            } else {
+                jsonJtableResponse = new JSTableExpenseResp<>("NO PERSON FOUND ID="+edit_personId);
+            }
+        } else {
+            jsonJtableResponse = new JSTableExpenseResp<>("NO PERSON FOUND ID="+edit_personId);
         }
         return jsonJtableResponse;
     }

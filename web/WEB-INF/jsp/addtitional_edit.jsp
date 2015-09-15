@@ -66,17 +66,17 @@
     $("#Edit-ac_activities_id").ajaxComboBox('${pageContext.request.contextPath}/activities/listing',
             { lang: 'en',
               select_only: true,
-              field: 'activitiesName',
-              primary_key: 'activitiesId',
+              field: 'activitiesTypeName',
+              primary_key: 'activitiesTypeId',
               db_table: 'nation',
               per_page: 20,
               hidden_name:'Edit-activities_id',
               <jp:if test="${not empty person.activities}">
-              init_record: ['${person.activities.activitiesId}'],
+              init_record: ['${person.activities.activitiesTypeId}'],
               </jp:if>
             });
     //FORM Segments COMBOBOX
-    $("#Edit-ac_sergments_id").ajaxComboBox('${pageContext.request.contextPath}/activities/listing',
+    $("#Edit-ac_sergments_id").ajaxComboBox('${pageContext.request.contextPath}/segments/listing',
             { lang: 'en',
               select_only: true,
               field: 'name',
@@ -85,7 +85,7 @@
               per_page: 20,
               hidden_name:'Edit-sergments_id',
               <jp:if test="${not empty person.additionalInfo and not empty person.additionalInfo.clientSegment}">
-                init_record: ${person.additionalInfo.clientSegment.sergmentsId},
+                init_record: [${person.additionalInfo.clientSegment.sergmentsId}],
               </jp:if>
             });
     //FORM FileType COMBOBOX
@@ -111,6 +111,7 @@
       pageSize: 10, //Set page size (default: 10)
       sorting: true, //Enable sorting
       useBootstrap: true,
+      messages: <c:message code="label.messages"/>,
       actions: {
         //listAction: 'datatable/getAllExpenses',
         listAction: '${pageContext.request.contextPath}/additional/contactsList?personId=<jp:out value="${person.personId}" />',
@@ -159,6 +160,7 @@
       pageSize: 10, //Set page size (default: 10)
       sorting: true, //Enable sorting
       useBootstrap: true,
+      messages: <c:message code="label.messages"/>,
       actions: {
         //listAction: 'datatable/getAllExpenses',
         listAction: '${pageContext.request.contextPath}/additional/fileList?personId=<jp:out value="${person.personId}" />',
@@ -304,12 +306,13 @@
       pageSize: 10, //Set page size (default: 10)
       sorting: true, //Enable sorting
       useBootstrap: true,
+      messages: <c:message code="label.messages"/>,
       actions: {
         //listAction: 'datatable/getAllExpenses',
         listAction: '${pageContext.request.contextPath}/additional/relationList?personId=<jp:out value="${person.personId}" />',
-        createAction: '${pageContext.request.contextPath}/additional/addRelation?personId=<jp:out value="${person.personId}" />',
-        updateAction: '${pageContext.request.contextPath}/additional/updateRelation?personId=<jp:out value="${person.personId}" />',
-        deleteAction: '${pageContext.request.contextPath}/additional/removeRelation?personId=<jp:out value="${person.personId}" />'
+        createAction: '${pageContext.request.contextPath}/additional/addRelation?edit_personId=<jp:out value="${person.personId}" />',
+        updateAction: '${pageContext.request.contextPath}/additional/updateRelation?edit_personId=<jp:out value="${person.personId}" />',
+        deleteAction: '${pageContext.request.contextPath}/additional/removeRelation?edit_personId=<jp:out value="${person.personId}" />'
       },
       fields: {
         id: {
@@ -322,8 +325,8 @@
           create: false,
           edit: false,
           display: function (data) {
-            if(data.record.contactType!==null && data.record.contactType!==undefined){
-              return '<b>' + data.record.contactType.cobtactTypeName + '</b>';
+            if(data.record.person!==null && data.record.person!==undefined){
+              return '<b>' + data.record.person.fio + '</b>';
             } else {
               return '<b>----</b>';
             }
@@ -335,8 +338,8 @@
           create: false,
           edit: false,
           display: function (data) {
-            if(data.record.contactType!==null && data.record.contactType!==undefined){
-              return '<b>' + data.record.contactType.cobtactTypeName + '</b>';
+            if(data.record.relatives!==null && data.record.relatives!==undefined){
+              return '<b>' + data.record.relatives.name + '</b>';
             } else {
               return '<b>----</b>';
             }
@@ -354,7 +357,11 @@
           list: false,
           create: true,
           edit: true,
-          input:function(){
+          input:function(data){
+            var relationId=null;
+            if(data!==null && data!==undefined && data.record!==null && data.record!==undefined && data.record.relatives!==null && data.record.relatives!==undefined){
+              relationId=data.record.relatives.relativiesId;
+            }
             var div=$('<div style="width:450;height: 200;"></div>');
             var input1=$('<input id="ac01_relativiesId" name="relativiesId" type="text" style="width:250;"/>');
             $(div).append(input1);
@@ -364,6 +371,7 @@
                       field: 'name',
                       primary_key: 'relativiesId',
                       db_table: 'nation',
+                      init_record:[relationId],
                       order_by: [
                         'fio DESC'
                       ],
@@ -379,7 +387,11 @@
           list: false,
           create: true,
           edit: true,
-          input:function(){
+          input:function(data){
+            var personId=null;
+            if(data!==null && data!==undefined && data.record!==null && data.record!==undefined && data.record.person!==null && data.record.person!==undefined){
+              personId=data.record.person.personId;
+            }
             var div=$('<div style="width:450;height: 200;"></div>');
             var input1=$('<input id="ac01_personId_id" name="personId" type="text" style="width:250;"/>');
             $(div).append(input1);
@@ -392,6 +404,12 @@
                       order_by: [
                         'fio DESC'
                       ],
+                      init_record:[personId],
+                      sub_info: true,
+                      sub_as: {
+                        code: 'CODE:',
+                        dateberthdey: 'BITHDAY:',
+                      },
                       per_page: 20,
                       hidden_name:'personId',
                     });
@@ -416,17 +434,19 @@
   <div class="panel-body">
         <form action="${pageContext.request.contextPath}/additional/save" enctype="multipart/form-data" encoding="multipart/form-data" method="post">
         <input type="hidden" name="personId" id="Edit-personId" value="<jp:out value="${person.personId}" />"/>
+          <input type="hidden" name="person_version" id="Edit-person_version" value="<jp:out value="${person.version}" />"/>
+          <input type="hidden" name="additional_version" id="Edit-additional_version" value="<jp:out value="${(person.additionalInfo!=null?person.additionalInfo.version:null)}" />"/>
 
     <div id="#myTabs">
 
       <!-- Nav tabs -->
       <ul class="nav nav-tabs" role="tablist">
-        <li role="presentation" class="active"><a href="#info" aria-controls="home" role="tab" data-toggle="tab"><c:message code="label.edit.persons.info_title"/></a></li>
-        <li role="presentation" ><a href="#additional" aria-controls="additional" role="tab" data-toggle="tab"><c:message code="label.edit.persons.additional_title"/></a></li>
-        <li role="presentation" ><a href="#photo" aria-controls="photo" role="tab" data-toggle="tab"><c:message code="label.edit.persons.photo_title"/></a></li>
-        <li role="presentation" ><a href="#contacts" aria-controls="contacts" role="tab" data-toggle="tab"><c:message code="label.edit.persons.contact_title"/></a></li>
-        <li role="presentation" ><a href="#files" aria-controls="files" role="tab" data-toggle="tab"><c:message code="label.edit.persons.files_title"/></a></li>
-        <li role="presentation" ><a href="#relations" aria-controls="relations" role="tab" data-toggle="tab"><c:message code="label.edit.persons.relations_title"/></a></li>
+        <li role="presentation" class="active"><a href="#info" aria-controls="home" role="tab" data-toggle="tab" style="color: #0E84EA;"><c:message code="label.edit.persons.info_title"/></a></li>
+        <li role="presentation" ><a href="#additional" aria-controls="additional" role="tab" data-toggle="tab" style="color: #0E84EA;"><c:message code="label.edit.persons.additional_title"/></a></li>
+        <li role="presentation" ><a href="#photo" aria-controls="photo" role="tab" data-toggle="tab" style="color: #0E84EA;"><c:message code="label.edit.persons.photo_title"/></a></li>
+        <li role="presentation" ><a href="#contacts" aria-controls="contacts" role="tab" data-toggle="tab" style="color: #0E84EA;"><c:message code="label.edit.persons.contact_title"/></a></li>
+        <li role="presentation" ><a href="#files" aria-controls="files" role="tab" data-toggle="tab" style="color: #0E84EA;"><c:message code="label.edit.persons.files_title"/></a></li>
+        <li role="presentation" ><a href="#relations" aria-controls="relations" role="tab" data-toggle="tab" style="color: #0E84EA;"><c:message code="label.edit.persons.relations_title"/></a></li>
       </ul>
 
       <!-- Tab panes -->

@@ -135,6 +135,7 @@ public class CategoryController {
                     jsonJtableResponse = new JSTableExpenseResp<>("Category VAS MODIFIED OR DELETE IN ANOTHER TRANSACTION!");
                 } else {
                     categoryinDB.setName(category.getName());
+                    categoryinDB.setKey1c(category.getKey1c());
                     categoryinDB.setVersionid(category.getVersionid());
                     categoryservice.save(categoryinDB);
                     jsonJtableResponse = new JSTableExpenseResp<>(categoryinDB);
@@ -329,6 +330,28 @@ public class CategoryController {
             }
         } catch (Exception e) {
             jsonJtableResponse = new JSTableExpenseResp<>(e.getMessage());
+        }
+        return jsonJtableResponse;
+    }
+
+    @Secured({"ROLE_GROUP_INF_EDIT", "ROLE_SUPER_INF_EDIT","ROLE_MAIN_INF_EDIT","ROLE_GROUP_INF_VIEW", "ROLE_SUPER_INF_VIEW","ROLE_MAIN_INF_VIEW"})
+    @Transactional(readOnly = true,propagation = Propagation.REQUIRED)
+    @RequestMapping(value = "/subdivisionsCategory", method = {RequestMethod.GET,RequestMethod.POST})
+    @ResponseBody
+    public JSSelectExpenseResp<JSTableExpenseOptionsBean> getAvaibleSubdivisionsSelOpt(@RequestParam(required = false) String subdivisions) {
+        JSSelectExpenseResp<JSTableExpenseOptionsBean>  jsonJtableResponse;
+        try {
+            Set<Long> assignedSubdivID;
+            if(subdivisions==null || subdivisions.isEmpty()){
+                Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+                UserDetailsAdapter user=(UserDetailsAdapter)auth.getPrincipal();
+                assignedSubdivID=user.getTrustedSubvisionsId();
+            } else {
+                assignedSubdivID = FormSort.getIdFromString(subdivisions);
+            }
+            return new JSSelectExpenseResp<>(categoryservice.getCategoryForSubdivisions(assignedSubdivID));
+        } catch (Exception e) {
+            jsonJtableResponse = new JSSelectExpenseResp<>(e.getMessage());
         }
         return jsonJtableResponse;
     }
