@@ -14,9 +14,11 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import ua.pp.fairwind.internalDBSystem.datamodel.administrative.Category;
+import ua.pp.fairwind.internalDBSystem.datamodel.administrative.ProgramOperationJornal;
 import ua.pp.fairwind.internalDBSystem.datamodel.administrative.Subdivision;
 import ua.pp.fairwind.internalDBSystem.dateTable.*;
 import ua.pp.fairwind.internalDBSystem.security.UserDetailsAdapter;
+import ua.pp.fairwind.internalDBSystem.services.JournalService;
 import ua.pp.fairwind.internalDBSystem.services.repository.CategoryRepository;
 import ua.pp.fairwind.internalDBSystem.services.repository.SubdivisionRepository;
 import ua.pp.fairwind.internalDBSystem.services.repository.UserRepository;
@@ -40,6 +42,8 @@ public class CategoryController {
     private CategoryRepository categoryservice;
     @Autowired
     private SubdivisionRepository subdivservice;
+    @Autowired
+    private JournalService journal;
 
     @Secured({"ROLE_GROUP_INF_EDIT", "ROLE_SUPER_INF_EDIT","ROLE_MAIN_INF_EDIT"})
     @RequestMapping(value = "/", method = RequestMethod.GET)
@@ -110,6 +114,7 @@ public class CategoryController {
                 }
             }
             categoryservice.save(category);
+            journal.log(ProgramOperationJornal.Operation.CREATE, "Category", category.getName());
             jsonJtableResponse = new JSTableExpenseResp<>(category);
         } catch (Exception e) {
             jsonJtableResponse = new JSTableExpenseResp<>(e.getMessage());
@@ -138,6 +143,7 @@ public class CategoryController {
                     categoryinDB.setKey1c(category.getKey1c());
                     categoryinDB.setVersionid(category.getVersionid());
                     categoryservice.save(categoryinDB);
+                    journal.log(ProgramOperationJornal.Operation.UPDATE, "Category","OLD:"+categoryinDB.getName()+" NEW:"+category.getName()+" 1CKEY_NEW:"+category.getKey1c()+" OLD:"+categoryinDB.getKey1c());
                     jsonJtableResponse = new JSTableExpenseResp<>(categoryinDB);
                 }
             }else {
@@ -156,8 +162,13 @@ public class CategoryController {
     public JSTableExpenseResp<Category>  delete(@ModelAttribute Category category, BindingResult result) {
         JSTableExpenseResp<Category>  jsonJtableResponse;
         try {
-            categoryservice.delete(category.getCategoryId());
-            jsonJtableResponse = new JSTableExpenseResp<>(JSTableExpenseResult.OK,"OK");
+            if(categoryservice.getChildRecordCount(category.getCategoryId())==0) {
+                categoryservice.delete(category.getCategoryId());
+                journal.log(ProgramOperationJornal.Operation.DELETE, "Category", "ID:"+category.getCategoryId()+"Name:"+category.getName());
+                jsonJtableResponse = new JSTableExpenseResp<>(JSTableExpenseResult.OK, "OK");
+            } else {
+                jsonJtableResponse = new JSTableExpenseResp<>("DELETE FORBIDDEN!");
+            }
         } catch (Exception e) {
             jsonJtableResponse = new JSTableExpenseResp<>(e.getMessage());
         }

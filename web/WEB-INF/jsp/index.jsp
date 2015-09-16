@@ -73,6 +73,9 @@
               <!-- /.nav-second-level -->
             </li>
             <li>
+              <a href="search/" onclick="$('#page-wrapper').load('search/'); return false;"><i class="fa fa-search fa-fw"></i><c:message code="label.search"/></a>
+            </li>
+            <li>
               <a href="#"><i class="fa fa-inbox fa-fw"></i><c:message code="label.persons"/><span class="fa arrow"></span></a>
               <ul class="nav nav-second-level">
                 <li>

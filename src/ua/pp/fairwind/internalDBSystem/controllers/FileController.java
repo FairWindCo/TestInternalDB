@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import ua.pp.fairwind.internalDBSystem.datamodel.Files;
+import ua.pp.fairwind.internalDBSystem.datamodel.administrative.ProgramOperationJornal;
+import ua.pp.fairwind.internalDBSystem.services.JournalService;
 import ua.pp.fairwind.internalDBSystem.services.repository.FileRepository;
 
 import javax.servlet.ServletContext;
@@ -24,6 +26,8 @@ public class FileController {
 
     @Autowired
     FileRepository fileService;
+    @Autowired
+    private JournalService journal;
 
     @RequestMapping(value = "/view", method = {RequestMethod.POST,RequestMethod.GET})
     public void doDownload(@RequestParam Long fileID,HttpServletRequest request,HttpServletResponse response) throws IOException {
@@ -43,6 +47,7 @@ public class FileController {
                                 fileConten.getFileOriginalName());
                         response.setHeader(headerKey, headerValue);
                     }
+                    journal.log(ProgramOperationJornal.Operation.SELECT, "FILE","FILE ID:"+fileID+" NAME:"+fileConten.getFileOriginalName());
                     OutputStream outStream = response.getOutputStream();
                     outStream.write(data);
                     outStream.close();

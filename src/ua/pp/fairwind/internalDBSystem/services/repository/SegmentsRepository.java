@@ -22,4 +22,6 @@ public interface SegmentsRepository extends JpaRepository<Segments,Long> {
     List<Segments> findByNameContains(String name);
     @Query("Select new ua.pp.fairwind.internalDBSystem.dateTable.JSTableExpenseOptionsBean(seg.id,seg.name) from Segments seg")
     List<JSTableExpenseOptionsBean> getAllSegmentsOptions();
+    @Query("Select count(addinfo) from ClientAdditionalInfo addinfo where addinfo.clientSegment is not null and addinfo.clientSegment.sergmentsId=?1")
+    Long getChildRecordCount(long id);
 }

@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import ua.pp.fairwind.internalDBSystem.datamodel.Dosser;
 import ua.pp.fairwind.internalDBSystem.datamodel.Person;
+import ua.pp.fairwind.internalDBSystem.datamodel.administrative.ProgramOperationJornal;
 import ua.pp.fairwind.internalDBSystem.datamodel.directories.Activities;
 import ua.pp.fairwind.internalDBSystem.datamodel.directories.DosserType;
 import ua.pp.fairwind.internalDBSystem.datamodel.directories.PersonStatus;
@@ -26,6 +27,7 @@ import ua.pp.fairwind.internalDBSystem.dateTable.JSComboExpenseResp;
 import ua.pp.fairwind.internalDBSystem.dateTable.JSTableExpenseListResp;
 import ua.pp.fairwind.internalDBSystem.dateTable.JSTableExpenseResp;
 import ua.pp.fairwind.internalDBSystem.security.UserDetailsAdapter;
+import ua.pp.fairwind.internalDBSystem.services.JournalService;
 import ua.pp.fairwind.internalDBSystem.services.repository.DossersRepository;
 import ua.pp.fairwind.internalDBSystem.services.repository.PersonRepository;
 
@@ -48,6 +50,8 @@ public class PersonController {
     private PersonRepository personService;
     @Autowired
     DossersRepository dosserService;
+    @Autowired
+    private JournalService journal;
 
     @Secured({"ROLE_SUPERVIEW","ROLE_GROUP_VIEW", "ROLE_SUPER_VIEW","ROLE_MAIN_VIEW"})
     @RequestMapping(value = "/", method = RequestMethod.GET)
@@ -81,6 +85,7 @@ public class PersonController {
             pager = new PageRequest(jtStartIndex, jtPageSize);
         }
         Page<Person> page=getClientPersons(pager, searchname, codename,PersonType.CLIENT);
+        journal.log(ProgramOperationJornal.Operation.SELECT, "CLIENTS","listing");
         return new JSTableExpenseListResp<Person>(page);
     }
 
@@ -98,6 +103,7 @@ public class PersonController {
             pager = new PageRequest(jtStartIndex, jtPageSize);
         }
         Page<Person> page=getClientPersons(pager, searchname, codename,PersonType.WORKER);
+        journal.log(ProgramOperationJornal.Operation.SELECT, "WORKERS","listing");
         return new JSTableExpenseListResp<Person>(page);
     }
 
@@ -139,8 +145,10 @@ public class PersonController {
             Page<PersonProxy> page;
             if (qword != null && qword.length > 0) {
                 page = personService.findProxyByFioOrCode("%" + qword[0] + "%", pager);
+                journal.log(ProgramOperationJornal.Operation.SEARCH, "CLIENTS","like"+qword[0]);
             } else {
                 page = personService.findProxy(pager);
+                journal.log(ProgramOperationJornal.Operation.SEARCH, "CLIENTS","all");
             }
             return new JSComboExpenseResp<>(page);
         } else {
@@ -155,8 +163,10 @@ public class PersonController {
                 List<PersonProxy> page;
                 if (qword != null && qword.length > 0) {
                     page = personService.findProxyByFioOrCode("%" + qword[0]+"%");
+                    journal.log(ProgramOperationJornal.Operation.SEARCH, "CLIENTS","like"+qword[0]);
                 } else {
                     page = personService.findProxy(sort);
+                    journal.log(ProgramOperationJornal.Operation.SEARCH, "CLIENTS","all");
                 }
                 return new JSComboExpenseResp<>(page);
             }
@@ -181,8 +191,10 @@ public class PersonController {
             Page<PersonProxy> page;
             if (qword != null && qword.length > 0) {
                 page = personService.findProxyByFioORCodePersonType("%" + qword[0] + "%", PersonType.WORKER, pager);
+                journal.log(ProgramOperationJornal.Operation.SEARCH, "WORKER","like"+qword[0]);
             } else {
                 page = personService.findProxyByPersonType(PersonType.WORKER, pager);
+                journal.log(ProgramOperationJornal.Operation.SEARCH, "WORKER","all");
             }
             return new JSComboExpenseResp<>(page);
         } else {
@@ -197,8 +209,10 @@ public class PersonController {
                 List<PersonProxy> page;
                 if (qword != null && qword.length > 0) {
                     page = personService.findProxyByFioOrCodePersonType(qword[0], PersonType.WORKER);
+                    journal.log(ProgramOperationJornal.Operation.SEARCH, "WORKER","like"+qword[0]);
                 } else {
                     page = personService.findProxyByPersonType(PersonType.WORKER, sort);
+                    journal.log(ProgramOperationJornal.Operation.SEARCH, "WORKER","all");
                 }
                 return new JSComboExpenseResp<>(page);
             }
@@ -223,8 +237,10 @@ public class PersonController {
             Page<PersonProxy> page;
             if (qword != null && qword.length > 0) {
                 page = personService.findProxyByFioORCodePersonType("%" + qword[0] + "%", PersonType.CLIENT, pager);
+                journal.log(ProgramOperationJornal.Operation.SEARCH, "CLIENTS","like"+qword[0]);
             } else {
                 page = personService.findProxyByPersonType(PersonType.CLIENT, pager);
+                journal.log(ProgramOperationJornal.Operation.SEARCH, "CLIENTS","all");
             }
             return new JSComboExpenseResp<>(page);
         } else {
@@ -239,8 +255,10 @@ public class PersonController {
                 List<PersonProxy> page;
                 if (qword != null && qword.length > 0) {
                     page = personService.findProxyByFioOrCodePersonType(qword[0], PersonType.CLIENT);
+                    journal.log(ProgramOperationJornal.Operation.SEARCH, "CLIENTS","like"+qword[0]);
                 } else {
                     page = personService.findProxyByPersonType(PersonType.CLIENT, sort);
+                    journal.log(ProgramOperationJornal.Operation.SEARCH, "CLIENTS","all");
                 }
                 return new JSComboExpenseResp<>(page);
             }
@@ -268,6 +286,7 @@ public class PersonController {
         person.setPersonStatus(personStatus != null ? PersonStatus.valueOf(personStatus) : PersonStatus.OFFLINE);
         person.setVersion(0);
         personService.save(person);
+        journal.log(ProgramOperationJornal.Operation.CREATE, "CLIENT", " NEW:" + person.getFio() + " CODE:" + person.getCode());
         return new JSTableExpenseResp<Person>(person);
     }
 
@@ -292,6 +311,7 @@ public class PersonController {
         person.setPersonStatus(personStatus != null ? PersonStatus.valueOf(personStatus) : PersonStatus.OFFLINE);
         person.setVersion(0);
         personService.save(person);
+        journal.log(ProgramOperationJornal.Operation.CREATE, "WORKER", " NEW:" + person.getFio() + " CODE:" + person.getCode());
         return new JSTableExpenseResp<Person>(person);
     }
 
@@ -317,6 +337,7 @@ public class PersonController {
             }
             person.setDateberthdey(dateB);
             person.setPersonStatus(personStatus != null ? PersonStatus.valueOf(personStatus) : PersonStatus.OFFLINE);
+            journal.log(ProgramOperationJornal.Operation.UPDATE, "PERSON", " NEW:" + person.getFio() + " CODE:" + person.getCode() + " ID:" + person.getPersonId());
             personService.save(person);
             return new JSTableExpenseResp<>(person);
         }else {
@@ -330,6 +351,7 @@ public class PersonController {
     public String print(@RequestParam Long personId,Model model) {
         if(personId!=null) {
             Person person = personService.getOne(personId);
+            journal.log(ProgramOperationJornal.Operation.PRINT, "PERSON", " FIO:" + person.getFio() + " CODE:" + person.getCode()+" ID:"+person.getPersonId());
             model.addAttribute("person", person);
             model.addAttribute("dossers", getDossers(personId));
             return "personprint";

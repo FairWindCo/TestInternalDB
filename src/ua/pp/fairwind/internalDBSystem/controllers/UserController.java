@@ -11,10 +11,12 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import ua.pp.fairwind.internalDBSystem.datamodel.administrative.ProgramOperationJornal;
 import ua.pp.fairwind.internalDBSystem.datamodel.administrative.Roles;
 import ua.pp.fairwind.internalDBSystem.datamodel.administrative.Subdivision;
 import ua.pp.fairwind.internalDBSystem.datamodel.administrative.User;
 import ua.pp.fairwind.internalDBSystem.dateTable.*;
+import ua.pp.fairwind.internalDBSystem.services.JournalService;
 import ua.pp.fairwind.internalDBSystem.services.repository.RoleRepository;
 import ua.pp.fairwind.internalDBSystem.services.repository.SubdivisionRepository;
 import ua.pp.fairwind.internalDBSystem.services.repository.UserRepository;
@@ -38,6 +40,8 @@ public class UserController {
     private RoleRepository roleservice;
     @Autowired
     private SubdivisionRepository subdivservice;
+    @Autowired
+    private JournalService journal;
 
     @Secured("ROLE_ADMIN")
     @RequestMapping(value = "/", method = RequestMethod.GET)
@@ -154,6 +158,7 @@ public class UserController {
         }
         try {
             userservice.save(user);
+            journal.log(ProgramOperationJornal.Operation.CREATE, "USER", user.getUserName() + " FIO:" + user.getFio());
             jsonJtableResponse = new JSTableExpenseResp<>(user);
         } catch (Exception e) {
             jsonJtableResponse = new JSTableExpenseResp<>(e.getMessage());
@@ -190,6 +195,7 @@ public class UserController {
                         userinDB.setMainsubdivisions(mainsubdiv);
                     }
                     userservice.save(userinDB);
+                    journal.log(ProgramOperationJornal.Operation.UPDATE, "USER",user.getUserName()+" FIO:"+user.getFio());
                     jsonJtableResponse = new JSTableExpenseResp<>(userinDB);
                 }
             }else {
@@ -208,7 +214,9 @@ public class UserController {
     public JSTableExpenseResp<User>  delete(@ModelAttribute User user, BindingResult result) {
         JSTableExpenseResp<User>  jsonJtableResponse;
         try {
+            if(user.getUserID()==1) return new JSTableExpenseResp<>("DELETE FORBIDDEN!");
             userservice.delete(user.getUserID());
+            journal.log(ProgramOperationJornal.Operation.DELETE, "USER","ID:"+user.getUserID()+" "+user.getUserName() + " FIO:" + user.getFio());
             jsonJtableResponse = new JSTableExpenseResp<>(JSTableExpenseResult.OK,"OK");
         } catch (Exception e) {
             jsonJtableResponse = new JSTableExpenseResp<>(e.getMessage());

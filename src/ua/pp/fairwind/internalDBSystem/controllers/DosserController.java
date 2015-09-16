@@ -17,6 +17,7 @@ import ua.pp.fairwind.internalDBSystem.datamodel.Files;
 import ua.pp.fairwind.internalDBSystem.datamodel.Person;
 import ua.pp.fairwind.internalDBSystem.datamodel.administrative.Category;
 import ua.pp.fairwind.internalDBSystem.datamodel.administrative.InfoType;
+import ua.pp.fairwind.internalDBSystem.datamodel.administrative.ProgramOperationJornal;
 import ua.pp.fairwind.internalDBSystem.datamodel.administrative.Subdivision;
 import ua.pp.fairwind.internalDBSystem.datamodel.directories.DosserType;
 import ua.pp.fairwind.internalDBSystem.datamodel.directories.FilesType;
@@ -26,6 +27,7 @@ import ua.pp.fairwind.internalDBSystem.dateTable.JSTableExpenseListResp;
 import ua.pp.fairwind.internalDBSystem.dateTable.JSTableExpenseResp;
 import ua.pp.fairwind.internalDBSystem.dateTable.JSTableExpenseResult;
 import ua.pp.fairwind.internalDBSystem.security.UserDetailsAdapter;
+import ua.pp.fairwind.internalDBSystem.services.JournalService;
 import ua.pp.fairwind.internalDBSystem.services.repository.*;
 
 /**
@@ -49,6 +51,8 @@ public class DosserController {
     InfoTypeRepository infoService;
     @Autowired
     FileTypeRepository filyTypeService;
+    @Autowired
+    private JournalService journal;
 
     @Transactional(readOnly = true)
     @Secured({"ROLE_SUPERVIEW","ROLE_GROUP_VIEW", "ROLE_SUPER_VIEW","ROLE_MAIN_VIEW","ROLE_SUPER_EDIT","ROLE_GROUP_EDIT", "ROLE_SUPER_EDIT","ROLE_MAIN_EDIT"})
@@ -79,6 +83,7 @@ public class DosserController {
                 page = dosserService.getAvaibleDossers(user.getTrustedSubvisionsId(), PersonType.CLIENT, personId,false,DosserType.ACTIVE, pager);
             }
         }
+        journal.log(ProgramOperationJornal.Operation.SELECT, "DOSSERS","CLIENT LIST");
         return new JSTableExpenseListResp<>(page);
     }
 
@@ -112,6 +117,7 @@ public class DosserController {
                 page = dosserService.getAvaibleDossers(user.getTrustedSubvisionsId(), PersonType.WORKER, personId,false,DosserType.ACTIVE, pager);
             }
         }
+        journal.log(ProgramOperationJornal.Operation.SELECT, "DOSSERS","WORKERS LIST");
         return new JSTableExpenseListResp<>(page);
     }
 
@@ -157,6 +163,7 @@ public class DosserController {
                 dosser.setFileinfo(fl);
                 fileService.saveAndFlush(fl);
             }
+            journal.log(ProgramOperationJornal.Operation.CREATE, "DOSSERS","SUBDIVISION:"+(sub!=null?sub.getName():"")+" CATEGORY:"+(cat!=null?cat.getName():"")+" INFOTYPE:"+(info!=null?info.getTypeName():"")+" TEXT:"+info);
             dosserService.saveAndFlush(dosser);
             jsonJtableResponse = new JSTableExpenseResp<>(dosser);
         } catch (Exception e) {
@@ -173,6 +180,7 @@ public class DosserController {
         JSTableExpenseResp<Dosser>  jsonJtableResponse;
         try {
             dosserService.delete(dosser.getDossierId());
+            journal.log(ProgramOperationJornal.Operation.DELETE, "DOSSERS", "DOOSER ID:" + dosser.getDossierId()+" TEXT:"+dosser.getTextinfo());
             jsonJtableResponse = new JSTableExpenseResp<>(JSTableExpenseResult.OK,"OK");
         } catch (Exception e) {
             jsonJtableResponse = new JSTableExpenseResp<>(e.getMessage());
@@ -190,6 +198,7 @@ public class DosserController {
             Dosser old=dosserService.findOne(dosser.getDossierId());
             if(old!=null){
                 old.setRecordStatus(DosserType.DELETED);
+                journal.log(ProgramOperationJornal.Operation.DELETE, "DOSSERS", "DOOSER ID:" + old.getDossierId() + " TEXT:" + old.getTextinfo());
                 jsonJtableResponse = new JSTableExpenseResp<>(JSTableExpenseResult.OK,"OK");
             } else {
                 jsonJtableResponse = new JSTableExpenseResp<>(JSTableExpenseResult.ERROR,"NOT FOUND!");
@@ -212,6 +221,7 @@ public class DosserController {
             old=dosserService.findOne(dossierId);
             if(old!=null){
                 old.setRecordStatus(DosserType.MODIFIED);
+                journal.log(ProgramOperationJornal.Operation.UPDATE, "DOSSERS", "DOOSER ID:" + old.getDossierId() + " TEXT:" + old.getTextinfo());
             }
         } catch (Exception e) {
             return new JSTableExpenseResp<>(e.getMessage());

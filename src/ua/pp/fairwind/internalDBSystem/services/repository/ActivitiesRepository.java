@@ -22,4 +22,6 @@ public interface ActivitiesRepository extends JpaRepository<Activities,Long> {
     List<Activities> findByActivitiesTypeNameContains(String activitiesTypeName);
     @Query("Select new ua.pp.fairwind.internalDBSystem.dateTable.JSTableExpenseOptionsBean(a.activitiesTypeId,a.activitiesTypeName) from Activities a")
     List<JSTableExpenseOptionsBean> getAllActivitiesOptions();
+    @Query("Select count(person) from Person person where person.activities is not null and person.activities.activitiesTypeId=?1")
+    Long getChildRecordCount(long id);
 }

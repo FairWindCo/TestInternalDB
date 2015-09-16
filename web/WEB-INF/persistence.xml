@@ -19,5 +19,7 @@
     <class>ua.pp.fairwind.internalDBSystem.datamodel.administrative.User</class>1
     <class>ua.pp.fairwind.internalDBSystem.datamodel.Dosser</class>
     <class>ua.pp.fairwind.internalDBSystem.datamodel.ClientAdditionalInfo</class>
+    <class>ua.pp.fairwind.internalDBSystem.datamodel.administrative.ProgramImportStatistics</class>
+    <class>ua.pp.fairwind.internalDBSystem.datamodel.administrative.ProgramOperationJornal</class>
 </persistence-unit>
 </persistence>

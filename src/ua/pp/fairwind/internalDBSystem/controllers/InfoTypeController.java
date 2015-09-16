@@ -15,9 +15,11 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import ua.pp.fairwind.internalDBSystem.datamodel.administrative.Category;
 import ua.pp.fairwind.internalDBSystem.datamodel.administrative.InfoType;
+import ua.pp.fairwind.internalDBSystem.datamodel.administrative.ProgramOperationJornal;
 import ua.pp.fairwind.internalDBSystem.datamodel.administrative.Subdivision;
 import ua.pp.fairwind.internalDBSystem.dateTable.*;
 import ua.pp.fairwind.internalDBSystem.security.UserDetailsAdapter;
+import ua.pp.fairwind.internalDBSystem.services.JournalService;
 import ua.pp.fairwind.internalDBSystem.services.repository.CategoryRepository;
 import ua.pp.fairwind.internalDBSystem.services.repository.InfoTypeRepository;
 import ua.pp.fairwind.internalDBSystem.services.repository.UserRepository;
@@ -41,6 +43,8 @@ public class InfoTypeController {
     private CategoryRepository categoryservice;
     @Autowired
     private InfoTypeRepository infoservice;
+    @Autowired
+    private JournalService journal;
 
     @Secured({"ROLE_GROUP_INF_EDIT", "ROLE_SUPER_INF_EDIT","ROLE_MAIN_INF_EDIT"})
     @RequestMapping(value = "/", method = RequestMethod.GET)
@@ -108,6 +112,7 @@ public class InfoTypeController {
                 }
             }
             infoservice.save(infotype);
+            journal.log(ProgramOperationJornal.Operation.CREATE, "INFO_TYPE", " NEW:" + infotype.getTypeName() + " 1CKEY_NEW:" + infotype.getKey1c());
             jsonJtableResponse = new JSTableExpenseResp<>(infotype);
         } catch (Exception e) {
             jsonJtableResponse = new JSTableExpenseResp<>(e.getMessage());
@@ -141,6 +146,7 @@ public class InfoTypeController {
                         }
                     }
                     infoservice.save(infoinDB);
+                    journal.log(ProgramOperationJornal.Operation.UPDATE, "INFO_TYPE", "OLD:" + infoinDB.getTypeName() + " NEW:" + infotype.getTypeName() + " 1CKEY_NEW:" + infotype.getKey1c() + " OLD:" + infoinDB.getKey1c());
                     jsonJtableResponse = new JSTableExpenseResp<>(infoinDB);
                 }
             }else {
@@ -159,8 +165,13 @@ public class InfoTypeController {
     public JSTableExpenseResp<InfoType>  delete(@ModelAttribute InfoType infoType, BindingResult result) {
         JSTableExpenseResp<InfoType>  jsonJtableResponse;
         try {
+            if(infoservice.getChildRecordCount(infoType.getTypeId())==0) {
             infoservice.delete(infoType.getTypeId());
+                journal.log(ProgramOperationJornal.Operation.DELETE, "INFO_TYPE", "ID="+infoType.getTypeId());
             jsonJtableResponse = new JSTableExpenseResp<>(JSTableExpenseResult.OK,"OK");
+            } else {
+                jsonJtableResponse = new JSTableExpenseResp<>("DELETE FORBIDDEN!");
+            }
         } catch (Exception e) {
             jsonJtableResponse = new JSTableExpenseResp<>(e.getMessage());
         }

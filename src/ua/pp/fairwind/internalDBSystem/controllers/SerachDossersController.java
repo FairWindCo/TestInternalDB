@@ -19,6 +19,7 @@ import ua.pp.fairwind.internalDBSystem.datamodel.proxy.DosserProxy;
 import ua.pp.fairwind.internalDBSystem.dateTable.FormSort;
 import ua.pp.fairwind.internalDBSystem.dateTable.JSTableExpenseListResp;
 import ua.pp.fairwind.internalDBSystem.security.UserDetailsAdapter;
+import ua.pp.fairwind.internalDBSystem.services.JournalService;
 import ua.pp.fairwind.internalDBSystem.services.repository.DossersRepository;
 
 import javax.persistence.EntityManager;
@@ -42,6 +43,8 @@ public class SerachDossersController {
     DossersRepository dosserService;
     @Autowired
     EntityManager em;
+    @Autowired
+    private JournalService journal;
 
     @RequestMapping(value = "/search", method = {RequestMethod.GET,RequestMethod.POST})
     @Transactional(readOnly = true)
@@ -77,14 +80,12 @@ public class SerachDossersController {
         boolean conf=user.hasRole("ROLE_CONFIDENTIAL");
         String fio=request.getParameter("searchname");
         String code=request.getParameter("searchcode");
-        String subdiv=request.getParameter("subdivisions")==null?request.getParameter("subdivisions[]"):request.getParameter("subdivisions");
-        Set<Long> subdivisionsIds=FormSort.getIdFromString(subdiv);
-        if(subdivisionsIds==null && (user.hasRole("ROLE_SUPER_EDIT") || user.hasRole("ROLE_SUPER_VIEW"))) subdivisionsIds=user.getTrustedSubvisionsId();
-        String cat=request.getParameter("categoryes")==null?request.getParameter("categoryes[]"):request.getParameter("categoryes");
-        Set<Long> categoryIds=FormSort.getIdFromString(cat);
-        String in=request.getParameter("infotypes")==null?request.getParameter("infotypes[]"):request.getParameter("infotypes");
-        Set<Long> infoTypeIds=FormSort.getIdFromString(in);
-        Long count=em.createQuery(createCountRequest(DosserType.ACTIVE,conf,subdivisionsIds,categoryIds,infoTypeIds,fio, code)).getSingleResult();
+        Set<Long> subdivisionsIds=FormSort.getIDsFromRequest(request,"subdivisions");
+        if (subdivisionsIds==null && (user.hasRole("ROLE_SUPER_EDIT") || user.hasRole("ROLE_SUPER_VIEW"))) subdivisionsIds=user.getTrustedSubvisionsId();
+        Set<Long> categoryIds=FormSort.getIDsFromRequest(request,"categoryes");
+        Set<Long> infoTypeIds=FormSort.getIDsFromRequest(request, "infotypes");
+
+        Long count = em.createQuery(createCountRequest(DosserType.ACTIVE, conf, subdivisionsIds, categoryIds, infoTypeIds, fio, code)).getSingleResult();
         if(count==null){
             count=0L;
         }

@@ -28,4 +28,9 @@ public interface SubdivisionRepository extends JpaRepository<Subdivision,Long> {
 
     @Query("Select new ua.pp.fairwind.internalDBSystem.dateTable.JSTableExpenseOptionsBean(cat.categoryId,cat.name) from Subdivision s join s.categories cat where s.subdivisionId = ?1")
     List<JSTableExpenseOptionsBean> getAllCategoryForSubdivisionOptions(Long subdivisionsId);
+
+    @Query("Select count(dos) from Dosser dos where dos.subdivision is not null and  dos.subdivision.subdivisionId=?1")
+    Long getChildRecordCount(long id);
+    @Query("Select count(usr) from User usr where ?1 in usr.grantedSubdivisions or (usr.mainsubdivisions is not null and  usr.mainsubdivisions.subdivisionId=?1)")
+    Long getChildUserCount(long id);
 }

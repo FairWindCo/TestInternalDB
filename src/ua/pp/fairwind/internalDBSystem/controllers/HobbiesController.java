@@ -10,8 +10,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import ua.pp.fairwind.internalDBSystem.datamodel.administrative.ProgramOperationJornal;
 import ua.pp.fairwind.internalDBSystem.datamodel.directories.Hobbies;
 import ua.pp.fairwind.internalDBSystem.dateTable.*;
+import ua.pp.fairwind.internalDBSystem.services.JournalService;
 import ua.pp.fairwind.internalDBSystem.services.repository.HobbiesRepository;
 
 import java.util.List;
@@ -28,6 +30,8 @@ public class HobbiesController {
 
     @Autowired
     private HobbiesRepository hobiesservice;
+    @Autowired
+    private JournalService journal;
 
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public String show(Model model) {
@@ -86,6 +90,7 @@ public class HobbiesController {
         }
         try {
             hobiesservice.save(hobbies);
+            journal.log(ProgramOperationJornal.Operation.CREATE, "HOBBY", "NAME:" + hobbies.getHobbieName() + " 1CKEY_NEW:" + hobbies.getKey1c());
             jsonJtableResponse = new JSTableExpenseResp<>(hobbies);
         } catch (Exception e) {
             jsonJtableResponse = new JSTableExpenseResp<>(e.getMessage());
@@ -105,6 +110,7 @@ public class HobbiesController {
         }
         try {
             hobiesservice.save(hobbies);
+            journal.log(ProgramOperationJornal.Operation.UPDATE, "HOBBY", "NAME:" + hobbies.getHobbieName() + " 1CKEY_NEW:" + hobbies.getKey1c());
             jsonJtableResponse = new JSTableExpenseResp<>(hobbies);
         } catch (Exception e) {
             jsonJtableResponse = new JSTableExpenseResp<>(e.getMessage());
@@ -119,9 +125,14 @@ public class HobbiesController {
     public JSTableExpenseResp<Hobbies>  delete(@RequestParam String filesTypeId) {
         JSTableExpenseResp<Hobbies>  jsonJtableResponse;
         try {
-
-            hobiesservice.delete(new Long(filesTypeId));
+            long id=new Long(filesTypeId);
+            if(hobiesservice.getChildRecordCount(id)==0) {
+            hobiesservice.delete(id);
+                journal.log(ProgramOperationJornal.Operation.DELETE, "HOBBY", filesTypeId);
             jsonJtableResponse = new JSTableExpenseResp<>(JSTableExpenseResult.OK,"OK");
+            } else {
+                jsonJtableResponse = new JSTableExpenseResp<>("DELETE FORBIDDEN!");
+            }
         } catch (Exception e) {
             jsonJtableResponse = new JSTableExpenseResp<>(e.getMessage());
         }

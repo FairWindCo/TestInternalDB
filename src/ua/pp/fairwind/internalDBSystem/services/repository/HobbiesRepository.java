@@ -22,4 +22,6 @@ public interface HobbiesRepository extends JpaRepository<Hobbies,Long> {
     List<Hobbies> findByHobbieNameContains(String hobbieName);
     @Query("Select new ua.pp.fairwind.internalDBSystem.dateTable.JSTableExpenseOptionsBean(h.hobbieId,h.hobbieName) from Hobbies h")
     List<JSTableExpenseOptionsBean> getAllHobbiesOptions();
+    @Query("Select count(person) from Person person where person.hobbie is not null and person.hobbie.hobbieId=?1")
+    Long getChildRecordCount(long id);
 }

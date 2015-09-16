@@ -48,4 +48,7 @@ public interface CategoryRepository extends JpaRepository<Category,Long> {
 
     @Query("Select new ua.pp.fairwind.internalDBSystem.dateTable.JSTableExpenseOptionsBean(c.categoryId,c.name) from Category c join c.subdivision sub where sub.subdivisionId IN  ?1 ")
     Set<JSTableExpenseOptionsBean> getCategoryForSubdivisions(Set<Long> sunbdivisionsIDS);
+
+    @Query("Select count(dos) from Dosser dos where dos.category is not null and dos.category.categoryId=?1")
+    Long getChildRecordCount(long id);
 }

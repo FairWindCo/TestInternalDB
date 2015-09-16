@@ -10,8 +10,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import ua.pp.fairwind.internalDBSystem.datamodel.administrative.ProgramOperationJornal;
 import ua.pp.fairwind.internalDBSystem.datamodel.directories.FilesType;
 import ua.pp.fairwind.internalDBSystem.dateTable.*;
+import ua.pp.fairwind.internalDBSystem.services.JournalService;
 import ua.pp.fairwind.internalDBSystem.services.repository.FileTypeRepository;
 
 import java.util.ArrayList;
@@ -29,6 +31,8 @@ public class FileTypeController {
 
     @Autowired
     private FileTypeRepository filetypeservice;
+    @Autowired
+    private JournalService journal;
 
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public String show(Model model) {
@@ -88,6 +92,7 @@ public class FileTypeController {
         }
         try {
             filetypeservice.save(filetype);
+            journal.log(ProgramOperationJornal.Operation.CREATE, "FILE_TYPE", "NAME:" + filetype.getFilesTypeName() + " 1CKEY_NEW:" + filetype.getKey1c());
             jsonJtableResponse = new JSTableExpenseResp<>(filetype);
         } catch (Exception e) {
             jsonJtableResponse = new JSTableExpenseResp<>(e.getMessage());
@@ -107,6 +112,7 @@ public class FileTypeController {
         }
         try {
             filetypeservice.save(filetype);
+            journal.log(ProgramOperationJornal.Operation.UPDATE, "FILE_TYPE", "NAME:" + filetype.getFilesTypeName() + " 1CKEY_NEW:" + filetype.getKey1c());
             jsonJtableResponse = new JSTableExpenseResp<>(filetype);
         } catch (Exception e) {
             jsonJtableResponse = new JSTableExpenseResp<>(e.getMessage());
@@ -121,9 +127,14 @@ public class FileTypeController {
     public JSTableExpenseResp<FilesType>  delete(@RequestParam String filesTypeId) {
         JSTableExpenseResp<FilesType>  jsonJtableResponse;
         try {
-
-            filetypeservice.delete(new Long(filesTypeId));
+            long id=new Long(filesTypeId);
+            if(filetypeservice.getChildRecordCount(id)==0) {
+            filetypeservice.delete(id);
+                journal.log(ProgramOperationJornal.Operation.DELETE, "FILE_TYPE", filesTypeId);
             jsonJtableResponse = new JSTableExpenseResp<>(JSTableExpenseResult.OK,"OK");
+            } else {
+                jsonJtableResponse = new JSTableExpenseResp<>("DELETE FORBIDDEN!");
+            }
         } catch (Exception e) {
             jsonJtableResponse = new JSTableExpenseResp<>(e.getMessage());
         }

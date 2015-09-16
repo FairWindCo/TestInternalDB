@@ -10,8 +10,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import ua.pp.fairwind.internalDBSystem.datamodel.administrative.ProgramOperationJornal;
 import ua.pp.fairwind.internalDBSystem.datamodel.directories.Activities;
 import ua.pp.fairwind.internalDBSystem.dateTable.*;
+import ua.pp.fairwind.internalDBSystem.services.JournalService;
 import ua.pp.fairwind.internalDBSystem.services.repository.ActivitiesRepository;
 
 import java.util.List;
@@ -28,6 +30,8 @@ public class ActivitiesController {
 
     @Autowired
     private ActivitiesRepository activitiesservice;
+    @Autowired
+    private JournalService journal;
 
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public String show(Model model) {
@@ -86,6 +90,7 @@ public class ActivitiesController {
         }
         try {
             activitiesservice.save(activities);
+            journal.log(ProgramOperationJornal.Operation.CREATE, "Activities", activities.getActivitiesTypeName());
             jsonJtableResponse = new JSTableExpenseResp<>(activities);
         } catch (Exception e) {
             jsonJtableResponse = new JSTableExpenseResp<>(e.getMessage());
@@ -105,6 +110,7 @@ public class ActivitiesController {
         }
         try {
             activitiesservice.save(activities);
+            journal.log(ProgramOperationJornal.Operation.UPDATE, "Activities", activities.getActivitiesTypeName());
             jsonJtableResponse = new JSTableExpenseResp<>(activities);
         } catch (Exception e) {
             jsonJtableResponse = new JSTableExpenseResp<>(e.getMessage());
@@ -119,9 +125,14 @@ public class ActivitiesController {
     public JSTableExpenseResp<Activities>  delete(@RequestParam String filesTypeId) {
         JSTableExpenseResp<Activities>  jsonJtableResponse;
         try {
-
-            activitiesservice.delete(new Long(filesTypeId));
-            jsonJtableResponse = new JSTableExpenseResp<>(JSTableExpenseResult.OK,"OK");
+            long id=new Long(filesTypeId);
+            if(activitiesservice.getChildRecordCount(id)==0) {
+                activitiesservice.delete(id);
+                journal.log(ProgramOperationJornal.Operation.DELETE, "Activities", filesTypeId);
+                jsonJtableResponse = new JSTableExpenseResp<>(JSTableExpenseResult.OK, "OK");
+            } else {
+                jsonJtableResponse = new JSTableExpenseResp<>("DELETE FORBIDDEN!");
+            }
         } catch (Exception e) {
             jsonJtableResponse = new JSTableExpenseResp<>(e.getMessage());
         }

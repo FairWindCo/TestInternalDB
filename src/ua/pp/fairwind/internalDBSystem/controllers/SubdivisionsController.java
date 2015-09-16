@@ -13,10 +13,12 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import ua.pp.fairwind.internalDBSystem.datamodel.administrative.ProgramOperationJornal;
 import ua.pp.fairwind.internalDBSystem.datamodel.administrative.Subdivision;
 import ua.pp.fairwind.internalDBSystem.datamodel.directories.Activities;
 import ua.pp.fairwind.internalDBSystem.dateTable.*;
 import ua.pp.fairwind.internalDBSystem.security.UserDetailsAdapter;
+import ua.pp.fairwind.internalDBSystem.services.JournalService;
 import ua.pp.fairwind.internalDBSystem.services.repository.SubdivisionRepository;
 
 import java.util.List;
@@ -33,6 +35,8 @@ public class SubdivisionsController {
 
     @Autowired
     private SubdivisionRepository subdivisionsservice;
+    @Autowired
+    private JournalService journal;
 
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public String show(Model model) {
@@ -91,6 +95,7 @@ public class SubdivisionsController {
         }
         try {
             subdivisionsservice.save(activities);
+            journal.log(ProgramOperationJornal.Operation.CREATE, "SUBDIVISION", activities.getName());
             jsonJtableResponse = new JSTableExpenseResp<>(activities);
         } catch (Exception e) {
             jsonJtableResponse = new JSTableExpenseResp<>(e.getMessage());
@@ -114,6 +119,7 @@ public class SubdivisionsController {
                 subdivisionDB.setName(subdivision.getName());
                 subdivisionDB.setKey1c(subdivision.getKey1c());
                 subdivisionsservice.save(subdivisionDB);
+                journal.log(ProgramOperationJornal.Operation.UPDATE, "SUBDIVISION", "OLD:" + subdivisionDB.getName() + " NEW:" + subdivision.getName() + " 1CKEY_NEW:" + subdivision.getKey1c() + " OLD:" + subdivisionDB.getKey1c());
                 jsonJtableResponse = new JSTableExpenseResp<>(subdivision);
             } else {
                 jsonJtableResponse = new JSTableExpenseResp<>("Subdivision VAS MODIFIED OR DELETE IN ANOTHER TRANSACTION!");
@@ -131,9 +137,14 @@ public class SubdivisionsController {
     public JSTableExpenseResp<Subdivision>  delete(@RequestParam String subdivisionId) {
         JSTableExpenseResp<Subdivision>  jsonJtableResponse;
         try {
-
-            subdivisionsservice.delete(new Long(subdivisionId));
-            jsonJtableResponse = new JSTableExpenseResp<>(JSTableExpenseResult.OK,"OK");
+            long id=new Long(subdivisionId);
+            if(subdivisionsservice.getChildRecordCount(id)==0 && subdivisionsservice.getChildUserCount(id)==0) {
+                subdivisionsservice.delete(id);
+                journal.log(ProgramOperationJornal.Operation.DELETE, "SUBDIVISION", subdivisionId);
+                jsonJtableResponse = new JSTableExpenseResp<>(JSTableExpenseResult.OK, "OK");
+            }else{
+                jsonJtableResponse = new JSTableExpenseResp<>("DELETE FORBIDDEN!");
+            }
         } catch (Exception e) {
             jsonJtableResponse = new JSTableExpenseResp<>(e.getMessage());
         }

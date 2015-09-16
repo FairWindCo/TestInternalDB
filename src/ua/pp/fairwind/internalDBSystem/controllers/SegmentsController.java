@@ -10,8 +10,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import ua.pp.fairwind.internalDBSystem.datamodel.administrative.ProgramOperationJornal;
 import ua.pp.fairwind.internalDBSystem.datamodel.directories.Segments;
 import ua.pp.fairwind.internalDBSystem.dateTable.*;
+import ua.pp.fairwind.internalDBSystem.services.JournalService;
 import ua.pp.fairwind.internalDBSystem.services.repository.SegmentsRepository;
 
 import java.util.List;
@@ -28,6 +30,8 @@ public class SegmentsController {
 
     @Autowired
     private SegmentsRepository segmentsservice;
+    @Autowired
+    private JournalService journal;
 
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public String show(Model model) {
@@ -86,6 +90,7 @@ public class SegmentsController {
         }
         try {
             segmentsservice.save(segments);
+            journal.log(ProgramOperationJornal.Operation.CREATE, "SEGMENTS", "NAME:" + segments.getName() + " 1CKEY_NEW:" + segments.getKey1c());
             jsonJtableResponse = new JSTableExpenseResp<>(segments);
         } catch (Exception e) {
             jsonJtableResponse = new JSTableExpenseResp<>(e.getMessage());
@@ -105,6 +110,7 @@ public class SegmentsController {
         }
         try {
             segmentsservice.save(segments);
+            journal.log(ProgramOperationJornal.Operation.UPDATE, "SEGMENTS", "NAME:" + segments.getName() + " 1CKEY_NEW:" + segments.getKey1c());
             jsonJtableResponse = new JSTableExpenseResp<>(segments);
         } catch (Exception e) {
             jsonJtableResponse = new JSTableExpenseResp<>(e.getMessage());
@@ -119,9 +125,14 @@ public class SegmentsController {
     public JSTableExpenseResp<Segments>  delete(@RequestParam String filesTypeId) {
         JSTableExpenseResp<Segments>  jsonJtableResponse;
         try {
-
-            segmentsservice.delete(new Long(filesTypeId));
+            long id=new Long(filesTypeId);
+            if(segmentsservice.getChildRecordCount(id)==0) {
+                segmentsservice.delete(id);
+                journal.log(ProgramOperationJornal.Operation.DELETE, "SEGMENTS", filesTypeId);
             jsonJtableResponse = new JSTableExpenseResp<>(JSTableExpenseResult.OK,"OK");
+            } else {
+                jsonJtableResponse = new JSTableExpenseResp<>("DELETE FORBIDDEN!");
+            }
         } catch (Exception e) {
             jsonJtableResponse = new JSTableExpenseResp<>(e.getMessage());
         }

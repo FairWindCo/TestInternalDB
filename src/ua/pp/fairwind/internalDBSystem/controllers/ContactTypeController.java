@@ -10,9 +10,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import ua.pp.fairwind.internalDBSystem.datamodel.administrative.ProgramOperationJornal;
 import ua.pp.fairwind.internalDBSystem.datamodel.directories.ContactType;
 import ua.pp.fairwind.internalDBSystem.datamodel.directories.Hobbies;
 import ua.pp.fairwind.internalDBSystem.dateTable.*;
+import ua.pp.fairwind.internalDBSystem.services.JournalService;
 import ua.pp.fairwind.internalDBSystem.services.repository.ContactTypeRepository;
 
 import java.util.List;
@@ -29,6 +31,8 @@ public class ContactTypeController {
 
     @Autowired
     private ContactTypeRepository contacttypeservice;
+    @Autowired
+    private JournalService journal;
 
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public String show(Model model) {
@@ -86,6 +90,7 @@ public class ContactTypeController {
             return new JSTableExpenseResp<>("Form invalid");
         }
         try {
+            journal.log(ProgramOperationJornal.Operation.CREATE, "CONTACT_TYPE", "NEW:" + contactType.getCobtactTypeName() + " 1CKEY_NEW:" + contactType.getKey1c());
             contacttypeservice.save(contactType);
             jsonJtableResponse = new JSTableExpenseResp<>(contactType);
         } catch (Exception e) {
@@ -106,6 +111,7 @@ public class ContactTypeController {
         }
         try {
             contacttypeservice.save(contactType);
+            journal.log(ProgramOperationJornal.Operation.UPDATE, "CONTACT_TYPE", "NEW:" + contactType.getCobtactTypeName() + " 1CKEY_NEW:" + contactType.getKey1c());
             jsonJtableResponse = new JSTableExpenseResp<>(contactType);
         } catch (Exception e) {
             jsonJtableResponse = new JSTableExpenseResp<>(e.getMessage());
@@ -120,9 +126,14 @@ public class ContactTypeController {
     public JSTableExpenseResp<ContactType>  delete(@RequestParam String filesTypeId) {
         JSTableExpenseResp<ContactType>  jsonJtableResponse;
         try {
-
-            contacttypeservice.delete(new Long(filesTypeId));
-            jsonJtableResponse = new JSTableExpenseResp<>(JSTableExpenseResult.OK,"OK");
+            long id=new Long(filesTypeId);
+            if(contacttypeservice.getChildRecordCount(id)==0) {
+                contacttypeservice.delete(id);
+                journal.log(ProgramOperationJornal.Operation.DELETE, "CONTACT_TYPE", "ID:" + id);
+                jsonJtableResponse = new JSTableExpenseResp<>(JSTableExpenseResult.OK, "OK");
+            } else {
+                jsonJtableResponse = new JSTableExpenseResp<>("DELETE FORBIDDEN!");
+            }
         } catch (Exception e) {
             jsonJtableResponse = new JSTableExpenseResp<>(e.getMessage());
         }

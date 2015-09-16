@@ -11,11 +11,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import ua.pp.fairwind.internalDBSystem.datamodel.*;
+import ua.pp.fairwind.internalDBSystem.datamodel.administrative.ProgramOperationJornal;
 import ua.pp.fairwind.internalDBSystem.datamodel.directories.*;
 import ua.pp.fairwind.internalDBSystem.dateTable.FormSort;
 import ua.pp.fairwind.internalDBSystem.dateTable.JSTableExpenseListResp;
 import ua.pp.fairwind.internalDBSystem.dateTable.JSTableExpenseResp;
 import ua.pp.fairwind.internalDBSystem.dateTable.JSTableExpenseResult;
+import ua.pp.fairwind.internalDBSystem.services.JournalService;
 import ua.pp.fairwind.internalDBSystem.services.repository.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -52,6 +54,8 @@ public class AdditionalInfoController {
     FileRepository fileService;
     @Autowired
     FileTypeRepository filyTypeService;
+    @Autowired
+    private JournalService journal;
 
     @Secured({"ROLE_CLIENT_VIEW","ROLE_PERSONAL_VIEW"})
     @RequestMapping(value = "/view", method = {RequestMethod.POST,RequestMethod.GET})
@@ -59,6 +63,7 @@ public class AdditionalInfoController {
         if(personID!=null) {
             Person person=personService.findOne(personID);
             if(person!=null){
+                journal.log(ProgramOperationJornal.Operation.SELECT, "PERSON", " FIO:" + person.getFio() + " CODE:" + person.getCode()+" ID:"+person.getPersonId());
                 model.addAttribute("person",person);
                 return "addtitional_view";
             }
@@ -73,6 +78,7 @@ public class AdditionalInfoController {
             Person person=personService.findOne(personID);
             if(person!=null){
                 model.addAttribute("person",person);
+                journal.log(ProgramOperationJornal.Operation.SELECT, "PERSON", " FIO:" + person.getFio() + " CODE:" + person.getCode() + " ID:" + person.getPersonId());
                 return "addtitional_edit";
             }
         }
@@ -163,6 +169,7 @@ public class AdditionalInfoController {
                 ContactType cType=contactTypeService.findOne(contactTypeId);
                 news.setContactType(cType);
                 contactService.save(news);
+                journal.log(ProgramOperationJornal.Operation.CREATE, "CONTACT FOR", " FIO:" + person.getFio() + " CODE:" + person.getCode() + " ID:" + person.getPersonId()+" CONTACT:"+news.getContactinfo());
                 try {
                     person.getContacts().add(news);
                     personService.save(person);
@@ -195,6 +202,7 @@ public class AdditionalInfoController {
                                 person.getContacts().remove(news);
                                 contactService.delete(news);
                                 personService.save(person);
+                                journal.log(ProgramOperationJornal.Operation.DELETE, "CONTACT FOR", " FIO:" + person.getFio() + " CODE:" + person.getCode() + " ID:" + person.getPersonId() + " CONTACT:" + news.getContactinfo());
                                 jsonJtableResponse = new JSTableExpenseResp<>(JSTableExpenseResult.OK,"OK");
                             } else {
                                 jsonJtableResponse = new JSTableExpenseResp<>("NO CONTACT  ID=" + contactId+" IN PERSOND ID="+personId+" FOUND!");
@@ -230,6 +238,7 @@ public class AdditionalInfoController {
                             ContactType cType=contactTypeService.findOne(contactTypeId);
                             news.setContactType(cType);
                             contactService.save(news);
+                            journal.log(ProgramOperationJornal.Operation.UPDATE, "CONTACT FOR", " FIO:" + person.getFio() + " CODE:" + person.getCode() + " ID:" + person.getPersonId() + " CONTACT:" + news.getContactinfo());
                             jsonJtableResponse = new JSTableExpenseResp<>(JSTableExpenseResult.OK,"OK");
                         } else {
                             jsonJtableResponse = new JSTableExpenseResp<>("NO CONTACT  ID=" + contactId+" IN PERSOND ID="+personId+" FOUND!");
@@ -278,6 +287,7 @@ public class AdditionalInfoController {
                         fileService.saveAndFlush(newfile);
                         person.getFiles().add(newfile);
                         personService.save(person);
+                        journal.log(ProgramOperationJornal.Operation.CREATE, "FILE FOR", " FIO:" + person.getFio() + " CODE:" + person.getCode() + " ID:" + person.getPersonId() + " FILE:" + newfile.getFileOriginalName());
                         jsonJtableResponse = new JSTableExpenseResp<>(newfile);
                     } else {
                         jsonJtableResponse = new JSTableExpenseResp<>("EMPTY FILE!!!");
@@ -309,6 +319,7 @@ public class AdditionalInfoController {
                             person.getContacts().remove(file);
                             fileService.delete(file);
                             personService.save(person);
+                            journal.log(ProgramOperationJornal.Operation.DELETE, "FILE FOR", " FIO:" + person.getFio() + " CODE:" + person.getCode() + " ID:" + person.getPersonId() + " FILE:" + file.getFileOriginalName());
                             jsonJtableResponse = new JSTableExpenseResp<>(JSTableExpenseResult.OK,"OK");
                         } else {
                             jsonJtableResponse = new JSTableExpenseResp<>("NO FILE  ID=" + fileId+" IN PERSOND ID="+personId+" FOUND!");
@@ -398,6 +409,7 @@ public class AdditionalInfoController {
                 additionalService.save(additional);
                 person.setAdditionalInfo(additional);
                 personService.save(person);
+                journal.log(ProgramOperationJornal.Operation.UPDATE, "PERSON ADDITIONAL INFO", " FIO:" + person.getFio() + " CODE:" + person.getCode() + " ID:" + person.getPersonId());
                 model.addAttribute("person",person);
                 return "addtitional_view";
             }
@@ -426,6 +438,7 @@ public class AdditionalInfoController {
                         relationsDegreeService.save(rd);
                         additionalService.save(info);
                         personService.save(person);
+                        journal.log(ProgramOperationJornal.Operation.CREATE, "RELATION FOR", " FIO:" + person.getFio() + " CODE:" + person.getCode() + " ID:" + person.getPersonId());
                     }
                     return new JSTableExpenseResp<>(rd);
                 }catch (Exception e){
@@ -455,6 +468,7 @@ public class AdditionalInfoController {
                     rd.setPerson(ps);
                     rd.setRelatives(rl);
                     relationsDegreeService.save(rd);
+                        journal.log(ProgramOperationJornal.Operation.UPDATE, "RELATION FOR", " FIO:" + ps.getFio() + " CODE:" + ps.getCode() + " ID:" + ps.getPersonId());
                     return new JSTableExpenseResp<>(rd);
                     } else {
                         jsonJtableResponse = new JSTableExpenseResp<>("NO RELATION FOUND ID="+ id);
@@ -485,6 +499,7 @@ public class AdditionalInfoController {
                                 relationsDegreeService.delete(rd);
                                 additionalService.save(info);
                                 personService.save(person);
+                                journal.log(ProgramOperationJornal.Operation.DELETE, "RELATION FOR", " FIO:" + person.getFio() + " CODE:" + person.getCode() + " ID:" + person.getPersonId());
                             }
                         }
                     }

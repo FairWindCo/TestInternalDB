@@ -45,4 +45,7 @@ public interface InfoTypeRepository extends JpaRepository<InfoType,Long> {
     @Query("Select new ua.pp.fairwind.internalDBSystem.dateTable.JSTableExpenseOptionsBean(inf.typeId,inf.typeName) from InfoType inf join inf.category cat join cat.subdivision sub where sub.subdivisionId IN  ?1 ")
     Set<JSTableExpenseOptionsBean> getInfoForCategorySubdiv(Set<Long> subdivsIDS);
 
+    @Query("Select count(dos) from Dosser dos where dos.infotype is not null and dos.infotype.typeId=?1")
+    Long getChildRecordCount(long id);
+
 }

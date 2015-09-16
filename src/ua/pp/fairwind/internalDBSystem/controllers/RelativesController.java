@@ -10,9 +10,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import ua.pp.fairwind.internalDBSystem.datamodel.administrative.ProgramOperationJornal;
 import ua.pp.fairwind.internalDBSystem.datamodel.directories.Hobbies;
 import ua.pp.fairwind.internalDBSystem.datamodel.directories.Relatives;
 import ua.pp.fairwind.internalDBSystem.dateTable.*;
+import ua.pp.fairwind.internalDBSystem.services.JournalService;
 import ua.pp.fairwind.internalDBSystem.services.repository.RelativesRepository;
 
 import java.util.List;
@@ -29,6 +31,8 @@ public class RelativesController {
 
     @Autowired
     private RelativesRepository relativesservice;
+    @Autowired
+    private JournalService journal;
 
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public String show(Model model) {
@@ -87,6 +91,7 @@ public class RelativesController {
         }
         try {
             relativesservice.save(hobbies);
+            journal.log(ProgramOperationJornal.Operation.CREATE, "RELATIVES", "NAME:" + hobbies.getName() + " 1CKEY_NEW:" + hobbies.getKey1c());
             jsonJtableResponse = new JSTableExpenseResp<>(hobbies);
         } catch (Exception e) {
             jsonJtableResponse = new JSTableExpenseResp<>(e.getMessage());
@@ -106,6 +111,7 @@ public class RelativesController {
         }
         try {
             relativesservice.save(hobbies);
+            journal.log(ProgramOperationJornal.Operation.UPDATE, "RELATIVES", "NAME:" + hobbies.getName() + " 1CKEY_NEW:" + hobbies.getKey1c());
             jsonJtableResponse = new JSTableExpenseResp<>(hobbies);
         } catch (Exception e) {
             jsonJtableResponse = new JSTableExpenseResp<>(e.getMessage());
@@ -120,8 +126,9 @@ public class RelativesController {
     public JSTableExpenseResp<Relatives>  delete(@RequestParam String filesTypeId) {
         JSTableExpenseResp<Relatives>  jsonJtableResponse;
         try {
-
-            relativesservice.delete(new Long(filesTypeId));
+            long id=new Long(filesTypeId);
+            relativesservice.delete(id);
+            journal.log(ProgramOperationJornal.Operation.DELETE, "RELATIVES", filesTypeId);
             jsonJtableResponse = new JSTableExpenseResp<>(JSTableExpenseResult.OK,"OK");
         } catch (Exception e) {
             jsonJtableResponse = new JSTableExpenseResp<>(e.getMessage());

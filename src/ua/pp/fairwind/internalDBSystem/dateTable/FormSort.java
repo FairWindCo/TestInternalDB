@@ -2,6 +2,7 @@ package ua.pp.fairwind.internalDBSystem.dateTable;
 
 import org.springframework.data.domain.Sort;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
@@ -95,6 +96,53 @@ public class FormSort {
             return null;
         }
     }
+
+    public static Set<Long> getIDsFromRequest(HttpServletRequest request,String paramName){
+        if(request==null || paramName==null) return null;
+        Set<Long> set=null;
+        String idsString=request.getParameter(paramName);
+        if(idsString!=null){
+            set=getIdFromString(idsString);
+        }
+        if(set==null) {
+            String[] values = request.getParameterValues(paramName);
+            if (values != null && values.length > 0) {
+                set = new HashSet<>();
+                for (String id : values) {
+                    try {
+                        Long val = new Long(id);
+                        set.add(val);
+                    } catch (NumberFormatException e) {
+                        //do nothing
+                    }
+                }
+                if (set.size() == 0) set = null;
+            }
+        }
+        if(set==null) {
+            String[] values = request.getParameterValues(paramName+"[]");
+            if (values != null && values.length > 0) {
+                set = new HashSet<>();
+                for (String id : values) {
+                    try {
+                        Long val = new Long(id);
+                        set.add(val);
+                    } catch (NumberFormatException e) {
+                        //do nothing
+                    }
+                }
+                if (set.size() == 0) set = null;
+            }
+        }
+        if(set==null) {
+            idsString=request.getParameter(paramName+"[]");
+            if(idsString!=null){
+                set=getIdFromString(idsString);
+            }
+        }
+        return set;
+    }
+
 
     public static Set<Long> getIdFromString(String s){
         if(s==null || s.length()==0)return null;

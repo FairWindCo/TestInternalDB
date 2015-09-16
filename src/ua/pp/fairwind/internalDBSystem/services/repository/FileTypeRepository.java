@@ -21,4 +21,6 @@ public interface FileTypeRepository extends JpaRepository<FilesType,Long> {
     List<FilesType> findByFilesTypeNameContains(String filesTypeName);
     @Query("Select new ua.pp.fairwind.internalDBSystem.dateTable.JSTableExpenseOptionsBean(ft.filesTypeId,ft.filesTypeName) from FilesType ft")
     List<JSTableExpenseOptionsBean> getAllFileTypeOptions();
+    @Query("Select count(file) from Files file where file.filesType is not null and  file.filesType.filesTypeId=?1")
+    Long getChildRecordCount(long id);
 }
