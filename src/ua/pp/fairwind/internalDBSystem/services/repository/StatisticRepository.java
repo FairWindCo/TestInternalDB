@@ -16,6 +16,15 @@ import java.util.List;
 public interface StatisticRepository extends JpaRepository<ProgramImportStatistics,Long> {
     Page<ProgramImportStatistics> findByImportDateTimeBetween(Date start,Date end,Pageable pager);
 
+    /**
+     * select count(DOSSIERS.DOSSIER_ID) as value,
+     CATEGORIES.CATEGORY_NAME as label
+     from DOSSIERS left join CATEGORIES on
+     DOSSIERS.category_CATEGORY_ID=
+     CATEGORIES.CATEGORY_ID
+     group by DOSSIERS.category_CATEGORY_ID
+     * @return
+     */
     @Query("select new ua.pp.fairwind.internalDBSystem.datamodel.proxy.DonutData(count(dos),dos.subdivision.name) from Dosser dos group by dos.subdivision")
     List<DonutData> getSubdivisionStatistic();
     @Query("select new ua.pp.fairwind.internalDBSystem.datamodel.proxy.DonutData(count(dos),dos.category.name) from Dosser dos group by dos.category")
