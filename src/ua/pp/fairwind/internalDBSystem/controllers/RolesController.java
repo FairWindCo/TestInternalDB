@@ -21,13 +21,11 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Created by Сергей on 21.07.2015.
+ * Created by пїЅпїЅпїЅпїЅпїЅпїЅ on 21.07.2015.
  */
 @Controller
 @RequestMapping("/roles")
 public class RolesController {
-    protected static Logger logger = Logger.getLogger("USER controller");
-
     @Autowired
     private RoleRepository roleservice;
 
@@ -36,9 +34,6 @@ public class RolesController {
     @RequestMapping(value = "/listoptions", method = RequestMethod.POST)
     @ResponseBody
     public JSTableOptionsResponse<Roles> getRoleOptions(Model model) {
-
-        logger.log(Level.INFO,"Received request to show role options");
-
         // Retrieve all persons by delegating the call to PersonService
 
         List<Roles> roles=roleservice.findAll();
@@ -54,9 +49,6 @@ public class RolesController {
     @RequestMapping(value = "/show", method = RequestMethod.GET)
     @ResponseBody
     public List<Roles> getRoles(Model model) {
-
-        logger.log(Level.INFO,"Received request to show role options");
-
         // Retrieve all persons by delegating the call to PersonService
 
         List<Roles> roles=roleservice.findAll();
@@ -66,9 +58,6 @@ public class RolesController {
     @RequestMapping(value = "/list", method = RequestMethod.POST)
     @ResponseBody
     public JSTableExpenseListResp<Roles> getAllFileTypesSortSearch(Model model,@RequestParam int jtStartIndex, @RequestParam int jtPageSize, @RequestParam(required = false) String jtSorting,@RequestParam(required = false) String searchname) {
-
-        logger.log(Level.INFO,"Received request to show "+jtPageSize+" users from"+jtStartIndex);
-
         // Retrieve all persons by delegating the call to PersonService
         Sort sort= FormSort.formSortFromSortDescription(jtSorting);
         PageRequest pager;
@@ -89,9 +78,6 @@ public class RolesController {
     @RequestMapping(value = "/lists", method = RequestMethod.POST)
     @ResponseBody
     public JSTableExpenseListResp<Roles> getAllFileTypesSort(Model model,@RequestParam int jtStartIndex, @RequestParam int jtPageSize, @RequestParam(required = false) String jtSorting) {
-
-        logger.log(Level.INFO,"Received request to show "+jtPageSize+" users from"+jtStartIndex);
-
         // Retrieve all persons by delegating the call to PersonService
         Sort sort= FormSort.formSortFromSortDescription(jtSorting);
         Page<Roles> page;

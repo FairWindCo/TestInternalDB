@@ -1,6 +1,7 @@
 package ua.pp.fairwind.internalDBSystem.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -25,6 +26,7 @@ import ua.pp.fairwind.internalDBSystem.services.repository.InfoTypeRepository;
 import ua.pp.fairwind.internalDBSystem.services.repository.UserRepository;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -35,8 +37,6 @@ import java.util.logging.Logger;
 @Controller
 @RequestMapping("/info")
 public class InfoTypeController {
-    protected static Logger logger = Logger.getLogger("USER controller");
-
     @Autowired
     private UserRepository userservice;
     @Autowired
@@ -45,6 +45,8 @@ public class InfoTypeController {
     private InfoTypeRepository infoservice;
     @Autowired
     private JournalService journal;
+    @Autowired
+    private MessageSource messageSource;
 
     @Secured({"ROLE_GROUP_INF_EDIT", "ROLE_SUPER_INF_EDIT","ROLE_MAIN_INF_EDIT"})
     @RequestMapping(value = "/", method = RequestMethod.GET)
@@ -63,9 +65,6 @@ public class InfoTypeController {
     @RequestMapping(value = "/listedit", method = RequestMethod.POST)
     @ResponseBody
     public JSTableExpenseListResp<InfoType> getAllFileTypesSortSearch(Model model,@RequestParam int jtStartIndex, @RequestParam int jtPageSize, @RequestParam(required = false) String jtSorting,@RequestParam(required = false) String searchname) {
-
-        logger.log(Level.INFO,"Received request to show "+jtPageSize+" users from"+jtStartIndex);
-
         // Retrieve all persons by delegating the call to PersonService
         Sort sort= FormSort.formSortFromSortDescription(jtSorting);
         PageRequest pager;
@@ -99,10 +98,10 @@ public class InfoTypeController {
     /*CRUD operation - Add*/
     @RequestMapping(value = "/add", method = RequestMethod.POST)
     @ResponseBody
-    public JSTableExpenseResp<InfoType> insert(@ModelAttribute InfoType infotype, BindingResult result,@RequestParam(value = "categoryId",required = false) Long categoryId) {
+    public JSTableExpenseResp<InfoType> insert(@ModelAttribute InfoType infotype, BindingResult result,@RequestParam(value = "categoryId",required = false) Long categoryId,Locale currentLocale) {
         JSTableExpenseResp jsonJtableResponse;
         if (result.hasErrors()) {
-            return new JSTableExpenseResp<InfoType>("Form invalid");
+            return new JSTableExpenseResp<>(messageSource.getMessage("label.forminvalid",null,"INVALIDE DATA FORM!", currentLocale));
         }
         try {
             if(categoryId!=null){
@@ -124,10 +123,10 @@ public class InfoTypeController {
     /*CRUD operation - Update */
     @RequestMapping(value = "/update", method = RequestMethod.POST)
     @ResponseBody
-    public JSTableExpenseResp<InfoType>  update(@ModelAttribute InfoType infotype, BindingResult result,@RequestParam(value = "categoryId",required = false) Long categoryId) {
+    public JSTableExpenseResp<InfoType>  update(@ModelAttribute InfoType infotype, BindingResult result,@RequestParam(value = "categoryId",required = false) Long categoryId,Locale currentLocale) {
         JSTableExpenseResp<InfoType>  jsonJtableResponse;
         if (result.hasErrors()) {
-            jsonJtableResponse = new JSTableExpenseResp<>("Form invalid:"+result.toString());
+            jsonJtableResponse = new JSTableExpenseResp<>(messageSource.getMessage("label.forminvalid",null,"INVALIDE DATA FORM!", currentLocale));
             return jsonJtableResponse;
         }
         try {

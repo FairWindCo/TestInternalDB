@@ -1,6 +1,7 @@
 package ua.pp.fairwind.internalDBSystem.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +25,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Created by Сергей on 02.09.2015.
@@ -56,6 +58,8 @@ public class AdditionalInfoController {
     FileTypeRepository filyTypeService;
     @Autowired
     private JournalService journal;
+    @Autowired
+    private MessageSource messageSource;
 
     @Secured({"ROLE_CLIENT_VIEW","ROLE_PERSONAL_VIEW"})
     @RequestMapping(value = "/view", method = {RequestMethod.POST,RequestMethod.GET})
@@ -89,7 +93,7 @@ public class AdditionalInfoController {
     @RequestMapping(value = "/contactsList", method = {RequestMethod.POST,RequestMethod.GET})
     @Transactional(readOnly = true)
     @ResponseBody
-    public JSTableExpenseListResp<Contact> contacts(@RequestParam Long personId){
+    public JSTableExpenseListResp<Contact> contacts(@RequestParam Long personId,Locale currentLocale){
         JSTableExpenseListResp<Contact>  jsonJtableResponse;
         if(personId!=null) {
             Person person=personService.findOne(personId);
@@ -101,10 +105,10 @@ public class AdditionalInfoController {
                     jsonJtableResponse = new JSTableExpenseListResp<>(contactList);
                 }
             } else {
-                jsonJtableResponse = new JSTableExpenseListResp<>("NO PERSON FOUND ID="+personId);
+                jsonJtableResponse =new JSTableExpenseListResp<>(messageSource.getMessage("label.noperson",new Object[]{personId},"NO PERSON FOUND ID={} !", currentLocale));
             }
         } else {
-            jsonJtableResponse = new JSTableExpenseListResp<>("NO PERSON FOUND ID="+personId);
+            jsonJtableResponse =new JSTableExpenseListResp<>(messageSource.getMessage("label.noperson",new Object[]{personId},"NO PERSON FOUND ID={} !", currentLocale));
         }
         return jsonJtableResponse;
     }
@@ -113,7 +117,7 @@ public class AdditionalInfoController {
     @Transactional(readOnly = true)
     @ResponseBody
     @RequestMapping(value = "/fileList", method = {RequestMethod.POST,RequestMethod.GET})
-    public JSTableExpenseListResp<Files> files(@RequestParam Long personId,ModelMap model){
+    public JSTableExpenseListResp<Files> files(@RequestParam Long personId,ModelMap model,Locale currentLocale){
         JSTableExpenseListResp<Files>  jsonJtableResponse;
         if(personId!=null) {
             Person person=personService.findOne(personId);
@@ -125,10 +129,10 @@ public class AdditionalInfoController {
                     jsonJtableResponse = new JSTableExpenseListResp<>(contactList);
                 }
             } else {
-                jsonJtableResponse = new JSTableExpenseListResp<>("NO PERSON FOUND ID="+personId);
+                jsonJtableResponse =new JSTableExpenseListResp<>(messageSource.getMessage("label.noperson",new Object[]{personId},"NO PERSON FOUND ID={} !", currentLocale));
             }
         } else {
-            jsonJtableResponse = new JSTableExpenseListResp<>("NO PERSON FOUND ID="+personId);
+            jsonJtableResponse =new JSTableExpenseListResp<>(messageSource.getMessage("label.noperson",new Object[]{personId},"NO PERSON FOUND ID={} !", currentLocale));
         }
         return jsonJtableResponse;
     }
@@ -136,7 +140,7 @@ public class AdditionalInfoController {
     @Transactional(readOnly = true)
     @ResponseBody
     @RequestMapping(value = "/relationList", method = {RequestMethod.POST,RequestMethod.GET})
-    public JSTableExpenseListResp<RelationDegrees> relations(@RequestParam Long personId){
+    public JSTableExpenseListResp<RelationDegrees> relations(@RequestParam Long personId,Locale currentLocale){
         JSTableExpenseListResp<RelationDegrees>  jsonJtableResponse;
         if(personId!=null) {
             Person person=personService.findOne(personId);
@@ -148,10 +152,10 @@ public class AdditionalInfoController {
                     jsonJtableResponse = new JSTableExpenseListResp<>(contactList);
                 }
             } else {
-                jsonJtableResponse = new JSTableExpenseListResp<>("NO PERSON FOUND ID="+personId);
+                jsonJtableResponse =new JSTableExpenseListResp<>(messageSource.getMessage("label.noperson",new Object[]{personId},"NO PERSON FOUND ID={} !", currentLocale));
             }
         } else {
-            jsonJtableResponse = new JSTableExpenseListResp<>("NO PERSON FOUND ID="+personId);
+            jsonJtableResponse =new JSTableExpenseListResp<>(messageSource.getMessage("label.noperson",new Object[]{personId},"NO PERSON FOUND ID={} !", currentLocale));
         }
         return jsonJtableResponse;
     }
@@ -159,7 +163,7 @@ public class AdditionalInfoController {
     @Transactional(readOnly = false)
     @ResponseBody
     @RequestMapping(value = "/addContact", method = {RequestMethod.POST,RequestMethod.GET})
-    public JSTableExpenseResp<Contact> addContact(@RequestParam Long personId,@RequestParam String contactinfo,@RequestParam Long contactTypeId){
+    public JSTableExpenseResp<Contact> addContact(@RequestParam Long personId,@RequestParam String contactinfo,@RequestParam Long contactTypeId,Locale currentLocale){
         JSTableExpenseResp<Contact>  jsonJtableResponse;
         if(personId!=null) {
             Person person=personService.findOne(personId);
@@ -178,10 +182,10 @@ public class AdditionalInfoController {
                     jsonJtableResponse = new JSTableExpenseResp<>(e.getMessage());
                 }
             } else {
-                jsonJtableResponse = new JSTableExpenseResp<>("NO PERSON FOUND ID="+personId);
+                jsonJtableResponse =new JSTableExpenseResp<>(messageSource.getMessage("label.noperson",new Object[]{personId},"NO PERSON FOUND ID={} !", currentLocale));
             }
         } else {
-            jsonJtableResponse = new JSTableExpenseResp<>("NO PERSON FOUND ID="+personId);
+            jsonJtableResponse =new JSTableExpenseResp<>(messageSource.getMessage("label.noperson",new Object[]{personId},"NO PERSON FOUND ID={} !", currentLocale));
         }
         return jsonJtableResponse;
     }
@@ -189,7 +193,7 @@ public class AdditionalInfoController {
     @Transactional(readOnly = false)
     @ResponseBody
     @RequestMapping(value = "/removeContact", method = {RequestMethod.POST,RequestMethod.GET})
-    public JSTableExpenseResp<Contact> removeContact(@RequestParam Long personId,@RequestParam Long contactId){
+    public JSTableExpenseResp<Contact> removeContact(@RequestParam Long personId,@RequestParam Long contactId,Locale currentLocale){
         JSTableExpenseResp<Contact>  jsonJtableResponse;
         if(personId!=null) {
             try {
@@ -205,19 +209,19 @@ public class AdditionalInfoController {
                                 journal.log(ProgramOperationJornal.Operation.DELETE, "CONTACT FOR", " FIO:" + person.getFio() + " CODE:" + person.getCode() + " ID:" + person.getPersonId() + " CONTACT:" + news.getContactinfo());
                                 jsonJtableResponse = new JSTableExpenseResp<>(JSTableExpenseResult.OK,"OK");
                             } else {
-                                jsonJtableResponse = new JSTableExpenseResp<>("NO CONTACT  ID=" + contactId+" IN PERSOND ID="+personId+" FOUND!");
+                                jsonJtableResponse = new JSTableExpenseResp<>(messageSource.getMessage("label.nopersoncontact",new Object[]{contactId,personId},"NO CONTACT FOUND ID={} IN PERSOND ID={}!", currentLocale));
                             }
                         } else {
-                            jsonJtableResponse = new JSTableExpenseResp<>("NO CONTACT FOUND ID=" + contactId);
+                            jsonJtableResponse =new JSTableExpenseResp<>(messageSource.getMessage("label.nocontact",new Object[]{personId},"NO CONTACT FOUND ID={} !", currentLocale));
                         }
                 } else {
-                    jsonJtableResponse = new JSTableExpenseResp<>("NO PERSON FOUND ID=" + personId);
+                    jsonJtableResponse =new JSTableExpenseResp<>(messageSource.getMessage("label.noperson",new Object[]{personId},"NO PERSON FOUND ID={} !", currentLocale));
                 }
             } catch (Exception e) {
                 jsonJtableResponse = new JSTableExpenseResp<>(e.getMessage());
             }
         } else {
-            jsonJtableResponse = new JSTableExpenseResp<>("NO PERSON FOUND ID="+personId);
+            jsonJtableResponse =new JSTableExpenseResp<>(messageSource.getMessage("label.noperson",new Object[]{personId},"NO PERSON FOUND ID={} !", currentLocale));
         }
         return jsonJtableResponse;
     }
@@ -225,7 +229,7 @@ public class AdditionalInfoController {
     @Transactional(readOnly = false)
     @ResponseBody
     @RequestMapping(value = "/updateContact", method = {RequestMethod.POST,RequestMethod.GET})
-    public JSTableExpenseResp<Contact> updateContact(@RequestParam Long personId,@RequestParam Long contactId,@RequestParam String contactinfo,@RequestParam Long contactTypeId){
+    public JSTableExpenseResp<Contact> updateContact(@RequestParam Long personId,@RequestParam Long contactId,@RequestParam String contactinfo,@RequestParam Long contactTypeId,Locale currentLocale){
         JSTableExpenseResp<Contact>  jsonJtableResponse;
         if(personId!=null) {
             try {
@@ -241,19 +245,19 @@ public class AdditionalInfoController {
                             journal.log(ProgramOperationJornal.Operation.UPDATE, "CONTACT FOR", " FIO:" + person.getFio() + " CODE:" + person.getCode() + " ID:" + person.getPersonId() + " CONTACT:" + news.getContactinfo());
                             jsonJtableResponse = new JSTableExpenseResp<>(JSTableExpenseResult.OK,"OK");
                         } else {
-                            jsonJtableResponse = new JSTableExpenseResp<>("NO CONTACT  ID=" + contactId+" IN PERSOND ID="+personId+" FOUND!");
+                            jsonJtableResponse = new JSTableExpenseResp<>(messageSource.getMessage("label.nopersoncontact",new Object[]{contactId,personId},"NO CONTACT FOUND ID={} IN PERSOND ID={}!", currentLocale));
                         }
                     } else {
-                        jsonJtableResponse = new JSTableExpenseResp<>("NO CONTACT FOUND ID=" + contactId);
+                        jsonJtableResponse =new JSTableExpenseResp<>(messageSource.getMessage("label.nocontact",new Object[]{personId},"NO CONTACT FOUND ID={} !", currentLocale));
                     }
                 } else {
-                    jsonJtableResponse = new JSTableExpenseResp<>("NO PERSON FOUND ID=" + personId);
+                    jsonJtableResponse =new JSTableExpenseResp<>(messageSource.getMessage("label.noperson",new Object[]{personId},"NO PERSON FOUND ID={} !", currentLocale));
                 }
             } catch (Exception e) {
                 jsonJtableResponse = new JSTableExpenseResp<>(e.getMessage());
             }
         } else {
-            jsonJtableResponse = new JSTableExpenseResp<>("NO PERSON FOUND ID="+personId);
+            jsonJtableResponse =new JSTableExpenseResp<>(messageSource.getMessage("label.noperson",new Object[]{personId},"NO PERSON FOUND ID={} !", currentLocale));
         }
         return jsonJtableResponse;
     }
@@ -262,7 +266,7 @@ public class AdditionalInfoController {
     @Transactional(readOnly = false)
     @ResponseBody
     @RequestMapping(value = "/addFile", method = {RequestMethod.POST,RequestMethod.GET})
-    public JSTableExpenseResp<Files> addFile(@RequestParam Long personId,@RequestParam(required = false) String fileNameComments,@RequestParam(required = false) Long filesTypeId,@RequestParam(value = "file",required = false) MultipartFile file) throws IOException {
+    public JSTableExpenseResp<Files> addFile(@RequestParam Long personId,@RequestParam(required = false) String fileNameComments,@RequestParam(required = false) Long filesTypeId,@RequestParam(value = "file",required = false) MultipartFile file,Locale currentLocale) throws IOException {
         JSTableExpenseResp<Files>  jsonJtableResponse;
         if(personId!=null) {
             Person person=personService.findOne(personId);
@@ -290,16 +294,16 @@ public class AdditionalInfoController {
                         journal.log(ProgramOperationJornal.Operation.CREATE, "FILE FOR", " FIO:" + person.getFio() + " CODE:" + person.getCode() + " ID:" + person.getPersonId() + " FILE:" + newfile.getFileOriginalName());
                         jsonJtableResponse = new JSTableExpenseResp<>(newfile);
                     } else {
-                        jsonJtableResponse = new JSTableExpenseResp<>("EMPTY FILE!!!");
+                        jsonJtableResponse =new JSTableExpenseResp<>(messageSource.getMessage("label.emptyfile",null,"EMPTY FILE!!!", currentLocale));
                     }
                 }catch (Exception e){
                     jsonJtableResponse = new JSTableExpenseResp<>(e.getMessage());
                 }
             } else {
-                jsonJtableResponse = new JSTableExpenseResp<>("NO PERSON FOUND ID="+personId);
+                jsonJtableResponse =new JSTableExpenseResp<>(messageSource.getMessage("label.noperson",new Object[]{personId},"NO PERSON FOUND ID={} !", currentLocale));
             }
         } else {
-            jsonJtableResponse = new JSTableExpenseResp<>("NO PERSON FOUND ID="+personId);
+            jsonJtableResponse =new JSTableExpenseResp<>(messageSource.getMessage("label.noperson",new Object[]{personId},"NO PERSON FOUND ID={} !", currentLocale));
         }
         return jsonJtableResponse;
     }
@@ -307,7 +311,7 @@ public class AdditionalInfoController {
     @Transactional(readOnly = false)
     @ResponseBody
     @RequestMapping(value = "/removeFile", method = {RequestMethod.POST,RequestMethod.GET})
-    public JSTableExpenseResp<Files> removeFile(@RequestParam Long personId,@RequestParam Long fileId){
+    public JSTableExpenseResp<Files> removeFile(@RequestParam Long personId,@RequestParam Long fileId,Locale currentLocale){
         JSTableExpenseResp<Files>  jsonJtableResponse;
         if(personId!=null) {
             try {
@@ -322,25 +326,25 @@ public class AdditionalInfoController {
                             journal.log(ProgramOperationJornal.Operation.DELETE, "FILE FOR", " FIO:" + person.getFio() + " CODE:" + person.getCode() + " ID:" + person.getPersonId() + " FILE:" + file.getFileOriginalName());
                             jsonJtableResponse = new JSTableExpenseResp<>(JSTableExpenseResult.OK,"OK");
                         } else {
-                            jsonJtableResponse = new JSTableExpenseResp<>("NO FILE  ID=" + fileId+" IN PERSOND ID="+personId+" FOUND!");
+                            jsonJtableResponse = new JSTableExpenseResp<>(messageSource.getMessage("label.nofileperson",new Object[]{fileId,personId},"NO FILE  ID={} IN PERSOND ID={}!", currentLocale));
                         }
                     } else {
-                        jsonJtableResponse = new JSTableExpenseResp<>("NO FILE FOUND ID=" + fileId);
+                        jsonJtableResponse =new JSTableExpenseResp<>(messageSource.getMessage("label.nofile",new Object[]{fileId},"NO FILE  ID={} !", currentLocale));
                     }
                 } else {
-                    jsonJtableResponse = new JSTableExpenseResp<>("NO PERSON FOUND ID=" + personId);
+                    jsonJtableResponse =new JSTableExpenseResp<>(messageSource.getMessage("label.noperson",new Object[]{personId},"NO PERSON FOUND ID={} !", currentLocale));
                 }
             } catch (Exception e) {
                 jsonJtableResponse = new JSTableExpenseResp<>(e.getMessage());
             }
         } else {
-            jsonJtableResponse = new JSTableExpenseResp<>("NO PERSON FOUND ID="+personId);
+            jsonJtableResponse =new JSTableExpenseResp<>(messageSource.getMessage("label.noperson",new Object[]{personId},"NO PERSON FOUND ID={} !", currentLocale));
         }
         return jsonJtableResponse;
     }
     @Secured({"ROLE_CLIENT_EDIT","ROLE_PERSONAL_EDIT"})
     @RequestMapping(value = "/save", method = {RequestMethod.POST})
-    public String doSave(HttpServletRequest request,ModelMap model,@RequestParam Long personId,@RequestParam(required = false) String fileNameComments,@RequestParam(required = false) Long filesTypeId,@RequestParam(value = "file",required = false) MultipartFile file,@RequestParam long person_version,@RequestParam(required = false) Long additional_version) throws IOException {
+    public String doSave(HttpServletRequest request,ModelMap model,@RequestParam Long personId,@RequestParam(required = false) String fileNameComments,@RequestParam(required = false) Long filesTypeId,@RequestParam(value = "file",required = false) MultipartFile file,@RequestParam long person_version,@RequestParam(required = false) Long additional_version,Locale currentLocale) throws IOException {
         if(personId!=null) {
             Person person = personService.findOne(personId);
             if (person != null) {
@@ -420,7 +424,7 @@ public class AdditionalInfoController {
     @Transactional(readOnly = false)
     @ResponseBody
     @RequestMapping(value = "/addRelation", method = {RequestMethod.POST})
-    public JSTableExpenseResp<RelationDegrees> addRelation(@RequestParam Long edit_personId,@RequestParam long relativiesId_primary_key,@RequestParam long personId_primary_key){
+    public JSTableExpenseResp<RelationDegrees> addRelation(@RequestParam Long edit_personId,@RequestParam long relativiesId_primary_key,@RequestParam long personId_primary_key,Locale currentLocale){
         JSTableExpenseResp<RelationDegrees>  jsonJtableResponse;
         if(edit_personId!=null) {
             Person person=personService.findOne(edit_personId);
@@ -445,10 +449,10 @@ public class AdditionalInfoController {
                     jsonJtableResponse = new JSTableExpenseResp<>(e.getMessage());
                 }
             } else {
-                jsonJtableResponse = new JSTableExpenseResp<>("NO PERSON FOUND ID="+edit_personId);
+                jsonJtableResponse =new JSTableExpenseResp<>(messageSource.getMessage("label.noperson",new Object[]{edit_personId},"NO PERSON FOUND ID={} !", currentLocale));
             }
         } else {
-            jsonJtableResponse = new JSTableExpenseResp<>("NO PERSON FOUND ID="+edit_personId);
+            jsonJtableResponse =new JSTableExpenseResp<>(messageSource.getMessage("label.noperson",new Object[]{edit_personId},"NO PERSON FOUND ID={} !", currentLocale));
         }
         return jsonJtableResponse;
     }
@@ -456,7 +460,7 @@ public class AdditionalInfoController {
     @Transactional(readOnly = false)
     @ResponseBody
     @RequestMapping(value = "/updateRelation", method = {RequestMethod.POST})
-    public JSTableExpenseResp<RelationDegrees> updateRelation(@RequestParam Long id,@RequestParam long relativiesId_primary_key,@RequestParam long personId_primary_key,@RequestParam(required = false) Long edit_personId){
+    public JSTableExpenseResp<RelationDegrees> updateRelation(@RequestParam Long id,@RequestParam long relativiesId_primary_key,@RequestParam long personId_primary_key,@RequestParam(required = false) Long edit_personId,Locale currentLocale){
         JSTableExpenseResp<RelationDegrees>  jsonJtableResponse;
         if(id !=null) {
                 try {
@@ -471,13 +475,13 @@ public class AdditionalInfoController {
                         journal.log(ProgramOperationJornal.Operation.UPDATE, "RELATION FOR", " FIO:" + ps.getFio() + " CODE:" + ps.getCode() + " ID:" + ps.getPersonId());
                     return new JSTableExpenseResp<>(rd);
                     } else {
-                        jsonJtableResponse = new JSTableExpenseResp<>("NO RELATION FOUND ID="+ id);
+                        jsonJtableResponse =new JSTableExpenseResp<>(messageSource.getMessage("label.norelationid",new Object[]{id},"NO RELATION FOUND ID={} !", currentLocale));
                     }
                 }catch (Exception e){
                     jsonJtableResponse = new JSTableExpenseResp<>(e.getMessage());
                 }
         } else {
-            jsonJtableResponse = new JSTableExpenseResp<>("NO RELATION");
+            jsonJtableResponse =new JSTableExpenseResp<>(messageSource.getMessage("label.norelation",null,"NO RELATION!", currentLocale));
         }
         return jsonJtableResponse;
     }
@@ -485,7 +489,7 @@ public class AdditionalInfoController {
     @Transactional(readOnly = false)
     @ResponseBody
     @RequestMapping(value = "/removeRelation", method = {RequestMethod.POST})
-    public JSTableExpenseResp<RelationDegrees> removeRelation(@RequestParam Long edit_personId,@RequestParam Long id){
+    public JSTableExpenseResp<RelationDegrees> removeRelation(@RequestParam Long edit_personId,@RequestParam Long id,Locale currentLocale){
         JSTableExpenseResp<RelationDegrees>  jsonJtableResponse;
         if(edit_personId!=null) {
             Person person=personService.findOne(edit_personId);
@@ -508,10 +512,11 @@ public class AdditionalInfoController {
                     jsonJtableResponse = new JSTableExpenseResp<>(e.getMessage());
                 }
             } else {
-                jsonJtableResponse = new JSTableExpenseResp<>("NO PERSON FOUND ID="+edit_personId);
+                jsonJtableResponse =new JSTableExpenseResp<>(messageSource.getMessage("label.noperson",new Object[]{edit_personId},"NO PERSON FOUND ID={} !", currentLocale));
             }
         } else {
-            jsonJtableResponse = new JSTableExpenseResp<>("NO PERSON FOUND ID="+edit_personId);
+            jsonJtableResponse =new JSTableExpenseResp<>(messageSource.getMessage("label.noperson",new Object[]{edit_personId},"NO PERSON FOUND ID={} !", currentLocale));
+
         }
         return jsonJtableResponse;
     }

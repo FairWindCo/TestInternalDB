@@ -16,6 +16,7 @@
     <%@include file="/WEB-INF/include/jquery_include.jsp" %>
     <!-- Bootstrap Core JavaScript -->
     <%@include file="/WEB-INF/include/bootstrup_include.jsp" %>
+<sec:authorize ifAnyGranted="ROLE_GROUP_INF_EDIT,ROLE_SUPER_INF_EDIT,ROLE_MAIN_INF_EDIT,ROLE_GROUP_INF_VIEW,ROLE_SUPER_INF_VIEW,ROLE_MAIN_INF_VIEW">
     <%-- JQueryUI --%>
     <%@include file="/WEB-INF/include/jquery_ui_include.jsp" %>
     <%-- JTable --%>
@@ -166,6 +167,7 @@
         margin-top: 0;
       }
     </style>
+  </sec:authorize>
     </head>
   <body>
   <div id="wrapper">
@@ -309,6 +311,7 @@
         <div class="col-lg-12">
           <h1 class="page-header">Dashboard</h1>
         </div>
+<sec:authorize ifAnyGranted="ROLE_GROUP_INF_EDIT,ROLE_SUPER_INF_EDIT,ROLE_MAIN_INF_EDIT,ROLE_GROUP_INF_VIEW,ROLE_SUPER_INF_VIEW,ROLE_MAIN_INF_VIEW">
         <div class="filtering">
           <form>
             <c:message code="label.clientstables.dosers.col_title.subdiv"/>:
@@ -328,6 +331,7 @@
           <div id="ExpenseTableContainer" style="width:99%;"></div>
         </div>
         <div id="view_image_dialog_main"></div>
+</sec:authorize>
       </div>
     </div>
   </div>

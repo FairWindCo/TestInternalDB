@@ -1,6 +1,7 @@
 package ua.pp.fairwind.internalDBSystem.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -22,6 +23,7 @@ import ua.pp.fairwind.internalDBSystem.services.repository.SubdivisionRepository
 import ua.pp.fairwind.internalDBSystem.services.repository.UserRepository;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -32,8 +34,6 @@ import java.util.logging.Logger;
 @Controller
 @RequestMapping("/users")
 public class UserController {
-    protected static Logger logger = Logger.getLogger("USER controller");
-
     @Autowired
     private UserRepository userservice;
     @Autowired
@@ -42,6 +42,8 @@ public class UserController {
     private SubdivisionRepository subdivservice;
     @Autowired
     private JournalService journal;
+    @Autowired
+    private MessageSource messageSource;
 
     @Secured("ROLE_ADMIN")
     @RequestMapping(value = "/", method = RequestMethod.GET)
@@ -60,9 +62,6 @@ public class UserController {
     @RequestMapping(value = "/listedit", method = RequestMethod.POST)
     @ResponseBody
     public JSTableExpenseListResp<User> getAllFileTypesSortSearch(Model model,@RequestParam int jtStartIndex, @RequestParam int jtPageSize, @RequestParam(required = false) String jtSorting,@RequestParam(required = false) String searchname) {
-
-        logger.log(Level.INFO,"Received request to show "+jtPageSize+" users from"+jtStartIndex);
-
         // Retrieve all persons by delegating the call to PersonService
         Sort sort= FormSort.formSortFromSortDescription(jtSorting);
         PageRequest pager;
@@ -84,9 +83,6 @@ public class UserController {
     @RequestMapping(value = "/userroles", method = RequestMethod.POST)
     @ResponseBody
     public JSTableExpenseListResp<Roles> getUserRoles(Model model,@RequestParam(required = true) long userID,@RequestParam(required = false) Integer jtStartIndex, @RequestParam(required = false) Integer jtPageSize, @RequestParam(required = false) String jtSorting,@RequestParam(required = false) String searchname) {
-
-        logger.log(Level.INFO,"Received request to show "+jtPageSize+" users from"+jtStartIndex);
-
         // Retrieve all persons by delegating the call to PersonService
         if(jtStartIndex!=null && jtPageSize!=null) {
             Sort sort= FormSort.formSortFromSortDescription(jtSorting);
@@ -113,17 +109,14 @@ public class UserController {
     @Transactional(readOnly = true)
     @RequestMapping(value = "/roles", method = RequestMethod.POST)
     @ResponseBody
-    public JSTableExpenseListResp<Roles> getRolesByUserId(Model model,@RequestParam(required = true) long userID,@RequestParam(required = false) Integer jtStartIndex, @RequestParam(required = false) Integer jtPageSize, @RequestParam(required = false) String jtSorting,@RequestParam(required = false) String searchname) {
-
-        logger.log(Level.INFO,"Received request to show "+jtPageSize+" users from"+jtStartIndex);
-
+    public JSTableExpenseListResp<Roles> getRolesByUserId(Model model,@RequestParam(required = true) long userID,@RequestParam(required = false) Integer jtStartIndex, @RequestParam(required = false) Integer jtPageSize, @RequestParam(required = false) String jtSorting,@RequestParam(required = false) String searchname,Locale currentLocale) {
         User user=userservice.findOne(userID);
         if(user==null){
-            return new JSTableExpenseListResp<Roles>(JSTableExpenseResult.ERROR,"NO RULES");
+            return new JSTableExpenseListResp<>(messageSource.getMessage("label.norole",null,"NO ROLES!", currentLocale));
         } else {
             Set<Roles> roles=user.getUserRoles();
             if(roles==null){
-                return new JSTableExpenseListResp<Roles>(JSTableExpenseResult.ERROR,"NO RULES");
+                return new JSTableExpenseListResp<>(messageSource.getMessage("label.norole",null,"NO ROLES!", currentLocale));
             } else {
                 return new JSTableExpenseListResp<Roles>(roles,roles.size());
             }
@@ -134,9 +127,6 @@ public class UserController {
     @RequestMapping(value = "/lists", method = RequestMethod.POST)
     @ResponseBody
     public JSTableExpenseListResp<User> getAllFileTypesSort(Model model,@RequestParam int jtStartIndex, @RequestParam int jtPageSize, @RequestParam(required = false) String jtSorting) {
-
-        logger.log(Level.INFO,"Received request to show "+jtPageSize+" users from"+jtStartIndex);
-
         // Retrieve all persons by delegating the call to PersonService
         Sort sort= FormSort.formSortFromSortDescription(jtSorting);
         Page<User> page;
@@ -151,10 +141,10 @@ public class UserController {
     /*CRUD operation - Add*/
     @RequestMapping(value = "/adduser", method = RequestMethod.POST)
     @ResponseBody
-    public JSTableExpenseResp<User> insertGroup(@ModelAttribute User user, BindingResult result) {
+    public JSTableExpenseResp<User> insertGroup(@ModelAttribute User user, BindingResult result,Locale currentLocale) {
         JSTableExpenseResp jsonJtableResponse;
         if (result.hasErrors()) {
-            return new JSTableExpenseResp<User>("Form invalid");
+            return new JSTableExpenseResp<>(messageSource.getMessage("label.forminvalid",null,"INVALIDE DATA FORM!", currentLocale));
         }
         try {
             userservice.save(user);
@@ -170,10 +160,10 @@ public class UserController {
     /*CRUD operation - Update */
     @RequestMapping(value = "/updateuser", method = RequestMethod.POST)
     @ResponseBody
-    public JSTableExpenseResp<User>  updateRole(@ModelAttribute User user, BindingResult result) {
+    public JSTableExpenseResp<User>  updateRole(@ModelAttribute User user, BindingResult result,Locale currentLocale) {
         JSTableExpenseResp<User>  jsonJtableResponse;
         if (result.hasErrors()) {
-            jsonJtableResponse = new JSTableExpenseResp<>("Form invalid:"+result.toString());
+            jsonJtableResponse = new JSTableExpenseResp<>(messageSource.getMessage("label.forminvalid",null,"INVALIDE DATA FORM!", currentLocale));
             return jsonJtableResponse;
         }
         try {
@@ -181,7 +171,7 @@ public class UserController {
             if(userid!=null) {
                 User userinDB = userservice.getOne(userid);
                 if (userinDB == null /**/|| userinDB.getVersionId()!=user.getVersionId()/**/) {
-                    jsonJtableResponse = new JSTableExpenseResp<>("USER VAS MODIFIED OR DELETE IN ANOTHER TRANSACTION!");
+                    jsonJtableResponse =new JSTableExpenseResp<>(messageSource.getMessage("label.trunsaction",null,"ANOTHER TRANSACTION MODIFICATION!", currentLocale));
                 } else {
                     userinDB.setFio(user.getFio());
                     userinDB.setUserName(user.getUserName());
@@ -199,7 +189,7 @@ public class UserController {
                     jsonJtableResponse = new JSTableExpenseResp<>(userinDB);
                 }
             }else {
-                jsonJtableResponse = new JSTableExpenseResp<>("USER NOT FOUND!");
+                jsonJtableResponse =new JSTableExpenseResp<>(messageSource.getMessage("label.nouser",new Object[]{userid},"USER NOT FOUND!", currentLocale));
             }
         } catch (Exception e) {
             jsonJtableResponse = new JSTableExpenseResp<>(e.getMessage());
@@ -211,10 +201,11 @@ public class UserController {
     /*CRUD operation - Delete */
     @RequestMapping(value = "/deleteuser", method = RequestMethod.POST)
     @ResponseBody
-    public JSTableExpenseResp<User>  delete(@ModelAttribute User user, BindingResult result) {
+    public JSTableExpenseResp<User>  delete(@ModelAttribute User user, BindingResult result,Locale currentLocale) {
         JSTableExpenseResp<User>  jsonJtableResponse;
         try {
-            if(user.getUserID()==1) return new JSTableExpenseResp<>("DELETE FORBIDDEN!");
+
+            if(user.getUserID()==1) return new JSTableExpenseResp<>(messageSource.getMessage("label.forbidden",null,"DELETE FORBIDDEN!", currentLocale));
             userservice.delete(user.getUserID());
             journal.log(ProgramOperationJornal.Operation.DELETE, "USER","ID:"+user.getUserID()+" "+user.getUserName() + " FIO:" + user.getFio());
             jsonJtableResponse = new JSTableExpenseResp<>(JSTableExpenseResult.OK,"OK");
@@ -270,7 +261,7 @@ public class UserController {
     @Transactional(readOnly = false)
     @RequestMapping(value = "/adduserrole", method = RequestMethod.POST)
     @ResponseBody
-    public JSTableExpenseResp<Roles> setupNewRole(@RequestParam(required = true) long newRoleID,@RequestParam(required = true) long userId) {
+    public JSTableExpenseResp<Roles> setupNewRole(@RequestParam(required = true) long newRoleID,@RequestParam(required = true) long userId,Locale currentLocale) {
         JSTableExpenseResp<Roles>  jsonJtableResponse;
         try {
             Roles role=roleservice.findOne(newRoleID);
@@ -279,7 +270,7 @@ public class UserController {
                 user.addUserRoles(role);
                 jsonJtableResponse = new JSTableExpenseResp<>(role);
             } else {
-                jsonJtableResponse = new JSTableExpenseResp<>("NO RECORD FOUND!");
+                jsonJtableResponse = new JSTableExpenseResp<>(messageSource.getMessage("label.norecord",null,"NO RECORD FOUND!", currentLocale));
             }
         } catch (Exception e) {
             jsonJtableResponse = new JSTableExpenseResp<>(e.getMessage());
@@ -290,7 +281,7 @@ public class UserController {
     @Transactional(readOnly = false)
     @RequestMapping(value = "/removeuserrole", method = RequestMethod.POST)
     @ResponseBody
-    public JSTableExpenseResp<Roles> removeRole(@RequestParam(required = true) long roleId,@RequestParam(required = true) long userId) {
+    public JSTableExpenseResp<Roles> removeRole(@RequestParam(required = true) long roleId,@RequestParam(required = true) long userId,Locale currentLocale) {
         JSTableExpenseResp<Roles>  jsonJtableResponse;
         try {
             Roles role=roleservice.findOne(roleId);
@@ -299,7 +290,7 @@ public class UserController {
                 user.removeUserRoles(role);
                 jsonJtableResponse = new JSTableExpenseResp<>(JSTableExpenseResult.OK,"OK");
             } else {
-                jsonJtableResponse = new JSTableExpenseResp<>("NO RECORD FOUND!");
+                jsonJtableResponse = new JSTableExpenseResp<>(messageSource.getMessage("label.norecord",null,"NO RECORD FOUND!", currentLocale));
             }
         } catch (Exception e) {
             jsonJtableResponse = new JSTableExpenseResp<>(e.getMessage());
@@ -367,7 +358,7 @@ public class UserController {
     @Transactional(readOnly = false)
     @RequestMapping(value = "/addgrantedsubdivision", method = RequestMethod.POST)
     @ResponseBody
-    public JSTableExpenseResp<Subdivision> setupNewGrantedSubdivision(@RequestParam(required = true) long subdivId,@RequestParam(required = true) long userId) {
+    public JSTableExpenseResp<Subdivision> setupNewGrantedSubdivision(@RequestParam(required = true) long subdivId,@RequestParam(required = true) long userId,Locale currentLocale) {
         JSTableExpenseResp<Subdivision>  jsonJtableResponse;
         try {
             Subdivision role=subdivservice.findOne(subdivId);
@@ -376,7 +367,7 @@ public class UserController {
                 user.addGrantedSubdivisions(role);
                 jsonJtableResponse = new JSTableExpenseResp<>(role);
             } else {
-                jsonJtableResponse = new JSTableExpenseResp<>("NO RECORD FOUND!");
+                jsonJtableResponse = new JSTableExpenseResp<>(messageSource.getMessage("label.norecord",null,"NO RECORD FOUND!", currentLocale));
             }
         } catch (Exception e) {
             jsonJtableResponse = new JSTableExpenseResp<>(e.getMessage());
@@ -388,7 +379,7 @@ public class UserController {
     @Transactional(readOnly = false)
     @RequestMapping(value = "/removegrantedsubdivision", method = RequestMethod.POST)
     @ResponseBody
-    public JSTableExpenseResp<Subdivision> removeGrantedSubdivision(@RequestParam(required = true) long subdivisionId,@RequestParam(required = true) long userId) {
+    public JSTableExpenseResp<Subdivision> removeGrantedSubdivision(@RequestParam(required = true) long subdivisionId,@RequestParam(required = true) long userId,Locale currentLocale) {
         JSTableExpenseResp<Subdivision>  jsonJtableResponse;
         try {
             Subdivision role=subdivservice.findOne(subdivisionId);
@@ -397,7 +388,7 @@ public class UserController {
                 user.removeGrantedSubdivisions(role);
                 jsonJtableResponse = new JSTableExpenseResp<>(JSTableExpenseResult.OK,"OK");
             } else {
-                jsonJtableResponse = new JSTableExpenseResp<>("NO RECORD FOUND!");
+                jsonJtableResponse = new JSTableExpenseResp<>(messageSource.getMessage("label.norecord",null,"NO RECORD FOUND!", currentLocale));
             }
         } catch (Exception e) {
             jsonJtableResponse = new JSTableExpenseResp<>(e.getMessage());

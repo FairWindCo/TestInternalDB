@@ -1,6 +1,7 @@
 package ua.pp.fairwind.internalDBSystem.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -24,6 +25,7 @@ import ua.pp.fairwind.internalDBSystem.services.repository.SubdivisionRepository
 import ua.pp.fairwind.internalDBSystem.services.repository.UserRepository;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -34,8 +36,6 @@ import java.util.logging.Logger;
 @Controller
 @RequestMapping("/category")
 public class CategoryController {
-    protected static Logger logger = Logger.getLogger("USER controller");
-
     @Autowired
     private UserRepository userservice;
     @Autowired
@@ -44,6 +44,8 @@ public class CategoryController {
     private SubdivisionRepository subdivservice;
     @Autowired
     private JournalService journal;
+    @Autowired
+    private MessageSource messageSource;
 
     @Secured({"ROLE_GROUP_INF_EDIT", "ROLE_SUPER_INF_EDIT","ROLE_MAIN_INF_EDIT"})
     @RequestMapping(value = "/", method = RequestMethod.GET)
@@ -62,9 +64,6 @@ public class CategoryController {
     @RequestMapping(value = "/listedit", method = RequestMethod.POST)
     @ResponseBody
     public JSTableExpenseListResp<Category> getAllFileTypesSortSearch(Model model,@RequestParam int jtStartIndex, @RequestParam int jtPageSize, @RequestParam(required = false) String jtSorting,@RequestParam(required = false) String searchname) {
-
-        logger.log(Level.INFO,"Received request to show "+jtPageSize+" users from"+jtStartIndex);
-
         // Retrieve all persons by delegating the call to PersonService
         Sort sort= FormSort.formSortFromSortDescription(jtSorting);
         PageRequest pager;
@@ -99,10 +98,10 @@ public class CategoryController {
     /*CRUD operation - Add*/
     @RequestMapping(value = "/add", method = RequestMethod.POST)
     @ResponseBody
-    public JSTableExpenseResp<Category> insert(@ModelAttribute Category category, BindingResult result,@RequestParam(value = "subdivsId2[]",required = false) long[] subdivsid) {
+    public JSTableExpenseResp<Category> insert(@ModelAttribute Category category, BindingResult result,@RequestParam(value = "subdivsId2[]",required = false) long[] subdivsid,Locale currentLocale) {
         JSTableExpenseResp jsonJtableResponse;
         if (result.hasErrors()) {
-            return new JSTableExpenseResp<Category>("Form invalid");
+            return new JSTableExpenseResp<>(messageSource.getMessage("label.forminvalid",null,"INVALIDE DATA FORM!", currentLocale));
         }
         try {
             if(subdivsid!=null && subdivsid.length>0){
@@ -126,7 +125,7 @@ public class CategoryController {
     /*CRUD operation - Update */
     @RequestMapping(value = "/update", method = RequestMethod.POST)
     @ResponseBody
-    public JSTableExpenseResp<Category>  update(@ModelAttribute Category category, BindingResult result) {
+    public JSTableExpenseResp<Category>  update(@ModelAttribute Category category, BindingResult result,Locale currentLocale) {
         JSTableExpenseResp<Category>  jsonJtableResponse;
         if (result.hasErrors()) {
             jsonJtableResponse = new JSTableExpenseResp<>("Form invalid:"+result.toString());
@@ -159,7 +158,7 @@ public class CategoryController {
     /*CRUD operation - Delete */
     @RequestMapping(value = "/delete", method = RequestMethod.POST)
     @ResponseBody
-    public JSTableExpenseResp<Category>  delete(@ModelAttribute Category category, BindingResult result) {
+    public JSTableExpenseResp<Category>  delete(@ModelAttribute Category category, BindingResult result,Locale currentLocale) {
         JSTableExpenseResp<Category>  jsonJtableResponse;
         try {
             if(category.getCategoryId()==1){
@@ -170,7 +169,7 @@ public class CategoryController {
                 journal.log(ProgramOperationJornal.Operation.DELETE, "Category", "ID:"+category.getCategoryId()+"Name:"+category.getName());
                 jsonJtableResponse = new JSTableExpenseResp<>(JSTableExpenseResult.OK, "OK");
             } else {
-                jsonJtableResponse = new JSTableExpenseResp<>("DELETE FORBIDDEN!");
+                jsonJtableResponse = new JSTableExpenseResp<>(messageSource.getMessage("label.forbidden",null,"DELETE FORBIDDEN!", currentLocale));
             }
         } catch (Exception e) {
             jsonJtableResponse = new JSTableExpenseResp<>(e.getMessage());

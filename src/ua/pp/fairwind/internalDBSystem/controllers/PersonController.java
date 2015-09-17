@@ -1,6 +1,7 @@
 package ua.pp.fairwind.internalDBSystem.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -34,6 +35,7 @@ import ua.pp.fairwind.internalDBSystem.services.repository.PersonRepository;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -44,14 +46,14 @@ import java.util.logging.Logger;
 @RequestMapping("/person")
 public class PersonController {
     final SimpleDateFormat formater=new SimpleDateFormat("MM/dd/yyyy");
-    protected static Logger logger = Logger.getLogger("controller");
-
     @Autowired
     private PersonRepository personService;
     @Autowired
     DossersRepository dosserService;
     @Autowired
     private JournalService journal;
+    @Autowired
+    private MessageSource messageSource;
 
     @Secured({"ROLE_SUPERVIEW","ROLE_GROUP_VIEW", "ROLE_SUPER_VIEW","ROLE_MAIN_VIEW"})
     @RequestMapping(value = "/", method = RequestMethod.GET)
@@ -131,9 +133,6 @@ public class PersonController {
          @RequestMapping(value = "/listing", method = RequestMethod.GET)
          @ResponseBody
          public Object simpleList(Model model,@RequestParam(required = false) Integer page_num, @RequestParam(required = false) Integer per_page,@RequestParam(value = "pkey_val[]",required = false) String pkey,@RequestParam(value = "q_word[]",required = false) String[] qword) {
-
-        logger.log(Level.INFO,"Received request to show "+per_page+" filetypes from"+page_num);
-
         // Retrieve all persons by delegating the call to PersonService
         //Sort sort= FormSort.formSortFromSortDescription(orderby);
         Sort sort=new Sort(Sort.Direction.ASC,"fio");
@@ -177,9 +176,6 @@ public class PersonController {
     @RequestMapping(value = "/workers", method = RequestMethod.GET)
     @ResponseBody
     public Object simpleWorkerList(Model model,@RequestParam(required = false) Integer page_num, @RequestParam(required = false) Integer per_page,@RequestParam(value = "pkey_val[]",required = false) String pkey,@RequestParam(value = "q_word[]",required = false) String[] qword) {
-
-        logger.log(Level.INFO,"Received request to show "+per_page+" filetypes from"+page_num);
-
         // Retrieve all persons by delegating the call to PersonService
         //Sort sort= FormSort.formSortFromSortDescription(orderby);
         Sort sort=new Sort(Sort.Direction.ASC,"fio");
@@ -223,9 +219,6 @@ public class PersonController {
     @RequestMapping(value = "/clients", method = RequestMethod.GET)
     @ResponseBody
     public Object simpleClientList(Model model,@RequestParam(required = false) Integer page_num, @RequestParam(required = false) Integer per_page,@RequestParam(value = "pkey_val[]",required = false) String pkey,@RequestParam(value = "q_word[]",required = false) String[] qword) {
-
-        logger.log(Level.INFO,"Received request to show "+per_page+" filetypes from"+page_num);
-
         // Retrieve all persons by delegating the call to PersonService
         //Sort sort= FormSort.formSortFromSortDescription(orderby);
         Sort sort=new Sort(Sort.Direction.ASC,"fio");
@@ -319,11 +312,11 @@ public class PersonController {
     @Secured({"ROLE_PERSONAL_EDIT","ROLE_CLIENT_EDIT"})
     @RequestMapping(value = "/update", method = {RequestMethod.POST})
     @ResponseBody
-    public JSTableExpenseResp<Person> update(@RequestParam Long personId,@RequestParam(required = true) String fio,@RequestParam(required = false) String code,@RequestParam(required = false) String dateberthdey,@RequestParam String personStatus,@RequestParam Long versionid) {
+    public JSTableExpenseResp<Person> update(@RequestParam Long personId,@RequestParam(required = true) String fio,@RequestParam(required = false) String code,@RequestParam(required = false) String dateberthdey,@RequestParam String personStatus,@RequestParam Long versionid,Locale currentLocale) {
         if(personId!=null) {
             Person person = personService.getOne(personId);
             if(person.getVersion()!=versionid){
-                return new JSTableExpenseResp<>("ANOTHER TRANSACTION MODIFICATION");
+                return new JSTableExpenseResp<>(messageSource.getMessage("label.trunsaction",null,"ANOTHER TRANSACTION MODIFICATION!", currentLocale));
             }
             person.setCode(code);
             person.setFio(fio);
@@ -341,7 +334,7 @@ public class PersonController {
             personService.save(person);
             return new JSTableExpenseResp<>(person);
         }else {
-            return new JSTableExpenseResp<>("NO PERSON_ID");
+            return new JSTableExpenseResp<>(messageSource.getMessage("label.noperson",new Object[]{personId},"NO PERSON FOUND ID={} !", currentLocale));
         }
     }
 

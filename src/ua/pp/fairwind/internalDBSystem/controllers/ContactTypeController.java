@@ -1,6 +1,7 @@
 package ua.pp.fairwind.internalDBSystem.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -18,6 +19,7 @@ import ua.pp.fairwind.internalDBSystem.services.JournalService;
 import ua.pp.fairwind.internalDBSystem.services.repository.ContactTypeRepository;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -27,12 +29,12 @@ import java.util.logging.Logger;
 @Controller
 @RequestMapping("/contacttypes")
 public class ContactTypeController {
-    protected static Logger logger = Logger.getLogger("controller");
-
     @Autowired
     private ContactTypeRepository contacttypeservice;
     @Autowired
     private JournalService journal;
+    @Autowired
+    private MessageSource messageSource;
 
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public String show(Model model) {
@@ -43,9 +45,6 @@ public class ContactTypeController {
     @RequestMapping(value = "/listedit", method = RequestMethod.POST)
     @ResponseBody
     public JSTableExpenseListResp<ContactType> getAllFileTypesSortSearch(Model model,@RequestParam int jtStartIndex, @RequestParam int jtPageSize, @RequestParam(required = false) String jtSorting,@RequestParam(required = false) String searchname) {
-
-        logger.log(Level.INFO,"Received request to show "+jtPageSize+" filetypes from"+jtStartIndex);
-
         // Retrieve all persons by delegating the call to PersonService
         Sort sort= FormSort.formSortFromSortDescription(jtSorting);
         PageRequest pager;
@@ -66,9 +65,6 @@ public class ContactTypeController {
     @RequestMapping(value = "/lists", method = RequestMethod.POST)
     @ResponseBody
     public JSTableExpenseListResp<ContactType> getAllFileTypesSort(Model model,@RequestParam int jtStartIndex, @RequestParam int jtPageSize, @RequestParam(required = false) String jtSorting) {
-
-        logger.log(Level.INFO,"Received request to show "+jtPageSize+" filetypes from"+jtStartIndex);
-
         // Retrieve all persons by delegating the call to PersonService
         Sort sort= FormSort.formSortFromSortDescription(jtSorting);
         Page<ContactType> page;
@@ -84,10 +80,10 @@ public class ContactTypeController {
     /*CRUD operation - Add*/
     @RequestMapping(value = "/addfiletype", method = RequestMethod.POST)
     @ResponseBody
-    public JSTableExpenseResp<ContactType> insertGroup(@ModelAttribute ContactType contactType, BindingResult result) {
+    public JSTableExpenseResp<ContactType> insertGroup(@ModelAttribute ContactType contactType, BindingResult result,Locale currentLocale) {
         JSTableExpenseResp jsonJtableResponse;
         if (result.hasErrors()) {
-            return new JSTableExpenseResp<>("Form invalid");
+            return new JSTableExpenseResp<>(messageSource.getMessage("label.forminvalid",null,"INVALIDE DATA FORM!", currentLocale));
         }
         try {
             journal.log(ProgramOperationJornal.Operation.CREATE, "CONTACT_TYPE", "NEW:" + contactType.getCobtactTypeName() + " 1CKEY_NEW:" + contactType.getKey1c());
@@ -103,10 +99,10 @@ public class ContactTypeController {
     /*CRUD operation - Update */
     @RequestMapping(value = "/updatefiletype", method = RequestMethod.POST)
     @ResponseBody
-    public JSTableExpenseResp<ContactType>  updateRole(@ModelAttribute ContactType contactType, BindingResult result) {
+    public JSTableExpenseResp<ContactType>  updateRole(@ModelAttribute ContactType contactType, BindingResult result,Locale currentLocale) {
         JSTableExpenseResp<ContactType>  jsonJtableResponse;
         if (result.hasErrors()) {
-            jsonJtableResponse = new JSTableExpenseResp<>("Form invalid");
+            jsonJtableResponse = new JSTableExpenseResp<>(messageSource.getMessage("label.forminvalid",null,"INVALIDE DATA FORM!", currentLocale));
             return jsonJtableResponse;
         }
         try {
@@ -123,7 +119,7 @@ public class ContactTypeController {
     /*CRUD operation - Delete */
     @RequestMapping(value = "/deletefiletype", method = RequestMethod.POST)
     @ResponseBody
-    public JSTableExpenseResp<ContactType>  delete(@RequestParam String filesTypeId) {
+    public JSTableExpenseResp<ContactType>  delete(@RequestParam String filesTypeId,Locale currentLocale) {
         JSTableExpenseResp<ContactType>  jsonJtableResponse;
         try {
             long id=new Long(filesTypeId);
@@ -132,7 +128,7 @@ public class ContactTypeController {
                 journal.log(ProgramOperationJornal.Operation.DELETE, "CONTACT_TYPE", "ID:" + id);
                 jsonJtableResponse = new JSTableExpenseResp<>(JSTableExpenseResult.OK, "OK");
             } else {
-                jsonJtableResponse = new JSTableExpenseResp<>("DELETE FORBIDDEN!");
+                jsonJtableResponse = new JSTableExpenseResp<>(messageSource.getMessage("label.forbidden",null,"DELETE FORBIDDEN!", currentLocale));
             }
         } catch (Exception e) {
             jsonJtableResponse = new JSTableExpenseResp<>(e.getMessage());
@@ -159,9 +155,6 @@ public class ContactTypeController {
     @RequestMapping(value = "/listing", method = RequestMethod.GET)
     @ResponseBody
     public Object simpleList(Model model,@RequestParam(required = false) Integer page_num, @RequestParam(required = false) Integer per_page,@RequestParam(value = "pkey_val[]",required = false) String pkey,@RequestParam(value = "q_word[]",required = false) String[] qword) {
-
-        logger.log(Level.INFO,"Received request to show "+per_page+" filetypes from"+page_num);
-
         // Retrieve all persons by delegating the call to PersonService
         //Sort sort= FormSort.formSortFromSortDescription(orderby);
         Sort sort=new Sort(Sort.Direction.ASC,"cobtactTypeName");

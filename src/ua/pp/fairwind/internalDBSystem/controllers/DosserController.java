@@ -1,6 +1,7 @@
 package ua.pp.fairwind.internalDBSystem.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -30,6 +31,8 @@ import ua.pp.fairwind.internalDBSystem.security.UserDetailsAdapter;
 import ua.pp.fairwind.internalDBSystem.services.JournalService;
 import ua.pp.fairwind.internalDBSystem.services.repository.*;
 
+import java.util.Locale;
+
 /**
  * Created by Сергей on 31.08.2015.
  */
@@ -53,6 +56,8 @@ public class DosserController {
     FileTypeRepository filyTypeService;
     @Autowired
     private JournalService journal;
+    @Autowired
+    private MessageSource messageSource;
 
     @Transactional(readOnly = true)
     @Secured({"ROLE_SUPERVIEW","ROLE_GROUP_VIEW", "ROLE_SUPER_VIEW","ROLE_MAIN_VIEW","ROLE_SUPER_EDIT","ROLE_GROUP_EDIT", "ROLE_SUPER_EDIT","ROLE_MAIN_EDIT"})
@@ -125,16 +130,16 @@ public class DosserController {
     @Secured({"ROLE_SUPER_EDIT","ROLE_GROUP_EDIT","ROLE_MAIN_EDIT"})
     @RequestMapping(value = "/add", method = {RequestMethod.POST})
     @ResponseBody
-    public JSTableExpenseResp<Dosser> insert(@ModelAttribute Dosser dosser, BindingResult result,@RequestParam(value = "file",required = false) MultipartFile file, @RequestParam long personId,@RequestParam("subdivId") long subdivId,@RequestParam("categoryId") String categoryId,@RequestParam("infoTypeId") String infoTypeId,@RequestParam(value = "fileTypeId",required = false) Long fileTypeId) {
+    public JSTableExpenseResp<Dosser> insert(@ModelAttribute Dosser dosser, BindingResult result,@RequestParam(value = "file",required = false) MultipartFile file, @RequestParam long personId,@RequestParam("subdivId") long subdivId,@RequestParam("categoryId") String categoryId,@RequestParam("infoTypeId") String infoTypeId,@RequestParam(value = "fileTypeId",required = false) Long fileTypeId,Locale currentLocale) {
         JSTableExpenseResp jsonJtableResponse;
         if (result.hasErrors()) {
-            return new JSTableExpenseResp<>("Form invalid");
+            return new JSTableExpenseResp<>(messageSource.getMessage("label.forminvalid",null,"INVALIDE DATA FORM!", currentLocale));
         }
         if(categoryId==null || categoryId.isEmpty()||"----".equals(categoryId)){
-            return new JSTableExpenseResp<>("No category select!");
+            return new JSTableExpenseResp<>(messageSource.getMessage("label.nocategory",null,"No category select!", currentLocale));
         }
         if(infoTypeId==null || infoTypeId.isEmpty()||"----".equals(infoTypeId)){
-            return new JSTableExpenseResp<>("No Info Type select!");
+            return new JSTableExpenseResp<>(messageSource.getMessage("label.notype",null,"No Info Type select!", currentLocale));
         }
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         UserDetailsAdapter user=(UserDetailsAdapter)auth.getPrincipal();
@@ -214,7 +219,7 @@ public class DosserController {
     @Secured({"ROLE_SUPER_EDIT","ROLE_GROUP_EDIT","ROLE_MAIN_EDIT"})
     @RequestMapping(value = "/update", method = {RequestMethod.POST})
     @ResponseBody
-    public JSTableExpenseResp<Dosser> update(@RequestParam long dossierId,@RequestParam(value = "file",required = false) MultipartFile file, @RequestParam long personId,@RequestParam("subdivId") long subdivId,@RequestParam("categoryId") String categoryId,@RequestParam("infoTypeId") String infoTypeId,@RequestParam(value = "fileTypeId",required = false) Long fileTypeId) {
+    public JSTableExpenseResp<Dosser> update(@RequestParam long dossierId,@RequestParam(value = "file",required = false) MultipartFile file, @RequestParam long personId,@RequestParam("subdivId") long subdivId,@RequestParam("categoryId") String categoryId,@RequestParam("infoTypeId") String infoTypeId,@RequestParam(value = "fileTypeId",required = false) Long fileTypeId,Locale currentLocale) {
         JSTableExpenseResp jsonJtableResponse;
         Dosser old=null;
         try {
@@ -227,10 +232,10 @@ public class DosserController {
             return new JSTableExpenseResp<>(e.getMessage());
         }
         if(categoryId==null || categoryId.isEmpty()||"----".equals(categoryId)){
-            return new JSTableExpenseResp<>("No category select!");
+            return new JSTableExpenseResp<>(messageSource.getMessage("label.nocategory",null,"No category select!", currentLocale));
         }
         if(infoTypeId==null || infoTypeId.isEmpty()||"----".equals(infoTypeId)){
-            return new JSTableExpenseResp<>("No Info Type select!");
+            return new JSTableExpenseResp<>(messageSource.getMessage("label.notype",null,"No Info Type select!", currentLocale));
         }
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         UserDetailsAdapter user=(UserDetailsAdapter)auth.getPrincipal();
