@@ -3,6 +3,7 @@ package ua.pp.fairwind.internalDBSystem.controllers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
@@ -65,18 +66,19 @@ public class StatisticController {
     @RequestMapping(value = "/import", method = RequestMethod.POST)
     @ResponseBody
     public JSTableExpenseListResp<ProgramImportStatistics> getImportStat(@RequestParam int jtStartIndex, @RequestParam int jtPageSize,@RequestParam(required = false)String startDate,@RequestParam(required = false)String endDate){
+        Sort sort=new Sort(Sort.Direction.DESC,"importDateTime");
         PageRequest pager;
         Page<ProgramImportStatistics> page;
-        pager=new PageRequest(jtStartIndex, jtPageSize);
+        pager=new PageRequest(jtStartIndex, jtPageSize,sort);
         if(startDate==null||endDate==null){
-            return new JSTableExpenseListResp<ProgramImportStatistics>(repository.findAll(pager));
+            return new JSTableExpenseListResp<>(repository.findAll(pager));
         } else {
             try {
                 Date sdate=formater.parse(startDate);
                 Date edate=formater.parse(endDate);
-                return new JSTableExpenseListResp<ProgramImportStatistics>(repository.findByImportDateTimeBetween(sdate,edate,pager));
+                return new JSTableExpenseListResp<>(repository.findByImportDateTimeBetween(sdate,edate,pager));
             } catch (ParseException e) {
-                return new JSTableExpenseListResp<ProgramImportStatistics>(repository.findAll(pager));
+                return new JSTableExpenseListResp<>(repository.findAll(pager));
             }
         }
     }

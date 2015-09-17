@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -25,6 +26,7 @@ import ua.pp.fairwind.internalDBSystem.services.repository.DossersRepository;
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.*;
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -34,6 +36,7 @@ import java.util.Set;
 @Controller
 @RequestMapping("/search")
 public class SerachDossersController {
+    @Secured({"ROLE_SUPERVIEW","ROLE_GROUP_VIEW", "ROLE_SUPER_VIEW","ROLE_MAIN_VIEW","ROLE_SUPER_EDIT","ROLE_GROUP_EDIT", "ROLE_SUPER_EDIT","ROLE_MAIN_EDIT"})
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public String show(Model model) {
         return "search";
@@ -48,7 +51,7 @@ public class SerachDossersController {
 
     @RequestMapping(value = "/search", method = {RequestMethod.GET,RequestMethod.POST})
     @Transactional(readOnly = true)
-    //@Secured({"ROLE_SUPERVIEW","ROLE_GROUP_VIEW", "ROLE_SUPER_VIEW","ROLE_MAIN_VIEW","ROLE_SUPER_EDIT","ROLE_GROUP_EDIT", "ROLE_SUPER_EDIT","ROLE_MAIN_EDIT"})
+    @Secured({"ROLE_SUPERVIEW","ROLE_GROUP_VIEW", "ROLE_SUPER_VIEW","ROLE_MAIN_VIEW","ROLE_SUPER_EDIT","ROLE_GROUP_EDIT", "ROLE_SUPER_EDIT","ROLE_MAIN_EDIT"})
     @ResponseBody
     public JSTableExpenseListResp<DosserProxy> search(HttpServletRequest request,@RequestParam int jtStartIndex, @RequestParam int jtPageSize,@RequestParam(required = false) String jtSorting){
         Sort sort= FormSort.formSortFromSortDescription(jtSorting);
@@ -91,16 +94,45 @@ public class SerachDossersController {
         }
         List<DosserProxy> lst=null;
         if(count>0) {
-           lst = em.createQuery(createRequest(DosserType.ACTIVE, conf, subdivisionsIds, categoryIds, infoTypeIds, fio, code, sort)).setFirstResult(jtStartIndex).setMaxResults(jtStartIndex + jtPageSize).getResultList();
+           lst = em.createQuery(createRequest(DosserType.ACTIVE, conf, subdivisionsIds, categoryIds, infoTypeIds, fio, code, jtSorting)).setFirstResult(jtStartIndex).setMaxResults(jtStartIndex + jtPageSize).getResultList();
         }
         return new JSTableExpenseListResp<>(lst,count.intValue());
     }
 
 
+    @RequestMapping(value = "/last", method = {RequestMethod.GET,RequestMethod.POST})
+    @Transactional(readOnly = true)
+    @Secured({"ROLE_SUPERVIEW","ROLE_GROUP_VIEW", "ROLE_SUPER_VIEW","ROLE_MAIN_VIEW","ROLE_SUPER_EDIT","ROLE_GROUP_EDIT", "ROLE_SUPER_EDIT","ROLE_MAIN_EDIT"})
+    @ResponseBody
+    public JSTableExpenseListResp<DosserProxy> lastRecord(@RequestParam(required = false) Integer maxRecordCount){
+        if(maxRecordCount==null)maxRecordCount=25;
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        UserDetailsAdapter user=(UserDetailsAdapter)auth.getPrincipal();
+
+        /*if(user.hasRole("ROLE_CONFIDENTIAL")){
+            if (user.hasRole("ROLE_SUPER_EDIT") || user.hasRole("ROLE_SUPER_VIEW")) {
+                page = dosserService.findByRecordStatus(DosserType.ACTIVE, pager);
+            } else {
+                page = dosserService.getAvaibleDossers(user.getTrustedSubvisionsId(), DosserType.ACTIVE, pager);
+            }
+        } else {
+            if (user.hasRole("ROLE_SUPER_EDIT") || user.hasRole("ROLE_SUPER_VIEW")) {
+                page = dosserService.findByConfidentialAndRecordStatus(false, DosserType.ACTIVE, pager);
+            } else {
+                page = dosserService.getAvaibleDossers(user.getTrustedSubvisionsId(), false,DosserType.ACTIVE, pager);
+            }
+        }*/
+        //page=dosserService.findDossersProxy(createSimpleFind(DosserType.ACTIVE,false),pager);
+        boolean conf=user.hasRole("ROLE_CONFIDENTIAL");
+        Set<Long> subdivisionsIds=user.getTrustedSubvisionsId();
+        List<DosserProxy> lst=em.createQuery(createRequest(DosserType.ACTIVE, conf, subdivisionsIds, null, null, null, null, "creationTime DESC")).setFirstResult(0).setMaxResults(maxRecordCount).getResultList();
+        return new JSTableExpenseListResp<>(lst);
+    }
+
 
     private Expression<Boolean> buildWhere(Root<Dosser> sroot,CriteriaBuilder criteriaBuilder,DosserType type,boolean hasConnfidentional,Set<Long> subdivisionsIds,Set<Long> categoryIds,Set<Long> infoTypeIds,String fio,String code){
         Expression<Boolean> exp=criteriaBuilder.equal(sroot.get("recordStatus"), type);
-        if(hasConnfidentional)
+        if(!hasConnfidentional)
             exp=criteriaBuilder.and(exp,criteriaBuilder.equal(sroot.get("confidential"),false));
         if(subdivisionsIds!=null){
             exp=criteriaBuilder.and(exp,sroot.get("subdivision").isNotNull());
@@ -125,14 +157,85 @@ public class SerachDossersController {
         return exp;
     }
 
-    private CriteriaQuery<DosserProxy> createRequest(DosserType type,boolean hasConnfidentional,Set<Long> subdivisionsIds,Set<Long> categoryIds,Set<Long> infoTypeIds,String fio,String code,Sort order){
+    private String checkName(String fieldName){
+        if(fieldName==null)return null;
+        switch (fieldName){
+            case "info":return "textinfo";
+            case "fio":return "person.fio";
+            case "code":return "person.code";
+            case "bethday":return "person.dateberthdey";
+            case "status":return "person.personStatus";
+            case "fileType":return "fileinfo.filesType.filesTypeName";
+            case "fileComments":return "fileinfo.fileNameComments";
+            case "confidentional":return "confidential";
+            default:return fieldName;
+        }
+    }
+
+    private Path<?> formFieldExpresion(Root<Dosser> root,String fieldName){
+        if(fieldName.contains(".")) {
+            String[] nsmes = fieldName.split("\\.");
+            Path<?> exp=null;
+            for(String name:nsmes){
+                if(exp==null){
+                    exp=root.get(name);
+                } else {
+                    exp=exp.get(name);
+                }
+            }
+            return exp;
+        }else{
+            return root.get(fieldName);
+        }
+    }
+
+    private Order formOrder(CriteriaBuilder criteriaBuilder,Root<Dosser> root,String orderDeclaration){
+        if(orderDeclaration==null || orderDeclaration.isEmpty()) return null;
+        String[] delaration=orderDeclaration.trim().split(" ");
+        if(delaration==null || delaration.length!=2){
+            return null;
+        } else {
+            switch (delaration[1]){
+                case "ASC" :return criteriaBuilder.asc(formFieldExpresion(root, checkName(delaration[0])));
+                case "DESC":return criteriaBuilder.desc(formFieldExpresion(root, checkName(delaration[0])));
+                default:
+                    return  criteriaBuilder.asc(formFieldExpresion(root, delaration[0]));
+            }
+        }
+    }
+
+    private List<Order> buildOrder(CriteriaBuilder criteriaBuilder,Root<Dosser> root,String orders){
+        List<Order> orderer=new ArrayList<>();
+
+        if(orders!=null && !orders.isEmpty()){
+            orders=orders.trim();
+            if(orders.contains(",")) {
+                String[] sortorders = orders.split(",");
+                for(String sortorder:sortorders){
+                    Order order=formOrder(criteriaBuilder,root,sortorder);
+                    if(order!=null){
+                        orderer.add(order);
+                    }
+                }
+            } else {
+                Order order=formOrder(criteriaBuilder,root,orders);
+                if(order!=null){
+                    orderer.add(order);
+                }
+            }
+
+        }
+        return orderer;
+    }
+
+    private CriteriaQuery<DosserProxy> createRequest(DosserType type,boolean hasConnfidentional,Set<Long> subdivisionsIds,Set<Long> categoryIds,Set<Long> infoTypeIds,String fio,String code,String order){
         CriteriaBuilder criteriaBuilder=em.getCriteriaBuilder();
         CriteriaQuery<DosserProxy> cq = criteriaBuilder.createQuery(DosserProxy.class);
         Root<Dosser> sroot=cq.from(Dosser.class);
         cq.select(criteriaBuilder.construct(DosserProxy.class, sroot));
         Expression<Boolean> exp=buildWhere(sroot,criteriaBuilder,type,hasConnfidentional,subdivisionsIds,categoryIds,infoTypeIds,fio,code);
         if(exp!=null)cq.where(exp);
-        if(order!=null)cq.orderBy();
+        if(order!=null&&!order.isEmpty())cq.orderBy(buildOrder(criteriaBuilder,sroot,order));
         return cq;
     }
 

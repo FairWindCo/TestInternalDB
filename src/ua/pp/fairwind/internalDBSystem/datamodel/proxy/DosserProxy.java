@@ -169,4 +169,12 @@ public class DosserProxy {
     public void setFilename(String filename) {
         this.filename = filename;
     }
+
+    public boolean isConfidentional() {
+        return confidentional;
+    }
+
+    public void setConfidentional(boolean confidentional) {
+        this.confidentional = confidentional;
+    }
 }

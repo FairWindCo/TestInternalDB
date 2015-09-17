@@ -3,6 +3,7 @@ package ua.pp.fairwind.internalDBSystem.controllers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
@@ -32,16 +33,17 @@ public class JournalController {
     @Autowired
     JournalService service;
 
+    @Secured("ROLE_ADMIN")
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public String show(Model model) {
         return "journal";
     }
 
-
+    @Secured("ROLE_ADMIN")
     @Transactional(readOnly = true)
     @RequestMapping(value = "/list", method = RequestMethod.POST)
     @ResponseBody
-    public JSTableExpenseListResp<ProgramOperationJornal> getImportStat(@RequestParam int jtStartIndex, @RequestParam int jtPageSize,@RequestParam(required = false)String name,@RequestParam(required = false)String startDate,@RequestParam(required = false)String endDate){
-        return service.viewLog(jtStartIndex,jtPageSize,null,name,startDate,endDate);
+    public JSTableExpenseListResp<ProgramOperationJornal> getImportStat(@RequestParam int jtStartIndex, @RequestParam int jtPageSize,@RequestParam(required = false) String jtSorting,@RequestParam(required = false)String name,@RequestParam(required = false)String startDate,@RequestParam(required = false)String endDate){
+        return service.viewLog(jtStartIndex,jtPageSize,jtSorting,name,startDate,endDate);
     }
 }

@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -68,9 +69,14 @@ public class JournalService {
         }
         if(logger!=null)logger.log(Level.INFO,operation+" "+object+" "+info);
     }
-
+    @Secured("ROLE_ADMIN")
     public JSTableExpenseListResp<ProgramOperationJornal> viewLog(int jtStartIndex, int jtPageSize,String jtSorting,String name,String startDate,String endDate){
-        Sort sort= FormSort.formSortFromSortDescription(jtSorting);
+        Sort sort;
+        if(jtSorting==null){
+            sort=new Sort(Sort.Direction.DESC,"journalDate");
+        } else {
+            sort=FormSort.formSortFromSortDescription(jtSorting);
+        }
         PageRequest pager;
         Page<ProgramOperationJornal> page;
         if(sort!=null){
@@ -102,13 +108,15 @@ public class JournalService {
                 if(sdate!=null&&edate!=null){
                     page=repository.findByJournalDateBetween(sdate, edate, pager);
 
+                } else {
+                    page = repository.findAll(pager);
                 }
-                page=repository.findAll(pager);
             } else {
                 if(sdate!=null&&edate!=null){
-                    page=repository.findByUserContainsAndJournalDateBetween(name,sdate,edate,pager);
+                    page=repository.findByUserContainsAndJournalDateBetween(name, sdate, edate, pager);
+                } else {
+                    page = repository.findByUserContains(name, pager);
                 }
-                page=repository.findByUserContains(name,pager);
             }
         }
         return new JSTableExpenseListResp<ProgramOperationJornal>(page);

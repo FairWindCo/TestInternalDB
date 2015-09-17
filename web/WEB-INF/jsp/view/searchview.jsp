@@ -30,7 +30,7 @@
   $(document).ready(function() {
     //setup the jtable that will display the results
     $('#ExpenseTableContainer').jtable({
-      title: '<c:message code="label.usertables"/>',
+      title: '<c:message code="label.search.table_title"/>',
       selecting: true, //Enable selecting
       paging: true, //Enable paging
       pageSize: 10, //Set page size (default: 10)
@@ -44,6 +44,13 @@
         confidentional: {
           title: '<c:message code="label.clientstables.dosers.col_title.confidentional"/>',
           width: '10%',
+          display:function(data){
+            if(data!==null && data!==undefined && data.record!==null && data.record!==undefined && data.record.confidentional!=null && data.record.confidentional!==undefined && data.record.confidentional){
+              return '<i class="glyphicon glyphicon-eye-close">';
+            } else {
+              return '<i class="glyphicon glyphicon-eye-open">';
+            }
+          }
         },
         subdivision: {
           title: '<c:message code="label.clientstables.dosers.col_title.subdiv"/>',
@@ -255,14 +262,25 @@
   });
 </script>
 
+<style>
+  div.jtable-main-container table.jtable thead th{
+    vertical-align: top;
+  }
+  th.jtable-column-header{
+    height: 50px;
+    align-content: center;
+    padding-top: 0;
+    margin-top: 0;
+  }
+</style>
 
 <div class="filtering">
   <form>
-    <c:message code="label.field.name2"/>:<select name="subdivisions" id="subdivisions" multiple="multiple"></select>
-    <c:message code="label.field.name2"/>:<select name="categoryes" id="categoryes" multiple="multiple"></select>
-    <c:message code="label.field.name2"/>:<select name="infotypes" id="infotypes" multiple="multiple"></select>
-    <c:message code="label.field.name2"/>: <input type="text" name="searchname" id="searchname" />
-    <c:message code="label.field.name2"/>: <input type="text" name="searchcode" id="searchcode" />
+    <c:message code="label.clientstables.dosers.col_title.subdiv"/>:<select name="subdivisions" id="subdivisions" multiple="multiple"></select>
+    <c:message code="label.clientstables.dosers.col_title.categeory"/>:<select name="categoryes" id="categoryes" multiple="multiple"></select>
+    <c:message code="label.clientstables.dosers.col_title.info"/>:<select name="infotypes" id="infotypes" multiple="multiple"></select><BR><BR>
+    <c:message code="label.clientstables.col_title.fio"/>: <input type="text" name="searchname" id="searchname" />
+    <c:message code="label.clientstables.col_title.code"/>: <input type="text" name="searchcode" id="searchcode" />
 
     <button type="submit" id="LoadRecordsButton">'<c:message code="label.button.loadrecord"/>'</button>
     <button type="submit" id="AllRecordsButton">'<c:message code="label.button.allrecord"/>'</button>

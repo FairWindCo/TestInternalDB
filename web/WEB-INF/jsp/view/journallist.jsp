@@ -30,18 +30,18 @@
   $(document).ready(function() {
     //setup the jtable that will display the results
     $('#ExpenseTableContainer').jtable({
-      title: '<c:message code="label.statistic.table_title"/>',
+      title: '<c:message code="label.journal.table_title"/>',
       selecting: true, //Enable selecting
       paging: true, //Enable paging
       pageSize: 10, //Set page size (default: 10)
-      sorting: false, //Enable sorting
+      sorting: true, //Enable sorting
       messages: <c:message code="label.messages"/>,
       actions: {
         //listAction: 'datatable/getAllExpenses',
-        listAction: '${pageContext.request.contextPath}/stats/import',
+        listAction: '${pageContext.request.contextPath}/journal/list',
       },
       fields: {
-        importDateTime: {
+        journalDate: {
           title: '<c:message code="label.statistic.col_title.date"/>',
           width: '10%',
           display: function (data) {
@@ -49,58 +49,29 @@
               year: 'numeric',
               month: 'long',
               day: 'numeric',
+              hour:'numeric',
+              minute:'numeric',
+              second:'numeric',
             };
-            var date=new Date(data.record.importDateTime);
+            var date=new Date(data.record.journalDate);
             return date.toLocaleString("ru", options);
           },
         },
-        personImportCounter: {
-          title: '<c:message code="label.statistic.col_title.personsCounter"/>',
+        operation: {
+          title: '<c:message code="label.journal.col_title.operation"/>',
           width: '5%',
         },
-        dosserImportCounter: {
-          title: '<c:message code="label.statistic.col_title.dosserCounter"/>',
-          width: '5%',
-        },
-        subdivisionsImportCounter: {
-          title: '<c:message code="label.statistic.col_title.subdivisionCounter"/>',
-          width: '5%',
-        },
-        categoryImportCounter: {
-          title: '<c:message code="label.statistic.col_title.categoryCounter"/>',
-          width: '5%',
-        },
-        infotypeImportCounter: {
-          title: '<c:message code="label.statistic.col_title.infotypeCounter"/>',
-          width: '5%',
-        },
-        activitiesImportCounter: {
-          title: '<c:message code="label.statistic.col_title.activityCounter"/>',
-          width: '5%',
-        },
-        contacttypesImportCounter: {
-          title: '<c:message code="label.statistic.col_title.contactstypesCounter"/>',
-          width: '5%',
-        },
-        hobbiImportCounter: {
-          title: '<c:message code="label.statistic.col_title.hobbyCounter"/>',
-          width: '5%',
-        },
-        relativesImportCounter: {
-          title: '<c:message code="label.statistic.col_title.relativiesCounter"/>',
-          width: '5%',
-        },
-        segmentsImportCounter: {
-          title: '<c:message code="label.statistic.col_title.segmentsCounter"/>',
-          width: '5%',
-        },
-        filetypesImportCounter: {
-          title: '<c:message code="label.statistic.col_title.filyTypeCounter"/>',
-          width: '5%',
-        },
-        importerUserName: {
+        user: {
           title: '<c:message code="label.statistic.col_title.user"/>',
           width: '15%',
+        },
+        object: {
+          title: '<c:message code="label.journal.col_title.object"/>',
+          width: '25%',
+        },
+        info: {
+          title: '<c:message code="label.journal.col_title.info"/>',
+          width: '45%',
         },
       },
       //Register to selectionChanged event to hanlde events
@@ -111,6 +82,7 @@
       $('#ExpenseTableContainer').jtable('load', {
         startDate: $('#startDate').val(),
         endDate: $('#endDate').val(),
+        name: $('#name').val(),
       });
     });
 
@@ -143,6 +115,7 @@
   <form>
     <c:message code="label.field.startDate"/>: <input type="text" name="startDate" id="startDate" />
     <c:message code="label.field.endDate"/>: <input type="text" name="endDate" id="endDate" />
+    <c:message code="label.field.user"/>: <input type="text" name="name" id="name" />
 
     <button type="submit" id="LoadRecordsButton">'<c:message code="label.button.loadrecord"/>'</button>
     <button type="submit" id="AllRecordsButton">'<c:message code="label.button.allrecord"/>'</button>

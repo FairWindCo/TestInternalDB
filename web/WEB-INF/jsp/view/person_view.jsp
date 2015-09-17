@@ -85,9 +85,22 @@
           title: 'CODE',
           width: '10%',
         },
-        bethday: {
-          title: 'bethday',
+        dateberthdey: {
+          title: '<c:message code="label.clientstables.col_title.bethday"/>',
           width: '10%',
+          display: function (data) {
+            var options = {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+            };
+            var date=new Date(data.record.dateberthdey);
+            return date.toLocaleString("ru", options);
+          },
+          input:function(data) {
+            var input='<input id = "Edit-dateberthdey" type = "text" name = "dateberthdey" >';
+            return input;
+          }
         },
         personStatus: {
           title: 'status',
@@ -548,10 +561,14 @@
         },
       },
       formCreated:function(event, data){
-
-
-
-
+        var date;
+        if(data.record!==null && data.record!==undefined) {
+          date = $.datepicker.parseDate("@", data.record.dateberthdey);
+        } else {
+          date=new Date();
+        }
+        $( "#Edit-dateberthdey" ).datepicker();
+        $( "#Edit-dateberthdey" ).datepicker("setDate",date);
       },
       //Register to selectionChanged event to hanlde events
       recordAdded: function (event, data) {

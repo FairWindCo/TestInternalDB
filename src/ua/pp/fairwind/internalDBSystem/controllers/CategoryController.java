@@ -162,6 +162,9 @@ public class CategoryController {
     public JSTableExpenseResp<Category>  delete(@ModelAttribute Category category, BindingResult result) {
         JSTableExpenseResp<Category>  jsonJtableResponse;
         try {
+            if(category.getCategoryId()==1){
+                return new JSTableExpenseResp<>("DELETE FORBIDDEN!");
+            }
             if(categoryservice.getChildRecordCount(category.getCategoryId())==0) {
                 categoryservice.delete(category.getCategoryId());
                 journal.log(ProgramOperationJornal.Operation.DELETE, "Category", "ID:"+category.getCategoryId()+"Name:"+category.getName());
