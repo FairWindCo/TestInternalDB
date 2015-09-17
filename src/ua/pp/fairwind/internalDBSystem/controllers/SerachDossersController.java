@@ -84,7 +84,7 @@ public class SerachDossersController {
         String fio=request.getParameter("searchname");
         String code=request.getParameter("searchcode");
         Set<Long> subdivisionsIds=FormSort.getIDsFromRequest(request,"subdivisions");
-        if (subdivisionsIds==null && (user.hasRole("ROLE_SUPER_EDIT") || user.hasRole("ROLE_SUPER_VIEW"))) subdivisionsIds=user.getTrustedSubvisionsId();
+        if (subdivisionsIds==null && !(user.hasRole("ROLE_SUPER_EDIT") || user.hasRole("ROLE_SUPER_VIEW"))) subdivisionsIds=user.getTrustedSubvisionsId();
         Set<Long> categoryIds=FormSort.getIDsFromRequest(request,"categoryes");
         Set<Long> infoTypeIds=FormSort.getIDsFromRequest(request, "infotypes");
 
@@ -137,6 +137,7 @@ public class SerachDossersController {
         if(subdivisionsIds!=null){
             exp=criteriaBuilder.and(exp,sroot.get("subdivision").isNotNull());
             exp=criteriaBuilder.and(exp,sroot.get("subdivision").get("subdivisionId").in(subdivisionsIds));
+            //exp=criteriaBuilder.or(exp,sroot.get("subdivision").isNull());
         }
         if(categoryIds!=null){
             exp=criteriaBuilder.and(exp,sroot.get("category").isNotNull());

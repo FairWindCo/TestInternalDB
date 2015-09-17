@@ -61,6 +61,7 @@
       pageSize: 10, //Set page size (default: 10)
       sorting: true, //Enable sorting
       useBootstrap: true,
+      messages: <c:message code="label.messages"/>,
       actions: {
         //listAction: 'datatable/getAllExpenses',
         listAction: '${pageContext.request.contextPath}/person/listClients',
@@ -78,11 +79,11 @@
           visibility:"hidden"
         },
         fio: {
-          title: 'F.I.O.',
+          title: '<c:message code="label.clientstables.col_title.fio"/>',
           width: '15%',
         },
         code: {
-          title: 'CODE',
+          title: '<c:message code="label.clientstables.col_title.code"/>',
           width: '10%',
         },
         dateberthdey: {
@@ -103,7 +104,7 @@
           }
         },
         personStatus: {
-          title: 'status',
+          title: '<c:message code="label.clientstables.col_title.status"/>',
           width: '10%',
         },
         /*
@@ -120,7 +121,7 @@
         */
 
         dossers:{
-          title: 'dossers',
+          title: '<c:message code="label.clientstables.col_title.dossers"/>',
           width: '10%',
           sorting: false,
           edit: false,
@@ -133,11 +134,12 @@
               $('#ExpenseTableContainer').jtable('openChildTable',
                       $img.closest('tr'),
                       {
-                        title:'DOSSERS FOR CLIENT: '+ rolesdata.record.fio,
+                        title:'<c:message code="label.clientstables.dossers"/>'+ rolesdata.record.fio,
                         paging: true, //Enable paging
                         pageSize: 10, //Set page size (default: 10)
                         sorting: true, //Enable sorting
                         useBootstrap: true,
+                        messages: <c:message code="label.messages"/>,
                         actions: {
                           <sec:authorize ifAnyGranted="ROLE_GROUP_EDIT,ROLE_SUPER_EDIT,ROLE_MAIN_EDIT">
 
@@ -265,6 +267,24 @@
                             edit: false,
                             list: false
                           },
+                          <sec:authorize ifAnyGranted="ROLE_CONFIDENTIAL">
+                          confidential:{
+                            title: '<c:message code="label.clientstables.dosers.col_title.confidentional"/>',
+                            create: true,
+                            edit: true,
+                            list: true,
+                            sort:false,
+                            type:'checkbox',
+                            values: { 'false': 'NOT CONFIDENTIAL', 'true': 'CONFIDENTIAL' },
+                            display:function(data){
+                              if (data.record.confidential !== null && data.record.confidential !== undefined && data.record.confidential) {
+                                return '<i class="fa fa-lock fa-fw">';
+                              } else {
+                                return '<i class="fa fa-tag fa-fw">';
+                              }
+                            }
+                          },
+                          </sec:authorize>
                           <sec:authorize ifAnyGranted="ROLE_GROUP_EDIT,ROLE_SUPER_EDIT,ROLE_MAIN_EDIT">
                           personId: {
                             create: true,
@@ -274,13 +294,13 @@
                             type:'hidden'
                           },
                           subdivId: {
-                            title: 'SUBDIVISIONS NAME',
+                            title: '<c:message code="label.clientstables.dosers.col_title.subdiv"/>',
                             width: '30%',
                             options: '${pageContext.request.contextPath}/subdivisions/optionsList',
                             list: false
                           },
                           categoryId: {
-                            title: 'CATEGORY NAME',
+                            title: '<c:message code="label.clientstables.dosers.col_title.categeory"/>',
                             width: '30%',
                             dependsOn:'subdivId',
                             //options: 'avaibleRolesOpt?userID=' + rolesdata.record.userID,
@@ -295,7 +315,7 @@
                             list: false
                           },
                           infoTypeId: {
-                            title: 'INFOTYPE NAME',
+                            title: '<c:message code="label.clientstables.dosers.col_title.info"/>',
                             width: '30%',
                             dependsOn:'categoryId',
                             //options: 'avaibleRolesOpt?userID=' + rolesdata.record.userID,
@@ -310,14 +330,14 @@
                             list: false
                           },
                           fileTypeId: {
-                            title: 'FILE TYPE',
+                            title: '<c:message code="label.clientstables.dosers.col_title.filytype"/>',
                             width: '30%',
                             options: '${pageContext.request.contextPath}/filetypes/options',
                             list: false
                           },
                           </sec:authorize>
                           "subdivision.name": {
-                            title: 'SUBDIVISIONS NAME',
+                            title: '<c:message code="label.clientstables.dosers.col_title.subdiv"/>',
                             width: '10%',
                             edit: false,
                             create: false,
@@ -330,7 +350,7 @@
                             }
                           },
                           "category.name": {
-                            title: 'CATEGORY NAME',
+                            title: '<c:message code="label.clientstables.dosers.col_title.categeory"/>',
                             width: '10%',
                             edit: false,
                             create: false,
@@ -343,7 +363,7 @@
                             }
                           },
                           "infotype.typeName": {
-                            title: 'INFOTYPE NAME',
+                            title: '<c:message code="label.clientstables.dosers.col_title.info"/>',
                             width: '10%',
                             edit: false,
                             create: false,
@@ -356,11 +376,11 @@
                             }
                           },
                           "textinfo": {
-                            title: 'INFO',
+                            title: '<c:message code="label.clientstables.dosers.col_title.text"/>',
                             width: '20%',
                           },
                           "fileinfo.filesType": {
-                            title: 'FILE TYPE',
+                            title: '<c:message code="label.clientstables.dosers.col_title.filytype"/>',
                             width: '10%',
                             edit: false,
                             create: false,
@@ -377,7 +397,7 @@
                             }
                           },
                           "FileUpload": {
-                            title: 'FILE',
+                            title: '<c:message code="label.clientstables.dosers.col_title.file"/>',
                             width: '10%',
                             //type:'date',
                             input: function (data) {
@@ -392,7 +412,7 @@
                             create: true,
                           },
                           "creationTime": {
-                            title: 'CREATED',
+                            title: '<c:message code="label.clientstables.dosers.col_title.created"/>',
                             width: '10%',
                             //type:'date',
                             edit: false,
@@ -601,7 +621,7 @@
 
 <div class="filtering">
   <form>
-    Name: <input type="text" name="searchname" id="searchname" />
+    <c:message code="label.field.name"/>: <input type="text" name="searchname" id="searchname" />
     <button type="submit" id="LoadRecordsButton">Load records</button>
     <button type="submit" id="AllRecordsButton">All records</button>
   </form>

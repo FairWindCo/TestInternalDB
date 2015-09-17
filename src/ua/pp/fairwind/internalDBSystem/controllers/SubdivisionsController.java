@@ -24,6 +24,7 @@ import ua.pp.fairwind.internalDBSystem.services.repository.SubdivisionRepository
 
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -173,12 +174,23 @@ public class SubdivisionsController {
         if(page_num!=null && per_page!=null) {
             pager = new PageRequest(page_num - 1, per_page, sort);
         }
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        UserDetailsAdapter user=(UserDetailsAdapter)auth.getPrincipal();
         if(pager!=null) {
             Page<Subdivision> page;
-            if (qword != null && qword.length > 0) {
-                page = subdivisionsservice.findByNameContains(qword[0], pager);
+            if(user.hasRole("ROLE_SUPER_EDIT")||user.hasRole("ROLE_SUPER_EDIT")) {
+                if (qword != null && qword.length > 0) {
+                    page = subdivisionsservice.findByNameContains(qword[0], pager);
+                } else {
+                    page = subdivisionsservice.findAll(pager);
+                }
             } else {
-                page = subdivisionsservice.findAll(pager);
+                Set<Long> assignedSubdivID = user.getTrustedSubvisionsId();
+                if (qword != null && qword.length > 0) {
+                    page = subdivisionsservice.findByNameContainsAndSubdivisionIdIn(qword[0],assignedSubdivID, pager);
+                } else {
+                    page = subdivisionsservice.findBySubdivisionIdIn(assignedSubdivID,pager);
+                }
             }
             return new JSComboExpenseResp<>(page);
         } else {
@@ -191,10 +203,19 @@ public class SubdivisionsController {
                 return ft;
             } else {
                 List<Subdivision> page;
-                if (qword != null && qword.length > 0) {
-                    page = subdivisionsservice.findByNameContains(qword[0]);
+                if(user.hasRole("ROLE_SUPER_EDIT")||user.hasRole("ROLE_SUPER_EDIT")) {
+                    if (qword != null && qword.length > 0) {
+                        page = subdivisionsservice.findByNameContains(qword[0]);
+                    } else {
+                        page = subdivisionsservice.findAll(sort);
+                    }
                 } else {
-                    page = subdivisionsservice.findAll(sort);
+                    Set<Long> assignedSubdivID = user.getTrustedSubvisionsId();
+                    if (qword != null && qword.length > 0) {
+                        page = subdivisionsservice.findByNameContainsAndSubdivisionIdIn(qword[0], assignedSubdivID, sort);
+                    } else {
+                        page = subdivisionsservice.findBySubdivisionIdIn(assignedSubdivID, sort);
+                    }
                 }
                 return new JSComboExpenseResp<>(page);
             }
@@ -222,7 +243,15 @@ public class SubdivisionsController {
         } else {
             page = subdivisionsservice.findAll(pager);
         }*/
-        page = subdivisionsservice.findAll(pager);
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        UserDetailsAdapter user=(UserDetailsAdapter)auth.getPrincipal();
+        if(user.hasRole("ROLE_SUPER_EDIT")||user.hasRole("ROLE_SUPER_EDIT")){
+            page = subdivisionsservice.findAll(pager);
+        } else {
+            Set<Long> assignedSubdivID = user.getTrustedSubvisionsId();
+            page = subdivisionsservice.findBySubdivisionIdIn(assignedSubdivID,pager);
+        }
         return new JSSelectExpenseResp<>(page);
     }
 

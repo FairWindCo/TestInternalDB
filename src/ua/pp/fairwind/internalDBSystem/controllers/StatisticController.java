@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import ua.pp.fairwind.internalDBSystem.datamodel.administrative.ProgramImportStatistics;
+import ua.pp.fairwind.internalDBSystem.datamodel.directories.PersonType;
 import ua.pp.fairwind.internalDBSystem.datamodel.proxy.DonutData;
 import ua.pp.fairwind.internalDBSystem.dateTable.JSTableExpenseListResp;
 import ua.pp.fairwind.internalDBSystem.services.repository.StatisticRepository;
@@ -38,11 +39,31 @@ public class StatisticController {
 
     @RequestMapping(value = "/count", method = RequestMethod.GET)
     public String showBuble(Model model) {
+        long dosser_count=repository.getDosserCount();
+        long dosser_complaint_count=repository.getDosserComplaintCount();
+        long total_person_count=repository.getPersonCount();
+        long total_client_count=repository.getPersonCountS(PersonType.CLIENT);
+        long total_worker_count=repository.getPersonCountS(PersonType.WORKER);
+        model.addAttribute("dosser_count",dosser_count);
+        model.addAttribute("dosser_complaint_count",dosser_complaint_count);
+        model.addAttribute("total_person_count",total_person_count);
+        model.addAttribute("total_client_count",total_client_count);
+        model.addAttribute("total_worker_count",total_worker_count);
         return "statdonut";
     }
 
     @RequestMapping(value = "/plot", method = RequestMethod.GET)
     public String showDiagram(Model model) {
+        long dosser_count=repository.getDosserCount();
+        long dosser_complaint_count=repository.getDosserComplaintCount();
+        long total_person_count=repository.getPersonCount();
+        long total_client_count=repository.getPersonCountS(PersonType.CLIENT);
+        long total_worker_count=repository.getPersonCountS(PersonType.WORKER);
+        model.addAttribute("dosser_count",dosser_count);
+        model.addAttribute("dosser_complaint_count",dosser_complaint_count);
+        model.addAttribute("total_person_count",total_person_count);
+        model.addAttribute("total_client_count",total_client_count);
+        model.addAttribute("total_worker_count",total_worker_count);
         return "statplot";
     }
 
@@ -58,7 +79,7 @@ public class StatisticController {
     @RequestMapping(value = "/category", method = RequestMethod.POST)
     @ResponseBody
     public List<DonutData> getCategoryStat(){
-        return repository.getSubdivisionStatistic();
+        return repository.getCategoryStatistic();
     }
 
 

@@ -15,7 +15,8 @@ public class ProgramOperationJornal {
         DELETE,
         SELECT,
         SEARCH,
-        PRINT
+        PRINT,
+        ADD_COMPLAINT
     }
     @Id
     @GeneratedValue

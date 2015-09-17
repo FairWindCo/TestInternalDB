@@ -2,6 +2,7 @@ package ua.pp.fairwind.internalDBSystem.services.repository;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import ua.pp.fairwind.internalDBSystem.datamodel.administrative.Subdivision;
@@ -21,13 +22,18 @@ public interface SubdivisionRepository extends JpaRepository<Subdivision,Long> {
     Page<Subdivision> findByNameLike(String name, Pageable pageRequest);
     Page<Subdivision> findByNameContains(String name, Pageable pageRequest);
     List<Subdivision> findByNameContains(String name);
+    Page<Subdivision> findByNameContainsAndSubdivisionIdIn(String name,Set<Long> trusted,Pageable pageRequest);
+    Page<Subdivision> findBySubdivisionIdIn(Set<Long> trusted,Pageable pageRequest);
+    List<Subdivision> findBySubdivisionIdIn(Set<Long> trusted,Sort sort);
+    List<Subdivision> findByNameContainsAndSubdivisionIdIn(String name,Set<Long> trusted,Sort sort);
+
     @Query("Select new ua.pp.fairwind.internalDBSystem.dateTable.JSTableExpenseOptionsBean(s.subdivisionId,s.name) from Subdivision s")
     List<JSTableExpenseOptionsBean> getAllSubdivisionOptions();
     @Query("Select new ua.pp.fairwind.internalDBSystem.dateTable.JSTableExpenseOptionsBean(s.subdivisionId,s.name) from Subdivision s where s.subdivisionId in ?1")
     List<JSTableExpenseOptionsBean> getAllSubdivisionOptionsWithAccessControl(Set<Long> trustedSubdivisions);
-
     @Query("Select new ua.pp.fairwind.internalDBSystem.dateTable.JSTableExpenseOptionsBean(cat.categoryId,cat.name) from Subdivision s join s.categories cat where s.subdivisionId = ?1")
     List<JSTableExpenseOptionsBean> getAllCategoryForSubdivisionOptions(Long subdivisionsId);
+
 
     @Query("Select count(dos) from Dosser dos where dos.subdivision is not null and  dos.subdivision.subdivisionId=?1")
     Long getChildRecordCount(long id);

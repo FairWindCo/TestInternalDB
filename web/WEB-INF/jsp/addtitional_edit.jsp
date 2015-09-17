@@ -57,7 +57,7 @@
               primary_key: 'hobbieId',
               db_table: 'nation',
               per_page: 20,
-              hidden_name:'Edit-hobbie_id',
+              //hidden_name:'Edit-hobbie_id',
               <jp:if test="${not empty person.hobbie}">
               init_record: ['${person.hobbie.hobbieId}'],
               </jp:if>
@@ -70,7 +70,7 @@
               primary_key: 'activitiesTypeId',
               db_table: 'nation',
               per_page: 20,
-              hidden_name:'Edit-activities_id',
+              //hidden_name:'Edit-activities_id',
               <jp:if test="${not empty person.activities}">
               init_record: ['${person.activities.activitiesTypeId}'],
               </jp:if>
@@ -83,7 +83,7 @@
               primary_key: 'sergmentsId',
               db_table: 'nation',
               per_page: 20,
-              hidden_name:'Edit-sergments_id',
+              //hidden_name:'Edit-sergments_id',
               <jp:if test="${not empty person.additionalInfo and not empty person.additionalInfo.clientSegment}">
                 init_record: [${person.additionalInfo.clientSegment.sergmentsId}],
               </jp:if>
@@ -96,7 +96,7 @@
               primary_key: 'filesTypeId',
               db_table: 'nation',
               per_page: 20,
-              hidden_name:'Edit-filetype_id',
+              //hidden_name:'Edit-filetype_id',
               <jp:if test="${not empty person.photo and not empty person.photo.filesType}">
               init_record: ['${person.photo.filesType.filesTypeId}'],
               </jp:if>
@@ -376,7 +376,7 @@
                         'fio DESC'
                       ],
                       per_page: 20,
-                      hidden_name:'relativiesId',
+                      //hidden_name:'relativiesId',
                     });
 
             return div;
@@ -411,7 +411,7 @@
                         dateberthdey: 'BITHDAY:',
                       },
                       per_page: 20,
-                      hidden_name:'personId',
+                      //hidden_name:'personId',
                     });
 
             return div;

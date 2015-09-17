@@ -127,6 +127,59 @@ public class DosserController {
     }
 
     @Transactional(readOnly = false)
+    @Secured({"ROLE_USER"})
+    @RequestMapping(value = "/", method = {RequestMethod.GET,RequestMethod.POST})
+    public String addComplaintFrom(){
+        return "complaint";
+    }
+
+    @Transactional(readOnly = false)
+    @Secured({"ROLE_USER"})
+    @RequestMapping(value = "/addComplaint", method = {RequestMethod.POST})
+    @ResponseBody
+    public String addComplaint(@RequestParam long personId_primary_key,@RequestParam String info,@RequestParam(value = "file",required = false) MultipartFile file,@RequestParam(required = false)String filecomment,@RequestParam(required = false) Long filetypeId_primary_key,@RequestParam(required = false) Long subdivsId_primary_key,Locale currentLocale){
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        UserDetailsAdapter user=(UserDetailsAdapter)auth.getPrincipal();
+        Subdivision sub=null;
+        if(subdivsId_primary_key!=null)sub=subdivService.findOne(subdivsId_primary_key);
+        Category cat=categService.findOne(1L);
+        Person person=personService.findOne(personId_primary_key);
+        if(person!=null){
+            try {
+                Dosser dosser = new Dosser();
+                dosser.setSubdivision(sub);
+                dosser.setPerson(person);
+                dosser.setCategory(cat);
+                dosser.setTextinfo(info);
+                dosser.setCreationTime(System.currentTimeMillis());
+                dosser.setRecordStatus(DosserType.ACTIVE);
+                dosser.setCreateUser(user.getUserP());
+                FilesType ft = null;
+                if (filetypeId_primary_key != null) {
+                    ft = filyTypeService.findOne(filetypeId_primary_key);
+                }
+                if (file != null && !file.isEmpty()) {
+                    Files fl = new Files();
+                    fl.setFilesType(ft);
+                    fl.setFileData(file.getBytes());
+                    fl.setFileMimeType(file.getContentType());
+                    fl.setFileOriginalName(file.getOriginalFilename());
+                    fl.setFileNameComments(filecomment);
+                    dosser.setFileinfo(fl);
+                    fileService.saveAndFlush(fl);
+                }
+                dosserService.save(dosser);
+                journal.log(ProgramOperationJornal.Operation.ADD_COMPLAINT,"DOSSER",person.getFio());
+            }catch (Exception e){
+                return e.getLocalizedMessage();
+            }
+        }else{
+            return messageSource.getMessage("label.noperson",new Object[]{personId_primary_key},"NO PERSON FOUND ID={} !", currentLocale);
+        }
+        return "OK";
+    }
+
+    @Transactional(readOnly = false)
     @Secured({"ROLE_SUPER_EDIT","ROLE_GROUP_EDIT","ROLE_MAIN_EDIT"})
     @RequestMapping(value = "/add", method = {RequestMethod.POST})
     @ResponseBody
