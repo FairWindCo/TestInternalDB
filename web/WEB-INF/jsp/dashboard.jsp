@@ -18,6 +18,8 @@
     <%@include file="/WEB-INF/include/jquery_ui_include.jsp" %>
     <%-- JTable --%>
     <%@include file="/WEB-INF/include/jtable_include.jsp" %>
+  <%-- JMultiSelect--%>
+  <%@include file="/WEB-INF/include/jmultselect_include.jsp" %>
 
     <%-- customized javascript code to manage JTable --%>
     <script>
@@ -158,7 +160,7 @@
             maxRecordCount: $('#maxRecordCount').val(),
           });
         });
-
+        $("#maxRecordCount").multiselect({multiple: false,selectedList: 1})
       });
     </script>
     <style>
@@ -188,8 +190,8 @@
     <sec:authorize ifAnyGranted="ROLE_GROUP_INF_EDIT,ROLE_SUPER_INF_EDIT,ROLE_MAIN_INF_EDIT,ROLE_GROUP_INF_VIEW,ROLE_SUPER_INF_VIEW,ROLE_MAIN_INF_VIEW">
       <div class="filtering">
         <form>
-          <c:message code="label.clientstables.dosers.col_title.subdiv"/>:
-          <select name="maxRecordCount" id="maxRecordCount" multiple="multiple">
+          <c:message code="label.dashboard.creteria"/>:
+          <select name="maxRecordCount" id="maxRecordCount">
             <option value="10">10</option>
             <option value="25" selected>25</option>
             <option value="50">50</option>
