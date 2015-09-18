@@ -133,7 +133,7 @@
         </sec:authorize>
         <tr>
           <td><c:message code="label.clientstables.dosers.col_title.text"/></td>
-          <td><input type="text"  name="info" id="info"/>
+          <td><textarea  name="info" id="info"></textarea>
         </tr>
         <tr>
           <td><c:message code="label.clientstables.dosers.col_title.filytype"/></td>
@@ -142,7 +142,7 @@
         <tr>
           <td><c:message code="label.clientstables.dosers.col_title.filecomments"/></td>
           <td>
-            <input type="text"  name="filecomment" id="filecomment"/>
+            <textarea name="filecomment" id="filecomment"></textarea>
           </td>
         </tr>
         <tr>

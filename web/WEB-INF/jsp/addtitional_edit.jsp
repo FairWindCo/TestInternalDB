@@ -199,6 +199,7 @@
         },
         fileNameComments: {
           title: '<c:message code="label.edit.persons.files.file_comments.col_title"/>',
+          type:'textarea',
           width: '10%',
           edit: false,
           create: true,

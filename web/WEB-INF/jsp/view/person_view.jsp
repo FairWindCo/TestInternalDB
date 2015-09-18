@@ -376,6 +376,7 @@
                             }
                           },
                           "textinfo": {
+                            type:'textarea',
                             title: '<c:message code="label.clientstables.dosers.col_title.text"/>',
                             width: '20%',
                           },
