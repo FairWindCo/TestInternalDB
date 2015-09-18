@@ -39,7 +39,7 @@
           fields: {
             confidentional: {
               title: '<c:message code="label.clientstables.dosers.col_title.confidentional"/>',
-              width: '10%',
+              width: '5%',
               display:function(data){
                 if(data!==null && data!==undefined && data.record!==null && data.record!==undefined && data.record.confidentional!=null && data.record.confidentional!==undefined && data.record.confidentional){
                   return '<i class="glyphicon glyphicon-eye-close">';
@@ -95,11 +95,11 @@
             },
             creationTime: {
               title: '<c:message code="label.clientstables.dosers.col_title.created"/>',
-              width: '5%',
+              width: '1%',
             },
             fileType: {
               title: '<c:message code="label.clientstables.dosers.col_title.filytype"/>',
-              width: '5%',
+              width: '2%',
             },
             viewFile: {
               title: '',
