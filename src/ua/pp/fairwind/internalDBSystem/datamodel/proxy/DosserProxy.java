@@ -13,7 +13,7 @@ import java.util.Date;
  * Created by Сергей on 15.09.2015.
  */
 public class DosserProxy {
-    static final SimpleDateFormat formater=new SimpleDateFormat("MM/dd/yyyy");
+    private static final SimpleDateFormat formater=new SimpleDateFormat("MM/dd/yyyy");
     private String fio;
     private String code;
     private String bethday;
@@ -29,12 +29,14 @@ public class DosserProxy {
     private String mime;
     private String filename;
     private boolean confidentional;
+    private String personnViewUrl;
+    private String personnPrintUrl;
 
     public DosserProxy(Dosser dosser){
-        this(dosser.getPerson().getFio(),dosser.getPerson().getCode(),dosser.getPerson().getDateberthdey(),dosser.getPerson().getPersonStatus().name(),dosser.getSubdivision(),dosser.getCategory(),dosser.getInfotype(),dosser.getTextinfo(),dosser.getFileinfo(),dosser.getCreationTime(),dosser.isConfidential());
+        this(dosser.getPerson().getFio(),dosser.getPerson().getCode(),dosser.getPerson().getDateberthdey(),dosser.getPerson().getPersonStatus().name(),dosser.getSubdivision(),dosser.getCategory(),dosser.getInfotype(),dosser.getTextinfo(),dosser.getFileinfo(),dosser.getCreationTime(),dosser.isConfidential(),dosser.getPerson().getPersonId());
     }
 
-    public DosserProxy(String fio, String code, Long bethday, String status, Subdivision subdivision, Category category, InfoType infotype, String info, Files file,Long creationTime,boolean confidentional) {
+    public DosserProxy(String fio, String code, Long bethday, String status, Subdivision subdivision, Category category, InfoType infotype, String info, Files file,Long creationTime,boolean confidentional,long personID) {
         this.fio = fio;
         this.confidentional=confidentional;
         this.code = code;
@@ -56,6 +58,8 @@ public class DosserProxy {
             this.fileUrl = "";
         }
         this.creationTime=creationTime==null?"":formater.format(new Date(creationTime));
+        this.personnPrintUrl="/person/print?personId="+personID;
+        this.personnViewUrl="}/additional/view?personID="+personID;
     }
 
     public String getFio() {
@@ -176,5 +180,21 @@ public class DosserProxy {
 
     public void setConfidentional(boolean confidentional) {
         this.confidentional = confidentional;
+    }
+
+    public String getPersonnViewUrl() {
+        return personnViewUrl;
+    }
+
+    public void setPersonnViewUrl(String personnViewUrl) {
+        this.personnViewUrl = personnViewUrl;
+    }
+
+    public String getPersonnPrintUrl() {
+        return personnPrintUrl;
+    }
+
+    public void setPersonnPrintUrl(String personnPrintUrl) {
+        this.personnPrintUrl = personnPrintUrl;
     }
 }

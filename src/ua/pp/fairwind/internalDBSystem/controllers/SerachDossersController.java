@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
 import ua.pp.fairwind.internalDBSystem.datamodel.Dosser;
 import ua.pp.fairwind.internalDBSystem.datamodel.directories.DosserType;
 import ua.pp.fairwind.internalDBSystem.datamodel.proxy.DosserProxy;
@@ -66,20 +67,6 @@ public class SerachDossersController {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         UserDetailsAdapter user=(UserDetailsAdapter)auth.getPrincipal();
 
-        /*if(user.hasRole("ROLE_CONFIDENTIAL")){
-            if (user.hasRole("ROLE_SUPER_EDIT") || user.hasRole("ROLE_SUPER_VIEW")) {
-                page = dosserService.findByRecordStatus(DosserType.ACTIVE, pager);
-            } else {
-                page = dosserService.getAvaibleDossers(user.getTrustedSubvisionsId(), DosserType.ACTIVE, pager);
-            }
-        } else {
-            if (user.hasRole("ROLE_SUPER_EDIT") || user.hasRole("ROLE_SUPER_VIEW")) {
-                page = dosserService.findByConfidentialAndRecordStatus(false, DosserType.ACTIVE, pager);
-            } else {
-                page = dosserService.getAvaibleDossers(user.getTrustedSubvisionsId(), false,DosserType.ACTIVE, pager);
-            }
-        }*/
-        //page=dosserService.findDossersProxy(createSimpleFind(DosserType.ACTIVE,false),pager);
         boolean conf=user.hasRole("ROLE_CONFIDENTIAL");
         String fio=request.getParameter("searchname");
         String code=request.getParameter("searchcode");
@@ -99,6 +86,28 @@ public class SerachDossersController {
         return new JSTableExpenseListResp<>(lst,count.intValue());
     }
 
+    public static String getURLWithContextPath(HttpServletRequest request) {
+        return request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + request.getContextPath();
+    }
+
+    @RequestMapping(value = "/print", method = {RequestMethod.GET,RequestMethod.POST})
+    @Transactional(readOnly = true)
+    @Secured({"ROLE_SUPERVIEW","ROLE_GROUP_VIEW", "ROLE_SUPER_VIEW","ROLE_MAIN_VIEW","ROLE_SUPER_EDIT","ROLE_GROUP_EDIT", "ROLE_SUPER_EDIT","ROLE_MAIN_EDIT"})
+    public String printsearch(HttpServletRequest request,Model model){
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        UserDetailsAdapter user=(UserDetailsAdapter)auth.getPrincipal();
+        boolean conf=user.hasRole("ROLE_CONFIDENTIAL");
+        String fio=request.getParameter("searchname");
+        String code=request.getParameter("searchcode");
+        Set<Long> subdivisionsIds=FormSort.getIDsFromRequest(request,"subdivisions");
+        if (subdivisionsIds==null && !(user.hasRole("ROLE_SUPER_EDIT") || user.hasRole("ROLE_SUPER_VIEW"))) subdivisionsIds=user.getTrustedSubvisionsId();
+        Set<Long> categoryIds=FormSort.getIDsFromRequest(request,"categoryes");
+        Set<Long> infoTypeIds=FormSort.getIDsFromRequest(request, "infotypes");
+        List<DosserProxy> lst=em.createQuery(createRequest(DosserType.ACTIVE, conf, subdivisionsIds, categoryIds, infoTypeIds, fio, code, "creationTime DESC")).getResultList();
+        model.addAttribute("url",getURLWithContextPath(request));
+        model.addAttribute("dossers",lst);
+        return "searchprint";
+    }
 
     @RequestMapping(value = "/last", method = {RequestMethod.GET,RequestMethod.POST})
     @Transactional(readOnly = true)
@@ -109,19 +118,6 @@ public class SerachDossersController {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         UserDetailsAdapter user=(UserDetailsAdapter)auth.getPrincipal();
 
-        /*if(user.hasRole("ROLE_CONFIDENTIAL")){
-            if (user.hasRole("ROLE_SUPER_EDIT") || user.hasRole("ROLE_SUPER_VIEW")) {
-                page = dosserService.findByRecordStatus(DosserType.ACTIVE, pager);
-            } else {
-                page = dosserService.getAvaibleDossers(user.getTrustedSubvisionsId(), DosserType.ACTIVE, pager);
-            }
-        } else {
-            if (user.hasRole("ROLE_SUPER_EDIT") || user.hasRole("ROLE_SUPER_VIEW")) {
-                page = dosserService.findByConfidentialAndRecordStatus(false, DosserType.ACTIVE, pager);
-            } else {
-                page = dosserService.getAvaibleDossers(user.getTrustedSubvisionsId(), false,DosserType.ACTIVE, pager);
-            }
-        }*/
         //page=dosserService.findDossersProxy(createSimpleFind(DosserType.ACTIVE,false),pager);
         boolean conf=user.hasRole("ROLE_CONFIDENTIAL");
         Set<Long> subdivisionsIds=user.getTrustedSubvisionsId();
@@ -136,7 +132,7 @@ public class SerachDossersController {
             exp=criteriaBuilder.and(exp,criteriaBuilder.equal(sroot.get("confidential"),false));
         if(subdivisionsIds!=null){
             exp=criteriaBuilder.and(exp,sroot.get("subdivision").isNotNull());
-            exp=criteriaBuilder.and(exp,sroot.get("subdivision").get("subdivisionId").in(subdivisionsIds));
+            exp=criteriaBuilder.and(exp, sroot.get("subdivision").get("subdivisionId").in(subdivisionsIds));
             //exp=criteriaBuilder.or(exp,sroot.get("subdivision").isNull());
         }
         if(categoryIds!=null){

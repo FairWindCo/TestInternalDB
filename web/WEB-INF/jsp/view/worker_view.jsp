@@ -547,7 +547,7 @@
               var $myVal = data.record.personId;
               var $link = $('<a href="#" class ="PassServiceLink"><i class="fa fa-search fa-fw"></i></a>');
               $link.on("click",function () {
-                    $('#add_service_to_cart_dialog').dialog({
+                    var theDialog=$('#add_service_to_cart_dialog').dialog({
                       autoOpen: false,
                       modal: true,
                       resizable: true,
@@ -562,7 +562,8 @@
                         $(this).load('${pageContext.request.contextPath}/additional/view?personID=' + $myVal);
                       }/**/
                     });
-                $('#add_service_to_cart_dialog').load('${pageContext.request.contextPath}/additional/view?personID=' + $myVal).dialog("open");
+                $('#add_service_to_cart_dialog').load('${pageContext.request.contextPath}/additional/view?personID=' + $myVal);
+                theDialog.dialog("open");
               });
               return $link;
           }
@@ -580,7 +581,7 @@
             var $myVal = data.record.personId;
             var $link = $('<a href="#" class ="PassServiceLink"><i class="fa fa-pencil fa-fw"></i></a>');
             $link.on("click",function () {
-              $('#add_service_to_cart_dialog').dialog({
+              var theDialog=$('#add_service_to_cart_dialog').dialog({
                 autoOpen: false,
                 modal: true,
                 resizable: true,
@@ -594,7 +595,8 @@
                   $(this).load('${pageContext.request.contextPath}/additional/edit?personID=' + $myVal);
                 }/**/
               });
-              $('#add_service_to_cart_dialog').load('${pageContext.request.contextPath}/additional/edit?personID=' + $myVal).dialog("open");
+              $('#add_service_to_cart_dialog').load('${pageContext.request.contextPath}/additional/edit?personID=' + $myVal);
+              theDialog.dialog("open");
             });
             return $link;
           }

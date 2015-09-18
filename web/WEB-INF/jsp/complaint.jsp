@@ -127,7 +127,7 @@
         </tr>
         <sec:authorize ifAnyGranted="ROLE_GROUP_INF_EDIT,ROLE_SUPER_INF_EDIT,ROLE_MAIN_INF_EDIT,ROLE_GROUP_INF_VIEW,ROLE_SUPER_INF_VIEW,ROLE_MAIN_INF_VIEW">
         <tr>
-          <td><c:message code="label.clientstables.col_title.fio"/></td>
+          <td><c:message code="label.clientstables.dosers.col_title.subdiv"/></td>
           <td><input type="text" name="subdivsId" id="subdivsId"/>
         </tr>
         </sec:authorize>

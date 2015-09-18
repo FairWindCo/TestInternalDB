@@ -70,6 +70,19 @@
               title: '<c:message code="label.clientstables.col_title.bethday"/>',
               width: '5%',
             },
+            printDetail: {
+              title: '',
+              width: '1%',
+              sorting: false,
+              create: false,
+              edit: false,
+              list: true,
+              display: function (data) {
+                var $myVal = data.record.personnPrintUrl;
+                var $print = '<a href="${pageContext.request.contextPath}' + $myVal+'" class ="PassServiceLink" target="new"><i class="fa fa-print fa-fw"></i></a>';
+                return $print;
+              }
+            },
             info: {
               title: '<c:message code="label.clientstables.dosers.col_title.text"/>',
               width: '25%',

@@ -6,10 +6,12 @@ package ua.pp.fairwind.internalDBSystem.datamodel.proxy;
 public class DonutData {
     final private long value;
     final private String label;
+    final private long id;
 
-    public DonutData(long value, String label) {
+    public DonutData(long value, String label,long id) {
         this.value = value;
         this.label = label;
+        this.id=id;
     }
 
     public long getValue() {
@@ -18,5 +20,9 @@ public class DonutData {
 
     public String getLabel() {
         return label;
+    }
+
+    public long getId() {
+        return id;
     }
 }

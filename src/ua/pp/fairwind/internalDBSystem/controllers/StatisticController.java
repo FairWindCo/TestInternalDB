@@ -78,8 +78,69 @@ public class StatisticController {
     @Transactional(readOnly = true)
     @RequestMapping(value = "/category", method = RequestMethod.POST)
     @ResponseBody
-    public List<DonutData> getCategoryStat(){
-        return repository.getCategoryStatistic();
+    public List<DonutData> getCategoryStat(@RequestParam(required = false) Long subdivisionId){
+        if(subdivisionId==null) {
+            return repository.getCategoryStatistic();
+        } else {
+            return repository.getCategoryStatistic(subdivisionId);
+        }
+    }
+
+    @Transactional(readOnly = true)
+    @RequestMapping(value = "/infotype", method = RequestMethod.POST)
+    @ResponseBody
+    public List<DonutData> getInfoTypeStat(@RequestParam(required = false) Long categoryId){
+        if(categoryId==null){
+            return repository.getSubdivisionComplaintStatistic();
+        }else {
+            return repository.getInfoTypeStatistic(categoryId);
+        }
+    }
+
+    @Transactional(readOnly = true)
+    @RequestMapping(value = "/doosers", method = {RequestMethod.POST,RequestMethod.GET})
+    @ResponseBody
+    public List<Object[]> getDossersStat(@RequestParam(required = false) String startDate,@RequestParam(required = false) String endDate){
+        long startdate;
+        long enddate;
+        if(startDate==null){
+            startdate=0;
+        } else {
+            try {
+                Date start=formater.parse(startDate);
+                startdate=start.getTime();
+            } catch (ParseException ex){
+                startdate=0;
+            }
+        }
+        if(endDate==null){
+            enddate=System.currentTimeMillis()+100;
+        } else {
+            try {
+                Date end=formater.parse(endDate);
+                enddate=System.currentTimeMillis()+100;
+            } catch (ParseException ex){
+                enddate=0;
+            }
+        }
+        return repository.getDoosersDatestatistics(startdate,enddate);
+    }
+
+    @Transactional(readOnly = true)
+    @RequestMapping(value = "/plotters", method = {RequestMethod.POST,RequestMethod.GET})
+    @ResponseBody
+    public JSTableExpenseListResp<ProgramImportStatistics> getImportStat(@RequestParam(required = false)String startDate,@RequestParam(required = false)String endDate){
+        if(startDate==null||endDate==null){
+            return new JSTableExpenseListResp<>(repository.findAll());
+        } else {
+            try {
+                Date sdate=formater.parse(startDate);
+                Date edate=formater.parse(endDate);
+                return new JSTableExpenseListResp<>(repository.findByImportDateTimeBetween(sdate,edate));
+            } catch (ParseException e) {
+                return new JSTableExpenseListResp<>(repository.findAll());
+            }
+        }
     }
 
 

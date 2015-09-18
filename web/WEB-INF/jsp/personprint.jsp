@@ -24,7 +24,7 @@
 <html>
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-  <title>Insert title here</title>
+  <title>${person.personType=='WORKER'?'СОТРУДНИК:':'КЛИЕНТ:'}</title>
 </head>
 <body>
 <h1>
@@ -182,7 +182,17 @@ ${person.fio}</h1>
 </div>
 </jp:if>
 </td></tr></table>
+<jp:if test="${empty dossers}">
+<div class="panel panel-danger">
+  <div class="panel-heading">
+    <h3 class="panel-title"><c:message code="label.norecord"/></h3>
+  </div>
+  <div class="panel-body">
+    <c:message code="label.norecord"/>
+  </div>
+</div>
 
+</jp:if>
 
 <jp:if test="${not empty dossers}">
 <div class="panel panel-danger">

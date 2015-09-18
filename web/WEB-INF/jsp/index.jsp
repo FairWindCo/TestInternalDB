@@ -29,7 +29,7 @@
           <span class="icon-bar"></span>
           <span class="icon-bar"></span>
         </button>
-        <a class="navbar-brand" href="index.html">Internal DB Admin v0.1</a>
+        <a class="navbar-brand" href="index.html"><c:message code="label"/></a>
       </div>
       <!-- /.navbar-header -->
       <ul class="nav navbar-top-links navbar-right">
@@ -86,11 +86,11 @@
               <a href="#"><i class="fa fa-inbox fa-fw"></i><c:message code="label.persons"/><span class="fa arrow"></span></a>
               <ul class="nav nav-second-level">
                 <li>
-                  <a href="person/" onclick="$('#page-wrapper').load('person/'); return false;"><c:message code="label.persons.clients"/></a>
+                  <a href="person/" onclick="$('#page-wrapper').empty();$('#page-wrapper').load('person/'); return false;"><c:message code="label.persons.clients"/></a>
                 </li>
                 <sec:authorize ifAnyGranted="ROLE_PERSONAL_VIEW,ROLE_PERSONAL_EDIT,ROLE_PERSONAL_ADD">
                 <li>
-                  <a href="person/worker" onclick="$('#page-wrapper').load('person/worker'); return false;"> <c:message code="label.persons.workers"/></a>
+                  <a href="person/worker" onclick="$('#page-wrapper').empty();$('#page-wrapper').load('person/worker'); return false;"> <c:message code="label.persons.workers"/></a>
                 </li>
                 </sec:authorize>
               </ul>

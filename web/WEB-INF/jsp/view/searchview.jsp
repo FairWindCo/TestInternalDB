@@ -76,6 +76,19 @@
           title: '<c:message code="label.clientstables.col_title.bethday"/>',
           width: '5%',
         },
+        printDetail: {
+          title: '',
+          width: '1%',
+          sorting: false,
+          create: false,
+          edit: false,
+          list: true,
+          display: function (data) {
+            var $myVal = data.record.personnPrintUrl;
+            var $print = '<a href="${pageContext.request.contextPath}' + $myVal+'" class ="PassServiceLink" target="new"><i class="fa fa-print fa-fw"></i></a>';
+            return $print;
+          }
+        },
         info: {
           title: '<c:message code="label.clientstables.dosers.col_title.text"/>',
           width: '25%',
@@ -260,6 +273,28 @@
     refreshInfo('');
 
   });
+
+  $('#print').click( function () {
+    $.ajax({
+      type: "POST",
+      url: "${pageContext.request.contextPath}/search/print",
+      data: {
+        searchname: $('#searchname').val(),
+        searchcode: $('#searchcode').val(),
+        subdivisions: $('#subdivisions').val(),
+        categoryes: $('#categoryes').val(),
+        infotypes: $('#infotypes').val(),
+      },
+      success: function(data){
+        var win = window.open();
+        win.document.write(data);
+      },
+      error: function(data){
+        alert("Error");
+      }
+    })
+
+  })
 </script>
 
 <style>
@@ -282,8 +317,9 @@
     <c:message code="label.clientstables.col_title.fio"/>: <input type="text" name="searchname" id="searchname" />
     <c:message code="label.clientstables.col_title.code"/>: <input type="text" name="searchcode" id="searchcode" />
 
-    <button type="submit" id="LoadRecordsButton">'<c:message code="label.button.loadrecord"/>'</button>
-    <button type="submit" id="AllRecordsButton">'<c:message code="label.button.allrecord"/>'</button>
+    <button type="button" id="LoadRecordsButton">'<c:message code="label.button.loadrecord"/>'</button>
+    <button type="button" id="AllRecordsButton">'<c:message code="label.button.allrecord"/>'</button>
+    <button type="button" id="print">'<c:message code="label.button.print"/>'</button>
   </form>
 </div>
 <div>
