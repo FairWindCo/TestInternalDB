@@ -197,7 +197,7 @@
           </select>
 
 
-          <button type="submit" id="LoadRecordsButton">'<c:message code="label.button.loadrecord"/>'</button>
+          <button type="submit" id="LoadRecordsButton" class="btn btn-default">'<c:message code="label.button.loadrecord"/>'</button>
         </form>
       </div>
       <div>

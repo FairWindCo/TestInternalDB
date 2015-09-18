@@ -38,10 +38,8 @@
           <th><c:message code="label.clientstables.col_title.bethday"/></th>
           <th><c:message code="label.clientstables.dosers.col_title.text"/></th>
           <th><c:message code="label.clientstables.dosers.col_title.filytype"/></th>
-          <th><c:message code="label.clientstables.dosers.col_title.file"/></th>
           <th><c:message code="label.clientstables.dosers.col_title.filecomments"/></th>
           <th><c:message code="label.clientstables.dosers.col_title.created"/></th>
-          <th></th>
         </tr>
         </thead>
         <tbody>
@@ -56,16 +54,24 @@
             <td>${dosser.bethday}</td>
             <td>${dosser.info}</td>
             <td>${dosser.fileType}</td>
-            <td>
-              <jp:if test="${not empty dosser.mime}">
-                <a src="${pageContext.request.contextPath}${dosser.fileUrl}">${pageContext.request.contextPath}${dosser.fileUrl}</a>
-              </jp:if>
-            </td>
             <td>${dosser.fileComments}</td>
             <td>${dosser.creationTime}</td>
+          </tr>
+          <tr>
             <td>
+              <jp:if test="${not empty dosser.mime}">
+              <a href="${url}${dosser.fileUrl}" class="btn btn-default"  target="_blank" ><c:message code="label.clientstables.dosers.col_title.file"/></a>
+              </jp:if>
+            </td>
+            <td colspan="5">
+              <jp:if test="${not empty dosser.mime}">
+                <a href="${url}${dosser.fileUrl}"  target="_blank" >${url}${dosser.fileUrl}</a>
+              </jp:if>
+            </td>
+            <td colspan="5">
               <jp:if test="${not empty dosser.personnPrintUrl}">
-                <a src="${url}${dosser.personnPrintUrl}" target="_blank"><i class="fa fa-print fa-fw"></i></a>
+                <a href="${url}${dosser.personnPrintUrl}" target="_blank" class="btn btn-default"><i class="fa fa-print fa-fw"></i></a>
+                <a href="${url}${dosser.personnPrintUrl}"  target="_blank" >${url}${dosser.personnPrintUrl}</a>
               </jp:if>
             </td>
           </tr>

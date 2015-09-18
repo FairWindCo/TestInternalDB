@@ -144,8 +144,8 @@
     <c:message code="label.field.startDate"/>: <input type="text" name="startDate" id="startDate" />
     <c:message code="label.field.endDate"/>: <input type="text" name="endDate" id="endDate" />
 
-    <button type="submit" id="LoadRecordsButton">'<c:message code="label.button.loadrecord"/>'</button>
-    <button type="submit" id="AllRecordsButton">'<c:message code="label.button.allrecord"/>'</button>
+    <button type="button" id="LoadRecordsButton" class="btn btn-default">'<c:message code="label.button.loadrecord"/>'</button>
+    <button type="button" id="AllRecordsButton" class="btn btn-default">'<c:message code="label.button.allrecord"/>'</button>
   </form>
 </div>
 <div>

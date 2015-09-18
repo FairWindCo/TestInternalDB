@@ -117,8 +117,8 @@
     <c:message code="label.field.endDate"/>: <input type="text" name="endDate" id="endDate" />
     <c:message code="label.field.user"/>: <input type="text" name="name" id="name" />
 
-    <button type="submit" id="LoadRecordsButton">'<c:message code="label.button.loadrecord"/>'</button>
-    <button type="submit" id="AllRecordsButton">'<c:message code="label.button.allrecord"/>'</button>
+    <button type="button" id="LoadRecordsButton" class="btn btn-default">'<c:message code="label.button.loadrecord"/>'</button>
+    <button type="button" id="AllRecordsButton" class="btn btn-default">'<c:message code="label.button.allrecord"/>'</button>
   </form>
 </div>
 <div>

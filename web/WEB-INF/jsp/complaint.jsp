@@ -153,7 +153,7 @@
         </tr>
         <tr>
           <td></td>
-          <td><input type="submit"/></td>
+          <td><input type="submit" class="btn btn-default"/></td>
         </tr>
       </table>
     </form>

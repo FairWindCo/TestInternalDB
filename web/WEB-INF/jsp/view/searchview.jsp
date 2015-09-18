@@ -257,16 +257,22 @@
 
     $("#subdivisions").multiselect({selectedList: 4,
       click: function(event, ui){
-        alert($('#subdivisions').val());
+        //alert($('#subdivisions').val());
+      },
+      close: function(){
         var cntInput=$('#subdivisions').val();
         refreshCategory(cntInput);
-      }
+      },
     }).multiselectfilter();
     $("#categoryes").multiselect({selectedList: 4,
       click: function(event, ui){
+
+      },
+      close: function(){
         var cntInput=$('#subdivisions').val();
         refreshInfo(cntInput);
-      }}).multiselectfilter();
+      },
+    }).multiselectfilter();
     $("#infotypes").multiselect({selectedList: 4}).multiselectfilter();
     refreshSubdivision();
     refreshCategory('');
@@ -317,9 +323,9 @@
     <c:message code="label.clientstables.col_title.fio"/>: <input type="text" name="searchname" id="searchname" />
     <c:message code="label.clientstables.col_title.code"/>: <input type="text" name="searchcode" id="searchcode" />
 
-    <button type="button" id="LoadRecordsButton">'<c:message code="label.button.loadrecord"/>'</button>
-    <button type="button" id="AllRecordsButton">'<c:message code="label.button.allrecord"/>'</button>
-    <button type="button" id="print">'<c:message code="label.button.print"/>'</button>
+    <button type="button" id="LoadRecordsButton" class="btn btn-default">'<c:message code="label.button.loadrecord"/>'</button>
+    <button type="button" id="AllRecordsButton" class="btn btn-default">'<c:message code="label.button.allrecord"/>'</button>
+    <button type="button" id="print" class="btn btn-default">'<c:message code="label.button.print"/>'</button>
   </form>
 </div>
 <div>
