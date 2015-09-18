@@ -50,6 +50,21 @@
           edit: false,
           visibility:"hidden"
         },
+        mainsubdivisions_id: {
+          title: '<c:message code="label.usertables.table.col_title.mainsubdivisions"/>',
+          width: '10%',
+          options: '${pageContext.request.contextPath}/users/subdivOpt',
+          display: function (data) {
+            if(data.record.mainsubdivisions!==null && data.record.mainsubdivisions!==undefined){
+              return '<b>' + data.record.mainsubdivisions.name + '</b>';
+            } else {
+              return '<b>----</b>';
+            }
+          },
+          input:function(data){
+            return '<input id="ac01_mainsubdivisions_id" name="mainsubdivisions_ids" type="text" /><input id="mainsubdivisions_id" name="mainsubdivisions_id" type="hidden" value="0" />';
+          },
+        },
         userName: {
           title: '<c:message code="label.usertables.table.col_title.login"/>',
           width: '15%',
@@ -70,21 +85,6 @@
           type: 'checkbox',
           values: { 'false': 'Passive', 'true': 'Active' },
           defaultValue: 'true'
-        },
-        mainsubdivisions_id: {
-          title: '<c:message code="label.usertables.table.col_title.mainsubdivisions"/>',
-          width: '10%',
-          options: '${pageContext.request.contextPath}/users/subdivOpt',
-          display: function (data) {
-            if(data.record.mainsubdivisions!==null && data.record.mainsubdivisions!==undefined){
-              return '<b>' + data.record.mainsubdivisions.name + '</b>';
-            } else {
-              return '<b>----</b>';
-            }
-          },
-          input:function(data){
-            return '<input id="ac01_mainsubdivisions_id" name="mainsubdivisions_ids" type="text" /><input id="mainsubdivisions_id" name="mainsubdivisions_id" type="hidden" value="0" />';
-          },
         },
         userRoles:{
           title: '<c:message code="label.usertables.table.col_title.roles"/>',
@@ -252,7 +252,17 @@
 
   });
 </script>
-
+<style>
+  div.jtable-main-container table.jtable thead th{
+    vertical-align: top;
+  }
+  th.jtable-column-header{
+    height: 50px;
+    align-content: center;
+    padding-top: 0;
+    margin-top: 0;
+  }
+</style>
 
 <div class="filtering">
   <form>

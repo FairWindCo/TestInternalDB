@@ -11,3 +11,15 @@
 <link rel="stylesheet" href="<c:url value="/resources/jtable/css/jquery-ui-1.8.16.custom.css"/>">
 --%>
 <link rel="stylesheet" href="<c:url value="/resources/jtable/themes/metro/blue/jtable.css"/>">
+<style>
+  span.jtable-goto-page>select {
+    color: black;
+    font-size: 10pt;
+    font-style: normal;
+  }
+  span.jtable-page-size-change>select {
+    color: black;
+    font-size: 10pt;
+    font-style: normal;
+  }
+</style>
