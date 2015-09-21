@@ -130,8 +130,10 @@
             //Create an image that will be used to open child table
             var $img = $('<img src="<c:url value="/images/list_metro.png" />" title="Edit phone numbers" >');
             //Open child table when user clicks the image
+            var parentTable = $("#ExpenseTableContainer");
             $img.click(function () {
-              $('#ExpenseTableContainer').jtable('openChildTable',
+              if(parentTable===null || parentTable===undefined )return;
+              parentTable.jtable('openChildTable',
                       $img.closest('tr'),
                       {
                         title:'<c:message code="label.clientstables.dossers"/>'+ rolesdata.record.fio,

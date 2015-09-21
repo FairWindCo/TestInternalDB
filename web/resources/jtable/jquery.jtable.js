@@ -4932,6 +4932,18 @@ THE SOFTWARE.
                 return;
             }
 
+            /**
+             * We verified that this really initialized, because by using
+             * openChildRow / closeChildRow the markup is generated but this
+             * does not necessarily represent the existence of an instance
+             */
+            if($childTable.data('hik-jtable') === undefined){
+                if (closed) {
+                    closed();
+                }
+                return;
+            }
+
             $childRowColumn.data('childTable', null);
             $childTable.slideUp('fast', function () {
                 $childTable.jtable('destroy');

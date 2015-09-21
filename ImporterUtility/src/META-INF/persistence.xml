@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence xmlns="http://xmlns.jcp.org/xml/ns/persistence" version="2.1">
+<persistence-unit name="internalDB" transaction-type="RESOURCE_LOCAL">
+    <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+    <class>ua.pp.fairwind.internalDBSystem.datamodel.directories.FilesType</class>
+    <class>ua.pp.fairwind.internalDBSystem.datamodel.directories.Activities</class>
+    <class>ua.pp.fairwind.internalDBSystem.datamodel.directories.ContactType</class>
+    <class>ua.pp.fairwind.internalDBSystem.datamodel.directories.Hobbies</class>
+    <class>ua.pp.fairwind.internalDBSystem.datamodel.directories.Relatives</class>
+    <class>ua.pp.fairwind.internalDBSystem.datamodel.directories.Segments</class>
+    <class>ua.pp.fairwind.internalDBSystem.datamodel.administrative.Roles</class>
+    <class>ua.pp.fairwind.internalDBSystem.datamodel.Files</class>
+    <class>ua.pp.fairwind.internalDBSystem.datamodel.Contact</class>
+    <class>ua.pp.fairwind.internalDBSystem.datamodel.Person</class>
+    <class>ua.pp.fairwind.internalDBSystem.datamodel.administrative.Category</class>
+    <class>ua.pp.fairwind.internalDBSystem.datamodel.administrative.Subdivision</class>
+    <class>ua.pp.fairwind.internalDBSystem.datamodel.administrative.InfoType</class>
+    <class>ua.pp.fairwind.internalDBSystem.datamodel.RelationDegrees</class>
+    <class>ua.pp.fairwind.internalDBSystem.datamodel.administrative.User</class>1
+    <class>ua.pp.fairwind.internalDBSystem.datamodel.Dosser</class>
+    <class>ua.pp.fairwind.internalDBSystem.datamodel.ClientAdditionalInfo</class>
+    <class>ua.pp.fairwind.internalDBSystem.datamodel.administrative.ProgramImportStatistics</class>
+    <class>ua.pp.fairwind.internalDBSystem.datamodel.administrative.ProgramOperationJornal</class>
+</persistence-unit>
+</persistence>

@@ -60,6 +60,7 @@ public class Person {
     @OneToOne(targetEntity = ClientAdditionalInfo.class,cascade = CascadeType.ALL,fetch = FetchType.LAZY)
     @JsonIgnore
     private ClientAdditionalInfo additionalInfo;
+    private String key1c;
 
     //AUDITING
     @CreatedDate
@@ -212,5 +213,11 @@ public class Person {
         return files;
     }
 
+    public String getKey1c() {
+        return key1c;
+    }
 
+    public void setKey1c(String key1c) {
+        this.key1c = key1c;
+    }
 }

@@ -408,8 +408,8 @@
                       init_record:[personId],
                       sub_info: true,
                       sub_as: {
-                        code: 'CODE:',
-                        dateberthdey: 'BITHDAY:',
+                        code: '<c:message code="label.clientstables.col_title.code"/>:',
+                        dateberthdey: '<c:message code="label.clientstables.col_title.bethday"/>:',
                       },
                       per_page: 20,
                       //hidden_name:'personId',

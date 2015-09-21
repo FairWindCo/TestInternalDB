@@ -73,4 +73,8 @@ public interface PersonRepository extends JpaRepository<Person,Long> {
     List<PersonProxy> findProxyByFioOrCode(@Param("text")String text);
     @Query("Select new ua.pp.fairwind.internalDBSystem.datamodel.proxy.PersonProxy(p.personId,p.fio,p.code,p.dateberthdey) from Person p where p.code like :text or p.fio like :text")
     Page<PersonProxy> findProxyByFioOrCode(@Param("text")String text,Pageable pageRequest);
+    @Query("select person from Person person where person.key1c=?1")
+    Person findByKey1C(String key);
+    @Query("select person from Person person where person.fio=?1")
+    Person findByFio(String fio);
 }

@@ -1,5 +1,7 @@
 package ua.pp.fairwind.internalDBSystem.datamodel.proxy;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import java.util.Date;
 
 /**
@@ -9,6 +11,7 @@ public class PersonProxy {
     private final long personId;
     private final String fio;
     private final String code;
+    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="dd-MM-yyyy")
     private final Date dateberthdey;
 
     public PersonProxy(Long personId,String fio, String code, Long dateberthdey) {

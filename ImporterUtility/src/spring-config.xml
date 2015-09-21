@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+       xmlns:jpa="http://www.springframework.org/schema/data/jpa"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc.xsd        http://www.springframework.org/schema/data/jpa http://www.springframework.org/schema/data/jpa/spring-jpa.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+       <!--<property name="url" value="jdbc:hsqldb:data/internalDB" />  -->
+       <!--
+       <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
+              <property name="driverClassName" value="org.hsqldb.jdbcDriver" />
+
+              <property name="url" value="jdbc:hsqldb:hsql://localhost/internalDB" />
+
+              <property name="username" value="sa" />
+              <property name="password" value="" />
+       </bean>
+       -->
+
+       <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
+              <property name="driverClassName" value="com.mysql.jdbc.Driver" />
+
+              <property name="url" value="jdbc:mysql://localhost/java?autoReconnect=true" />
+
+              <property name="username" value="root" />
+              <property name="password" value="" />
+              <property name="maxWait" value="-1"/>
+              <property name="maxIdle" value="5"/>
+              <property name="maxActive" value="20"/>
+              <property name="minIdle" value="5"/>
+              <property name="validationQuery" value="SELECT 1"/>
+              <!--<property name="loginTimeout" value="-1"/> -->
+       </bean>
+
+       <!--
+              <jdbc:embedded-database id="dataSource" type="HSQL">
+              </jdbc:embedded-database>
+
+              <jdbc:initialize-database>
+                     <jdbc:script location="/WEB-INF/test-init.sql"/>
+                     <jdbc:script location="/WEB-INF/test-data.sql"/>
+              </jdbc:initialize-database>-->
+
+
+       <bean id="sessionFactory"
+             class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+              <property name="dataSource" ref="dataSource" />
+              <property name="hibernateProperties">
+                     <props>
+                            <prop key="hibernate.hbm2ddl.auto">create</prop>
+                            <prop key="hibernate.dialect">org.hibernate.dialect.MySQL5Dialect</prop>
+                     </props>
+              </property>
+       </bean>
+
+       <bean id="jpaVendorAdapter" class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
+              <property name="showSql" value="true"/>
+              <property name="generateDdl" value="true"/>
+              <property name="database" value="MYSQL"/>
+       </bean>
+
+       <bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+              <property name="persistenceXmlLocation" value="/META-INF/persistence.xml"/>
+              <property name="persistenceUnitName" value="internalDB"/>
+              <property name="dataSource" ref="dataSource"/>
+              <property name="jtaDataSource" ref="dataSource"/>
+              <property name="jpaVendorAdapter" ref="jpaVendorAdapter"/>
+              <!-- spring based scanning for entity classes>-->
+              <property name="packagesToScan" value="ua.pp.fairwind.internalDBSystem.datamodel"/>
+
+       </bean>
+
+       <!-- Enables the Hibernate @Transactional programming model -->
+       <tx:annotation-driven transaction-manager="transactionManager" />
+
+       <!--<bean id="transactionManager"
+             class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+              <property name="sessionFactory" ref="sessionFactory" />
+       </bean>-->
+
+       <bean id="transactionManager"
+             class="org.springframework.orm.jpa.JpaTransactionManager">
+              <property name="entityManagerFactory" ref="entityManagerFactory" />
+       </bean>
+
+       <tx:annotation-driven  transaction-manager="transactionManager"/>
+
+       <jpa:repositories base-package="ua.pp.fairwind.internalDBSystem.services.repository"
+                         entity-manager-factory-ref="entityManagerFactory"
+                         transaction-manager-ref="transactionManager">
+       </jpa:repositories>
+       <!--       -->
+
+       <context:component-scan base-package="ua.pp.fairwind.internalDBSystem" />
+</beans>
