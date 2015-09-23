@@ -36,6 +36,7 @@ public class FileTypeController {
     @Autowired
     private MessageSource messageSource;
 
+    @Secured("ROLE_GLOBAL_INFO_EDIT")
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public String show(Model model) {
         return "filetypetable";

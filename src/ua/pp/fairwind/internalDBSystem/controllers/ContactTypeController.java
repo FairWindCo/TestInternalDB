@@ -37,6 +37,7 @@ public class ContactTypeController {
     private MessageSource messageSource;
 
     @RequestMapping(value = "/", method = RequestMethod.GET)
+    @Secured("ROLE_GLOBAL_INFO_EDIT")
     public String show(Model model) {
         return "contacttypetable";
     }

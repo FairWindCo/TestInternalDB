@@ -44,6 +44,7 @@
                                 <div class="form-group">
                                     <input class="form-control" placeholder="<c:message code="label.loginpass"/>" id="password" name="password" type="password" value="">
                                 </div>
+                                <!--
                                 <div class="checkbox">
                                     <label>
                                         <input name="_spring_security_remember_me" type="checkbox" value="Remember Me">Remember Me

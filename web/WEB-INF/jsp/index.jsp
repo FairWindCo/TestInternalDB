@@ -56,9 +56,11 @@
       <div class="navbar-default sidebar" role="navigation">
         <div class="sidebar-nav navbar-collapse">
           <ul class="nav" id="side-menu">
+            <sec:authorize ifAnyGranted="ROLE_ADD_TASK">
             <li>
               <a href="dossers/" onclick="$('#page-wrapper').load('dossers/'); return false;"><i class="glyphicon glyphicon-bell"></i> <c:message code="label.addcomplaint"/></a>
             </li>
+              </sec:authorize>
             <li>
               <a href="${pageContext.request.contextPath}/dashboard" onclick="$('#page-wrapper').load('${pageContext.request.contextPath}/dashboard'); return false;"><i class="fa fa-dashboard fa-fw"></i> Dashboard</a>
             </li>
@@ -161,7 +163,12 @@
       </nav>
 
     <div id="page-wrapper">
-      <jsp:include page="complaint.jsp" />
+      <sec:authorize ifAnyGranted="ROLE_ADD_TASK">
+        <jsp:include page="complaint.jsp" />
+     </sec:authorize>
+      <sec:authorize ifNotGranted="ROLE_ADD_TASK">
+        <jsp:include page="statdonut.jsp" />
+      </sec:authorize>
     </div>
   </div>
   </body>

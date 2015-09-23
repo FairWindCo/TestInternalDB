@@ -38,6 +38,7 @@ public class ActivitiesController {
 
 
     @RequestMapping(value = "/", method = RequestMethod.GET)
+    @Secured("ROLE_GLOBAL_INFO_EDIT")
     public String show(Model model) {
         return "activitiestable";
     }

@@ -15,8 +15,17 @@
               <property name="username" value="sa" />
               <property name="password" value="" />
        </bean>
+       internalDBPool
        -->
 
+       <bean id="dataSource" class="org.springframework.jndi.JndiObjectFactoryBean">
+              <property name="jndiName" value="internalDB" />
+              <property name="lookupOnStartup" value="false"/>
+              <property name="cache" value="true"/>
+              <property name="proxyInterface" value="javax.sql.DataSource"/>
+       </bean>
+
+       <!--
        <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
               <property name="driverClassName" value="com.mysql.jdbc.Driver" />
 
@@ -29,8 +38,8 @@
               <property name="maxActive" value="20"/>
               <property name="minIdle" value="5"/>
               <property name="validationQuery" value="SELECT 1"/>
-              <!--<property name="loginTimeout" value="-1"/> -->
-       </bean>
+
+       </bean>-->
 
 <!--
        <jdbc:embedded-database id="dataSource" type="HSQL">

@@ -21,13 +21,13 @@
         <div class="col-md-4 col-md-offset-4">
             <div class="login-panel panel panel-danger">
                 <div class="panel-heading">
-                    <h3 class="panel-title"><c:message code="label.s403.title"/></h3>
+                    <h3 class="panel-title"><c:message code="label.s404.title"/></h3>
                 </div>
                 <div class="panel-body">
                     <div class="alert alert-danger">
-                        <c:message code="label.s403.message"/>
+                        <c:message code="label.s404.message"/>
                     </div>
-                    <a href="${pageContext.request.contextPath}/" class="btn btn-default"><c:message code="label.s403.link"/></a>
+                    <a href="${pageContext.request.contextPath}/" class="btn btn-default"><c:message code="label.s404.link"/></a>
                     </div>
                 </div>
             </div>

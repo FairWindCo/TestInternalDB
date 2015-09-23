@@ -29,6 +29,11 @@ public class IndexController {
         return "index";
     }
 
+    @RequestMapping(value = "/notfound", method = RequestMethod.GET)
+    public String eror404(Model model) {
+        return "error404";
+    }
+
     @RequestMapping(value = "/login", method = RequestMethod.GET)
     public String showLogin(Model model) {
         return "login";
