@@ -33,6 +33,7 @@ public class UserDetailsAdapter implements UserDetails{
         for (GrantedAuthority authority : authorities) {
             hasRole = authority.getAuthority().equals(role);
             if (hasRole) {
+                hasRole=true;
                 break;
             }
         }
