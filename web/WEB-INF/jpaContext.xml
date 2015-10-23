@@ -4,43 +4,52 @@
        xmlns:jdbc="http://www.springframework.org/schema/jdbc"
        xmlns:jpa="http://www.springframework.org/schema/data/jpa"
        xmlns:context="http://www.springframework.org/schema/context"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc.xsd        http://www.springframework.org/schema/data/jpa http://www.springframework.org/schema/data/jpa/spring-jpa.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+       xmlns:jee="http://www.springframework.org/schema/jee"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc.xsd        http://www.springframework.org/schema/data/jpa http://www.springframework.org/schema/data/jpa/spring-jpa.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee.xsd">
        <!--<property name="url" value="jdbc:hsqldb:data/internalDB" />  -->
        <!--
-       <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
-              <property name="driverClassName" value="org.hsqldb.jdbcDriver" />
+              <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
+                     <property name="driverClassName" value="org.hsqldb.jdbcDriver" />
 
-              <property name="url" value="jdbc:hsqldb:hsql://localhost/internalDB" />
+                     <property name="url" value="jdbc:hsqldb:hsql://localhost/internalDB" />
 
-              <property name="username" value="sa" />
-              <property name="password" value="" />
-       </bean>
-       internalDBPool
-       -->
+                     <property name="username" value="sa" />
+                     <property name="password" value="" />
+              </bean>
 
-       <bean id="dataSource" class="org.springframework.jndi.JndiObjectFactoryBean">
-              <property name="jndiName" value="internalDB" />
-              <property name="lookupOnStartup" value="false"/>
-              <property name="cache" value="true"/>
-              <property name="proxyInterface" value="javax.sql.DataSource"/>
-       </bean>
-
+              -->
        <!--
-       <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
-              <property name="driverClassName" value="com.mysql.jdbc.Driver" />
+                     <bean id="INDB_DS" class="org.springframework.jndi.JndiObjectFactoryBean">
+                            <property name="jndiName" value="java:internalDB" />
+                            <property name="lookupOnStartup" value="false"/>
+                            <property name="cache" value="true"/>
+                            <property name="proxyInterface" value="javax.sql.DataSource"/>
+                     </bean>
 
-              <property name="url" value="jdbc:mysql://localhost/java?autoReconnect=true" />
+              -->
 
-              <property name="username" value="root" />
-              <property name="password" value="" />
-              <property name="maxWait" value="-1"/>
-              <property name="maxIdle" value="5"/>
-              <property name="maxActive" value="20"/>
-              <property name="minIdle" value="5"/>
-              <property name="validationQuery" value="SELECT 1"/>
+       <jee:jndi-lookup
+               id="INDB_DS"
+               jndi-name="internalDB"
+               cache="true"
+               expected-type="javax.sql.DataSource"
+       />
+       <!--
+                     <bean id="INDB_DS" class="org.apache.commons.dbcp.BasicDataSource">
+                            <property name="driverClassName" value="com.mysql.jdbc.Driver" />
 
-       </bean>-->
+                            <property name="url" value="jdbc:mysql://localhost/java?autoReconnect=true" />
 
+                            <property name="username" value="root" />
+                            <property name="password" value="" />
+                            <property name="maxWait" value="-1"/>
+                            <property name="maxIdle" value="5"/>
+                            <property name="maxActive" value="20"/>
+                            <property name="minIdle" value="5"/>
+                            <property name="validationQuery" value="SELECT 1"/>
+
+                     </bean>
+-->
 <!--
        <jdbc:embedded-database id="dataSource" type="HSQL">
        </jdbc:embedded-database>
@@ -50,32 +59,42 @@
               <jdbc:script location="/WEB-INF/test-data.sql"/>
        </jdbc:initialize-database>-->
 
-
+<!--
        <bean id="sessionFactory"
              class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
-              <property name="dataSource" ref="dataSource" />
+              <property name="dataSource" ref="INDB_DS" />
               <property name="hibernateProperties">
                      <props>
                             <prop key="hibernate.hbm2ddl.auto">create</prop>
                             <prop key="hibernate.dialect">org.hibernate.dialect.MySQL5Dialect</prop>
                      </props>
               </property>
-       </bean>
+       </bean>-->
 
-       <bean id="jpaVendorAdapter" class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
+       <bean id="INDBjpaVendorAdapter" class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
               <property name="showSql" value="true"/>
               <property name="generateDdl" value="true"/>
               <property name="database" value="MYSQL"/>
        </bean>
 
-       <bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+       <bean id="INDM_EM" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
               <property name="persistenceXmlLocation" value="/WEB-INF/persistence.xml"/>
-              <property name="persistenceUnitName" value="internalDB"/>
-              <property name="dataSource" ref="dataSource"/>
-              <property name="jtaDataSource" ref="dataSource"/>
-              <property name="jpaVendorAdapter" ref="jpaVendorAdapter"/>
+              <property name="persistenceUnitName" value="safeInternalDB"/>
+              <property name="dataSource" ref="INDB_DS"/>
+              <!--
+              <property name="jtaDataSource" ref="INDB_DS"/>
+              -->
+              <property name="jpaVendorAdapter" ref="INDBjpaVendorAdapter"/>
+
+              <property name="jpaProperties">
+                     <props>
+                            <prop key="hibernate.hbm2ddl.auto">update</prop>
+                            <prop key="hibernate.dialect">org.hibernate.dialect.MySQLDialect</prop>
+                     </props>
+              </property>
               <!-- spring based scanning for entity classes>-->
               <property name="packagesToScan" value="ua.pp.fairwind.internalDBSystem.datamodel"/>
+
 
        </bean>
 
@@ -89,13 +108,13 @@
 
        <bean id="transactionManager"
              class="org.springframework.orm.jpa.JpaTransactionManager">
-              <property name="entityManagerFactory" ref="entityManagerFactory" />
+              <property name="entityManagerFactory" ref="INDM_EM" />
        </bean>
 
        <tx:annotation-driven  transaction-manager="transactionManager"/>
 
        <jpa:repositories base-package="ua.pp.fairwind.internalDBSystem.services.repository"
-                         entity-manager-factory-ref="entityManagerFactory"
+                         entity-manager-factory-ref="INDM_EM"
                          transaction-manager-ref="transactionManager">
        </jpa:repositories>
        <!--       -->

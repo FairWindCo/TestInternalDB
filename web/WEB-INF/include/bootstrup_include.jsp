@@ -12,8 +12,7 @@
 <!-- Metis Menu Plugin JavaScript -->
 <script src="<c:url value="/resources/bootstrap/metisMenu.min.js"/>"></script>
 
-<!-- Custom Theme JavaScript -->
-<script src="<c:url value="/resources/bootstrap/sb-admin-2.js"/>"></script>
+
 
 
 <link rel="stylesheet" href="<c:url value="/resources/bootstrap/css/bootstrap.min.css"/>" type="text/css">
@@ -27,3 +26,6 @@
 <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
 <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
 <![endif]-->
+
+<!-- Custom Theme JavaScript -->
+<script src="<c:url value="/resources/bootstrap/sb-admin-2.js"/>"></script>

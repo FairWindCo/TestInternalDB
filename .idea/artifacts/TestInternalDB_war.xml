@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="war" name="TestInternalDB:war">
+    <output-path>$PROJECT_DIR$/out/artifacts/TestInternalDB_war</output-path>
+    <root id="archive" name="TestInternalDB_war.war">
+      <element id="artifact" artifact-name="TestInternalDB:war exploded" />
+    </root>
+  </artifact>
+</component>

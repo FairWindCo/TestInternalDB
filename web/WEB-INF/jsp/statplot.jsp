@@ -47,7 +47,7 @@
       data: [["01/01/70",3,2]],
       xkey: 0,
       ykeys: [1, 2],
-      labels: [<c:message code="label.statistic.area1.label1"/>', '<c:message code="label.statistic.area1.label2"/>],
+      labels: ['<c:message code="label.statistic.area1.label1"/>', '<c:message code="label.statistic.area1.label2"/>'],
       hideHover: 'auto',
       resize: true
     });
@@ -58,7 +58,7 @@
       data: [{"id":1,"importDateTime":0,"importerUserName":"administrator","personImportCounter":0,"dosserImportCounter":0,"subdivisionsImportCounter":0,"categoryImportCounter":0,"infotypeImportCounter":0,"activitiesImportCounter":0,"contacttypesImportCounter":0,"hobbiImportCounter":0,"relativesImportCounter":0,"segmentsImportCounter":0,"filetypesImportCounter":0}],
       xkey: 'importDateTime',
       ykeys: ['personImportCounter', 'dosserImportCounter','subdivisionsImportCounter','categoryImportCounter','infotypeImportCounter'],
-      labels: ['<c:message code="label.statistic.area2.label1"/>', '<c:message code="label.statistic.area2.label2"/>',<c:message code="label.statistic.area2.label3"/>', '<c:message code="label.statistic.area2.label4"/>','<c:message code="label.statistic.area2.label5"/>''],
+      labels: ['<c:message code="label.statistic.area2.label1"/>', '<c:message code="label.statistic.area2.label2"/>','<c:message code="label.statistic.area2.label3"/>', '<c:message code="label.statistic.area2.label4"/>','<c:message code="label.statistic.area2.label5"/>'],
       dateFormat:function (x) {
         var options = {
           year: 'numeric',
