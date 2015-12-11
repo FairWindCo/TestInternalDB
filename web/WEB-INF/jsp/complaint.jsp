@@ -8,15 +8,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://www.springframework.org/tags" %>
 
-<%-- JQuery --%>
-<%@include file="/WEB-INF/include/jquery_include.jsp" %>
-
-<!-- Bootstrap Core JavaScript -->
-<%@include file="/WEB-INF/include/bootstrup_include.jsp" %>
-<%-- JCombobox --%>
-<%@include file="/WEB-INF/include/jcombo_include.jsp" %>
-<%-- FormSubmit --%>
-<%@include file="/WEB-INF/include/submit_include.jsp" %>
 <script>
   $(document).ready(function() {
     //FORM FileType COMBOBOX

@@ -57,7 +57,7 @@
 
     <sec:http access-denied-page="/forbidden" authentication-manager-ref="dao-auth">
         <sec:intercept-url pattern="/*" access="ROLE_USER"/>
-        <sec:form-login login-page="/login" default-target-url="/index" authentication-failure-url="/login?error=true" username-parameter="username" password-parameter="password"/>
+        <sec:form-login login-page="/login" default-target-url="/" always-use-default-target="true" authentication-failure-url="/login?error=true" username-parameter="username" password-parameter="password"/>
         <sec:logout logout-url="/logout" logout-success-url="/login"/>
     </sec:http>
 

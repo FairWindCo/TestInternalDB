@@ -1,9 +1,5 @@
 <%@ taglib prefix="c" uri="http://www.springframework.org/tags" %>
 
-<%@include file="/WEB-INF/include/jquery_lib_include.jsp" %>
-<%-- JQueryUI --%>
-<%@include file="/WEB-INF/include/jquery_ui_include.jsp" %>
-<%@include file="/WEB-INF/include/morris_include.jsp" %>
 
 <%-- customized javascript code to manage JTable --%>
 <script>

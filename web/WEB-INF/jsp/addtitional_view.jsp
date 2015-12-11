@@ -8,21 +8,17 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="jp" uri="http://java.sun.com/jsp/jstl/core" %>
-
-<%-- JQuery --%>
-<%@include file="/WEB-INF/include/jquery_lib_include.jsp" %>
-
-<%-- BootStrup--%>
-<%@include file="/WEB-INF/include/bootstrup_include.jsp" %>
-<%----%>
-
-<%-- JQueryUI --%>
-<%@include file="/WEB-INF/include/jquery_ui_include.jsp" %>
-<%-- JTable --%>
-<%@include file="/WEB-INF/include/jtable_include.jsp" %>
-
-<%-- JCombobox --%>
-<%@include file="/WEB-INF/include/jcombo_include.jsp" %>
+<style>
+  .nav-tabs>li {
+    float: left;
+    margin-bottom: -1px;
+    background-color: #337ab7;
+    border-color: black;
+    border-width: 1px;
+    border-style: solid;
+    border-radius: 5px;
+  }
+</style>
 <script>
   $(document).ready(function() {
    //TABLES
@@ -182,8 +178,8 @@
           create: false,
           edit: false,
           display: function (data) {
-            if(data.record.contactType!==null && data.record.contactType!==undefined){
-              return '<b>' + data.record.contactType.cobtactTypeName + '</b>';
+            if(data.record.person!==null && data.record.person!==undefined){
+              return '<b>' + data.record.person.fio + '</b>';
             } else {
               return '<b>----</b>';
             }
@@ -195,8 +191,8 @@
           create: false,
           edit: false,
           display: function (data) {
-            if(data.record.contactType!==null && data.record.contactType!==undefined){
-              return '<b>' + data.record.contactType.cobtactTypeName + '</b>';
+            if(data.record.relatives!==null && data.record.relatives!==undefined){
+              return '<b>' + data.record.relatives.name + '</b>';
             } else {
               return '<b>----</b>';
             }

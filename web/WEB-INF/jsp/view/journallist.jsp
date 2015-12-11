@@ -8,22 +8,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://www.springframework.org/tags" %>
 
-<%-- JQuery --%>
-<%@include file="/WEB-INF/include/jquery_lib_include.jsp" %>
-
-<%-- BootStrup--%>
-<%@include file="/WEB-INF/include/bootstrup_include.jsp" %>
-<%----%>
-
-<%-- JQueryUI --%>
-<%@include file="/WEB-INF/include/jquery_ui_include.jsp" %>
-<%-- JTable --%>
-<%@include file="/WEB-INF/include/jtable_include.jsp" %>
-
-<%-- JCombobox
-<%@include file="/WEB-INF/include/jcombo_include.jsp" %>--%>
-<%-- JMultiSelect--%>
-<%@include file="/WEB-INF/include/jmultselect_include.jsp" %>
 
 <%-- customized javascript code to manage JTable --%>
 <script>

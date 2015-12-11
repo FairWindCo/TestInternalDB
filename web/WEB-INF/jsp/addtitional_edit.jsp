@@ -8,21 +8,9 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="jp" uri="http://java.sun.com/jsp/jstl/core" %>
+<style>
 
-<%-- JQuery --%>
-<%@include file="/WEB-INF/include/jquery_lib_include.jsp" %>
-
-<%-- BootStrup--%>
-<%@include file="/WEB-INF/include/bootstrup_include.jsp" %>
-<%----%>
-
-<%-- JQueryUI --%>
-<%@include file="/WEB-INF/include/jquery_ui_include.jsp" %>
-<%-- JTable --%>
-<%@include file="/WEB-INF/include/jtable_include.jsp" %>
-
-<%-- JCombobox --%>
-<%@include file="/WEB-INF/include/jcombo_include.jsp" %>
+</style>
 <script>
   $(document).ready(function() {
     function getVars(url)
@@ -442,12 +430,12 @@
 
       <!-- Nav tabs -->
       <ul class="nav nav-tabs" role="tablist">
-        <li role="presentation" class="active"><a href="#info" aria-controls="home" role="tab" data-toggle="tab" style="color: #0E84EA;"><c:message code="label.edit.persons.info_title"/></a></li>
-        <li role="presentation" ><a href="#additional" aria-controls="additional" role="tab" data-toggle="tab" style="color: #0E84EA;"><c:message code="label.edit.persons.additional_title"/></a></li>
-        <li role="presentation" ><a href="#photo" aria-controls="photo" role="tab" data-toggle="tab" style="color: #0E84EA;"><c:message code="label.edit.persons.photo_title"/></a></li>
-        <li role="presentation" ><a href="#contacts" aria-controls="contacts" role="tab" data-toggle="tab" style="color: #0E84EA;"><c:message code="label.edit.persons.contact_title"/></a></li>
-        <li role="presentation" ><a href="#files" aria-controls="files" role="tab" data-toggle="tab" style="color: #0E84EA;"><c:message code="label.edit.persons.files_title"/></a></li>
-        <li role="presentation" ><a href="#relations" aria-controls="relations" role="tab" data-toggle="tab" style="color: #0E84EA;"><c:message code="label.edit.persons.relations_title"/></a></li>
+        <li role="presentation" class="active"><a href="#info" aria-controls="home" role="tab" data-toggle="tab" ><c:message code="label.edit.persons.info_title"/></a></li>
+        <li role="presentation" ><a href="#additional" aria-controls="additional" role="tab" data-toggle="tab" ><c:message code="label.edit.persons.additional_title"/></a></li>
+        <li role="presentation" ><a href="#photo" aria-controls="photo" role="tab" data-toggle="tab" style="><c:message code="label.edit.persons.photo_title"/></a></li>
+        <li role="presentation" ><a href="#contacts" aria-controls="contacts" role="tab" data-toggle="tab" ><c:message code="label.edit.persons.contact_title"/></a></li>
+        <li role="presentation" ><a href="#files" aria-controls="files" role="tab" data-toggle="tab" ><c:message code="label.edit.persons.files_title"/></a></li>
+        <li role="presentation" ><a href="#relations" aria-controls="relations" role="tab" data-toggle="tab" ><c:message code="label.edit.persons.relations_title"/></a></li>
       </ul>
 
       <!-- Tab panes -->

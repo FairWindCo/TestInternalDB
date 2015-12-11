@@ -7,25 +7,8 @@
 --%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://www.springframework.org/tags" %>
-
-<%-- JQuery --%>
-<%@include file="/WEB-INF/include/jquery_lib_include.jsp" %>
-
-<%-- BootStrup--%>
-<%@include file="/WEB-INF/include/bootstrup_include.jsp" %>
-<%----%>
-
-<%-- JQueryUI --%>
-<%@include file="/WEB-INF/include/jquery_ui_include.jsp" %>
-<%-- JTable --%>
-<%@include file="/WEB-INF/include/jtable_include.jsp" %>
-
-
-<%-- JMultiSelect--%>
-<%@include file="/WEB-INF/include/jmultselect_include.jsp" %>
-<%-- JCombobox --%>
-<%@include file="/WEB-INF/include/jcombo_include.jsp" %>
-
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
+<sec:authentication var="user" property="principal" />
 <%-- customized javascript code to manage JTable --%>
 <script>
   $(document).ready(function() {
@@ -106,6 +89,7 @@
         personStatus: {
           title: '<c:message code="label.clientstables.col_title.status"/>',
           width: '10%',
+          options:['ACTIVE','BLACK_LIST','OFFLINE'],
         },
         /*
         "subdivs[multiple]": {
@@ -128,7 +112,7 @@
           create: false,
           display: function (rolesdata) {
             //Create an image that will be used to open child table
-            var $img = $('<img src="<c:url value="/images/list_metro.png" />" title="Edit phone numbers" >');
+            var $img = $('<img src="<c:url value="/images/list_metro.png" />" title="<c:message code='label.people.dossers.title'/>" >');
             //Open child table when user clicks the image
             var parentTable = $("#ExpenseTableContainer");
             $img.click(function () {
@@ -420,6 +404,15 @@
                             //type:'date',
                             edit: false,
                             create: false,
+                            display: function (data) {
+                              var options = {
+                                year: 'numeric',
+                                month: 'long',
+                                day: 'numeric',
+                              };
+                              var date=new Date(data.record.creationTime);
+                              return date.toLocaleString("ru", options);
+                            },
                           },
                           AddServiceToCart: {
                             title: '',

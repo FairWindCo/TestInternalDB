@@ -17,6 +17,16 @@ public class IndexController {
         @Secured("ROLE_USER")
         @RequestMapping(value = "/index", method = RequestMethod.GET)
         public String showIndex(Model model) {
+            long dosser_count=repository.getDosserCount();
+            long dosser_complaint_count=repository.getDosserComplaintCount();
+            long total_person_count=repository.getPersonCount();
+            long total_client_count=repository.getPersonCountS(PersonType.CLIENT);
+            long total_worker_count=repository.getPersonCountS(PersonType.WORKER);
+            model.addAttribute("dosser_count",dosser_count);
+            model.addAttribute("dosser_complaint_count",dosser_complaint_count);
+            model.addAttribute("total_person_count",total_person_count);
+            model.addAttribute("total_client_count",total_client_count);
+            model.addAttribute("total_worker_count",total_worker_count);
             return "index";
         }
 
@@ -26,6 +36,16 @@ public class IndexController {
     @Secured("ROLE_USER")
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public String Index(Model model) {
+        long dosser_count=repository.getDosserCount();
+        long dosser_complaint_count=repository.getDosserComplaintCount();
+        long total_person_count=repository.getPersonCount();
+        long total_client_count=repository.getPersonCountS(PersonType.CLIENT);
+        long total_worker_count=repository.getPersonCountS(PersonType.WORKER);
+        model.addAttribute("dosser_count",dosser_count);
+        model.addAttribute("dosser_complaint_count",dosser_complaint_count);
+        model.addAttribute("total_person_count",total_person_count);
+        model.addAttribute("total_client_count",total_client_count);
+        model.addAttribute("total_worker_count",total_worker_count);
         return "index";
     }
 

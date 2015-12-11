@@ -8,10 +8,8 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <!-- Bootstrap Core JavaScript -->
 <script src="<c:url value="/resources/bootstrap/js/bootstrap.min.js"/>"></script>
-
 <!-- Metis Menu Plugin JavaScript -->
 <script src="<c:url value="/resources/bootstrap/metisMenu.min.js"/>"></script>
-
 
 
 

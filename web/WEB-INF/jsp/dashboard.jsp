@@ -9,18 +9,7 @@
 <%@ taglib prefix="c" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 
-    <%-- JQuery --%>
-    <%@include file="/WEB-INF/include/jquery_include.jsp" %>
-    <!-- Bootstrap Core JavaScript -->
-    <%@include file="/WEB-INF/include/bootstrup_include.jsp" %>
 <sec:authorize ifAnyGranted="ROLE_GROUP_INF_EDIT,ROLE_SUPER_INF_EDIT,ROLE_MAIN_INF_EDIT,ROLE_GROUP_INF_VIEW,ROLE_SUPER_INF_VIEW,ROLE_MAIN_INF_VIEW">
-    <%-- JQueryUI --%>
-    <%@include file="/WEB-INF/include/jquery_ui_include.jsp" %>
-    <%-- JTable --%>
-    <%@include file="/WEB-INF/include/jtable_include.jsp" %>
-  <%-- JMultiSelect--%>
-  <%@include file="/WEB-INF/include/jmultselect_include.jsp" %>
-
     <%-- customized javascript code to manage JTable --%>
     <script>
       $(document).ready(function() {
